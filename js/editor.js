@@ -186,32 +186,45 @@ class TemplateEditor {
     }
     
     saveSettings(widgetId) {
-        const settings = {};
+        console.log('💾 Сохранение настроек для:', widgetId);
+    
+    const settings = {};
+    
+    if (widgetId === 'promo-slider') {
+        settings.bg_color = document.getElementById('bg_color')?.value || '#0066cc';
+        settings.slide_text = document.getElementById('slide_text')?.value || '';
+        settings.autoplay = document.getElementById('autoplay')?.checked || false;
+        console.log('🎨 Настройки слайдера:', settings);
+    } else if (widgetId === 'product-grid') {
+        settings.title = document.getElementById('title')?.value || 'Наши товары';
+        settings.product_count = document.getElementById('product_count')?.value || 3;
+        console.log('🎨 Настройки сетки:', settings);
+    } else if (widgetId === 'header-banner') {
+        settings.text = document.getElementById('text')?.value || '';
+        settings.bg_color = document.getElementById('bg_color')?.value || '#f8f9fa';
+        console.log('🎨 Настройки баннера:', settings);
+    }
         
-        if (widgetId === 'promo-slider') {
-            settings.bg_color = document.getElementById('bg_color')?.value || '#0066cc';
-            settings.slide_text = document.getElementById('slide_text')?.value || '';
-            settings.autoplay = document.getElementById('autoplay')?.checked || false;
-        } else if (widgetId === 'product-grid') {
-            settings.title = document.getElementById('title')?.value || 'Наши товары';
-            settings.product_count = document.getElementById('product_count')?.value || 3;
-        } else if (widgetId === 'header-banner') {
-            settings.text = document.getElementById('text')?.value || '';
-            settings.bg_color = document.getElementById('bg_color')?.value || '#f8f9fa';
-        }
-        
-        if (!window.storeData.widget_settings) {
-            window.storeData.widget_settings = {};
-        }
-        window.storeData.widget_settings[widgetId] = settings;
-        window.saveStoreData(window.storeData);
-        
-        this.updatePreview();
-        alert(`✅ Настройки для ${widgetId} сохранены!`);
+      // Инициализируем widget_settings если его нет
+    if (!window.storeData.widget_settings) {
+        window.storeData.widget_settings = {};
     }
     
-    updatePreview() {
-        console.log('🟢 Обновление превью...');
+    // Сохраняем настройки
+    window.storeData.widget_settings[widgetId] = settings;
+    window.saveStoreData(window.storeData);
+    
+    // ★★★ КРИТИЧЕСКИ ВАЖНО: принудительно обновляем все виджеты ★★★
+    // Перезаписываем данные в движке
+    window.liquidEngine.data = window.storeData;
+    
+    // Обновляем превью
+    this.updatePreview();
+    
+    // Показываем уведомление
+    const msg = `✅ Настройки для ${widgetId} сохранены! Страница обновлена.`;
+    console.log(msg);
+    alert(msg);
         
         const template = `
             <!DOCTYPE html>
