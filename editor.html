@@ -1,11 +1,322 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Редактор шаблонов</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор шаблонов — Murano Apparel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #1e1f22;
+            overflow: hidden;
+        }
+        
+        /* Основной контейнер редактора */
+        .editor-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* Левая панель — виджеты */
+        .widgets-panel {
+            width: 280px;
+            background: #1e1f22;
+            color: #e1e3e6;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #2b2d31;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .panel-header {
+            padding: 20px 16px 12px;
+            border-bottom: 1px solid #2b2d31;
+        }
+        
+        .panel-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .panel-header p {
+            font-size: 12px;
+            color: #949ba4;
+            margin-top: 4px;
+        }
+        
+        .widgets-list {
+            padding: 16px;
+            flex: 1;
+        }
+        
+        .widget-category {
+            margin-bottom: 24px;
+        }
+        
+        .widget-category h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #949ba4;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        
+        .widget-item {
+            background: #2b2d31;
+            border: 1px solid #3b3f46;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .widget-item:hover {
+            background: #3b3f46;
+            transform: translateX(4px);
+            border-color: #0066cc;
+        }
+        
+        .widget-item:active {
+            cursor: grabbing;
+        }
+        
+        .widget-icon {
+            font-size: 20px;
+        }
+        
+        .widget-info {
+            flex: 1;
+        }
+        
+        .widget-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .widget-desc {
+            font-size: 11px;
+            color: #949ba4;
+            margin-top: 2px;
+        }
+        
+        /* Центральная область — превью */
+        .preview-area {
+            flex: 1;
+            background: #e8eaed;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .preview-toolbar {
+            background: white;
+            padding: 8px 16px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .preview-toolbar span {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .preview-toolbar .url {
+            background: #f5f5f5;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .preview-frame-wrapper {
+            flex: 1;
+            background: #fff;
+            margin: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+        
+        /* Правая панель — настройки */
+        .settings-panel {
+            width: 320px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .settings-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e1f22;
+        }
+        
+        .settings-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .setting-field {
+            margin-bottom: 20px;
+        }
+        
+        .setting-field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .setting-field input,
+        .setting-field select,
+        .setting-field textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: border 0.2s;
+        }
+        
+        .setting-field input:focus,
+        .setting-field select:focus,
+        .setting-field textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .setting-field input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .save-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        
+        .save-btn:hover {
+            background: #0052a3;
+        }
+        
+        .empty-settings {
+            text-align: center;
+            color: #999;
+            padding: 40px 20px;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #2b2d31;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #5a5f6b;
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Редактор шаблонов</h1>
-    <p>Здесь будет визуальный редактор</p>
-</body>
-</html>
+    <div class="editor-container">
+        <!-- Левая панель: библиотека виджетов -->
+        <div class="widgets-panel">
+            <div class="panel-header">
+                <h2>📦 Блоки</h2>
+                <p>Перетащите виджет на страницу</p>
+            </div>
+            <div class="widgets-list">
+                <div class="widget-category">
+                    <h3>Стандартные</h3>
+                    
+                    <div class="widget-item" data-widget-type="promo-slider" draggable="true">
+                        <div class="widget-icon">🎠</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Промо-слайдер</div>
+                            <div class="widget-desc">Карусель с изображениями</div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-item" data-widget-type="product-grid" draggable="true">
+                        <div class="widget-icon">📦</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Сетка товаров</div>
+                            <div class="widget-desc">Вывод товаров каталога</div>
+                        </div>
+                    </div>
+                    
+                    <div class="widget-item" data-widget-type="header-banner" draggable="true">
+                        <div class="widget-icon">🏷️</div>
+                        <div class="widget-info">
+                            <div class="widget-name">Баннер в шапке</div>
+                            <div class="widget-desc">Информационная строка</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="widget-category">
+                    <h3>Зоны для виджетов</h3>
+                    <div style="font-size:12px; color:#949ba4; margin-bottom:8px;">
+                        🧩 header-list — шапка<br>
+                        🧩 index-list — главная<br>
+                        🧩 footer-list — подвал
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Центральная область: предпросмотр сайта -->
+        <div class="preview-area">
+            <div class="preview-toolbar">
+                <span>🔍 Предпросмотр</span>
+                <div class="url">murano-apparel.github.io/preview</div>
+                <span style="margin-left: auto;">👇 Кликните на блок для настройки</span>
+            </div>
+            <div class="preview-frame-wrapper">
+               
