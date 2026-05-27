@@ -17,14 +17,13 @@
             overflow: hidden;
         }
         
-        /* Основной контейнер редактора */
         .editor-container {
             display: flex;
             height: 100vh;
             width: 100vw;
         }
         
-        /* Левая панель — виджеты */
+        /* Левая панель */
         .widgets-panel {
             width: 280px;
             background: #1e1f22;
@@ -112,7 +111,7 @@
             margin-top: 2px;
         }
         
-        /* Центральная область — превью */
+        /* Центральная область */
         .preview-area {
             flex: 1;
             background: #e8eaed;
@@ -160,7 +159,7 @@
             background: white;
         }
         
-        /* Правая панель — настройки */
+        /* Правая панель */
         .settings-panel {
             width: 320px;
             background: white;
@@ -247,7 +246,6 @@
             padding: 40px 20px;
         }
         
-        /* Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -265,7 +263,7 @@
 </head>
 <body>
     <div class="editor-container">
-        <!-- Левая панель: библиотека виджетов -->
+        <!-- Левая панель -->
         <div class="widgets-panel">
             <div class="panel-header">
                 <h2>📦 Блоки</h2>
@@ -311,7 +309,7 @@
             </div>
         </div>
 
-        <!-- Центральная область: предпросмотр сайта -->
+        <!-- Центральная область -->
         <div class="preview-area">
             <div class="preview-toolbar">
                 <span>🔍 Предпросмотр</span>
@@ -319,4 +317,25 @@
                 <span style="margin-left: auto;">👇 Кликните на блок для настройки</span>
             </div>
             <div class="preview-frame-wrapper">
-               
+                <iframe id="preview-frame" class="preview-frame" title="Превью сайта"></iframe>
+            </div>
+        </div>
+
+        <!-- Правая панель -->
+        <div class="settings-panel">
+            <div class="settings-header">
+                <h3>⚙️ Настройки виджета</h3>
+            </div>
+            <div class="settings-content" id="settings-panel">
+                <div class="empty-settings">
+                    ✨ Выберите виджет на странице,<br>чтобы изменить его параметры
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем скрипты -->
+    <script src="js/liquid-engine.js"></script>
+    <script src="js/editor.js"></script>
+</body>
+</html>
