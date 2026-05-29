@@ -1,62 +1,91 @@
-// ========== УПРАВЛЕНИЕ МЕНЮ ==========
+// ========== УПРАВЛЕНИЕ МЕНЮ (СВОРАЧИВАЕМОЕ) ==========
 (function() {
     const sidebar = document.getElementById('sidebarMenu');
-    const menuToggle = document.getElementById('menuToggle');
-    const menuOverlay = document.getElementById('menuOverlay');
+    const collapseBtn = document.getElementById('collapseBtn');
     const pinBtn = document.getElementById('pinBtn');
+    const menuToggle = document.getElementById('menuToggle');
     const pageTitle = document.getElementById('pageTitle');
     const contentArea = document.getElementById('contentArea');
     
+    // Состояния
+    let isCollapsed = localStorage.getItem('menuCollapsed') === 'true';
     let isPinned = localStorage.getItem('menuPinned') === 'true';
     
+    // Функция обновления состояния меню
     function updateMenuState() {
-        if (isPinned) {
-            sidebar.classList.add('pinned');
-            pinBtn.classList.add('active');
-            pinBtn.innerHTML = '📌 pinned';
+        if (isCollapsed) {
+            sidebar.classList.add('collapsed');
+            collapseBtn.innerHTML = '▶';
+            collapseBtn.title = 'Развернуть меню';
         } else {
-            sidebar.classList.remove('pinned');
+            sidebar.classList.remove('collapsed');
+            collapseBtn.innerHTML = '◀';
+            collapseBtn.title = 'Свернуть меню';
+        }
+        
+        if (isPinned) {
+            pinBtn.classList.add('active');
+            pinBtn.innerHTML = '<span>📌</span> <span>Закреплено</span>';
+        } else {
             pinBtn.classList.remove('active');
-            pinBtn.innerHTML = '📌';
+            pinBtn.innerHTML = '<span>📌</span> <span>Закрепить</span>';
         }
     }
     
-    function openMenu() {
-        sidebar.classList.add('open');
-        menuOverlay.classList.add('active');
+    // Сворачивание/разворачивание
+    function toggleCollapse() {
+        isCollapsed = !isCollapsed;
+        localStorage.setItem('menuCollapsed', isCollapsed);
+        updateMenuState();
     }
     
-    function closeMenu() {
+    // Закрепление (запрещает сворачивание при клике на стрелку)
+    function togglePin() {
+        isPinned = !isPinned;
+        localStorage.setItem('menuPinned', isPinned);
+        updateMenuState();
+        
+        if (isPinned) {
+            // Если закреплено — убираем кнопку сворачивания или делаем её неактивной
+            collapseBtn.style.opacity = '0.5';
+            collapseBtn.style.cursor = 'not-allowed';
+        } else {
+            collapseBtn.style.opacity = '1';
+            collapseBtn.style.cursor = 'pointer';
+        }
+    }
+    
+    // Сворачиваем только если не закреплено
+    collapseBtn.addEventListener('click', () => {
         if (!isPinned) {
-            sidebar.classList.remove('open');
-            menuOverlay.classList.remove('active');
+            toggleCollapse();
         }
-    }
+    });
     
+    pinBtn.addEventListener('click', togglePin);
+    
+    // Для мобильных — кнопка гамбургера
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                closeMenu();
-            } else {
-                openMenu();
+            sidebar.classList.toggle('open');
+        });
+        
+        // Закрытие по клику вне меню на мобильных
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
             }
         });
     }
     
-    if (menuOverlay) {
-        menuOverlay.addEventListener('click', closeMenu);
-    }
-    
-    if (pinBtn) {
-        pinBtn.addEventListener('click', () => {
-            isPinned = !isPinned;
-            localStorage.setItem('menuPinned', isPinned);
-            updateMenuState();
-            if (isPinned) closeMenu();
-        });
-    }
-    
+    // Применяем начальное состояние
     updateMenuState();
+    if (isPinned) {
+        collapseBtn.style.opacity = '0.5';
+        collapseBtn.style.cursor = 'not-allowed';
+    }
     
     // ========== ЗАГРУЗКА СТРАНИЦ ==========
     function getPageTitle(page) {
@@ -122,7 +151,7 @@
         
         // Закрываем меню на мобильных
         if (window.innerWidth <= 768) {
-            closeMenu();
+            sidebar.classList.remove('open');
         }
     }
     
