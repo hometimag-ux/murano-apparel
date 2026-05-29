@@ -1,3 +1,24 @@
+/* ========== RESET ========== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background: #f0f2f5;
+    overflow: hidden;
+}
+
+/* ========== АДМИН-КОНТЕЙНЕР ========== */
+.admin-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
 /* ========== БОКОВОЕ МЕНЮ (СВОРАЧИВАЕМОЕ) ========== */
 .sidebar-menu {
     position: fixed;
@@ -18,6 +39,55 @@
 /* Свёрнутое состояние */
 .sidebar-menu.collapsed {
     width: 70px;
+}
+
+/* Шапка меню */
+.sidebar-header {
+    padding: 20px;
+    border-bottom: 1px solid #2b2d31;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.logo-area {
+    flex: 1;
+}
+
+.sidebar-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #fff, #949ba4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Кнопка сворачивания в шапке */
+.collapse-btn {
+    background: none;
+    border: none;
+    color: #949ba4;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
+}
+
+.collapse-btn:hover {
+    background: #2b2d31;
+    color: #0066cc;
+}
+
+.collapse-icon {
+    font-size: 14px;
+    transition: transform 0.3s;
 }
 
 .sidebar-menu.collapsed .logo-area h2,
@@ -51,55 +121,6 @@
     transform: rotate(180deg);
 }
 
-/* Шапка меню */
-.sidebar-header {
-    padding: 20px;
-    border-bottom: 1px solid #2b2d31;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    transition: all 0.3s;
-    white-space: nowrap;
-}
-
-.logo-area {
-    flex: 1;
-}
-
-.sidebar-header h2 {
-    font-size: 18px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #fff, #949ba4);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    transition: opacity 0.2s;
-}
-
-/* Кнопка сворачивания в шапке */
-.collapse-btn {
-    background: none;
-    border: none;
-    color: #949ba4;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    width: 32px;
-    height: 32px;
-}
-
-.collapse-btn:hover {
-    background: #2b2d31;
-    color: #0066cc;
-}
-
-.collapse-icon {
-    font-size: 14px;
-    transition: transform 0.3s;
-}
 
 /* Навигация */
 .sidebar-nav {
@@ -163,21 +184,132 @@
 }
 
 /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
-.content-card {
-    background: white;
-    border-radius: 20px;
-    overflow: auto; /* было hidden, меняем на auto */
-    height: 100%;
-}
 .main-content {
     flex: 1;
     transition: margin-left 0.3s ease;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* ОТСТУП, КОТОРЫЙ МЕНЯЕТСЯ В ЗАВИСИМОСТИ ОТ СОСТОЯНИЯ МЕНЮ */
     margin-left: 260px;
 }
 
+/* Когда меню свёрнуто, отступ уменьшается */
 .sidebar-menu.collapsed ~ .main-content {
     margin-left: 70px;
+}
+
+/* Верхняя панель */
+.top-bar {
+    background: white;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.menu-toggle:hover {
+    background: #f0f0f0;
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1e1f22;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    background: #0066cc;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+}
+
+/* Область контента */
+.content-area {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+}
+
+.content-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: auto;
+    height: 100%;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .sidebar-menu {
+        left: -260px;
+        width: 260px;
+    }
+    
+    .sidebar-menu.open {
+        left: 0;
+    }
+    
+    .sidebar-menu.collapsed ~ .main-content,
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .collapse-btn {
+        display: none;
+    }
+}
+
+/* Скроллбары */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #2b2d31;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #5a5f6b;
+    border-radius: 3px;
 }
