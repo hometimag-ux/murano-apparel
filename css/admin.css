@@ -313,3 +313,13 @@ body {
     background: #5a5f6b;
     border-radius: 3px;
 }
+/* Убираем лишние отступы в content-area */
+.content-area {
+    padding: 0;
+}
+
+.content-card {
+    border-radius: 0;
+    height: 100%;
+    overflow: auto;
+}
