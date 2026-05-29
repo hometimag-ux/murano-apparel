@@ -27,3 +27,17 @@ murano-apparel/
 │   └── editor.js
 └── css/
     └── ...
+
+murano-apparel/
+├── editor.html                 # Главная админ-панель (HTML)
+├── css/
+│   └── admin.css               # Все стили для админ-панели
+├── js/
+│   ├── admin.js                # Логика админ-панели (меню, навигация)
+│   ├── liquid-engine.js        # Liquid движок
+│   └── widget-editor.js        # Логика редактора виджетов
+├── pages/
+│   ├── products.html
+│   ├── orders.html
+│   └── ...
+└── widget-editor.html          # Отдельная страница редактора (будет в iframe)
