@@ -1,0 +1,65 @@
+<div style="padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h1>📦 Товары</h1>
+        <button class="btn-primary" id="addProductBtn" style="background: #0066cc; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">+ Добавить товар</button>
+    </div>
+    
+    <div id="productsList" style="background: #f8f9fa; border-radius: 16px; padding: 20px;">
+        <div style="text-align: center; color: #999;">Загрузка...</div>
+    </div>
+    
+    <style>
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .btn-outline {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+    </style>
+    
+    <script>
+        // Загрузка товаров из CRM
+        function loadProducts() {
+            const container = document.getElementById('productsList');
+            const data = localStorage.getItem('crm_data');
+            if (data) {
+                const crm = JSON.parse(data);
+                const products = crm.products || [];
+                if (products.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">Нет товаров. Добавьте первый!</div>';
+                } else {
+                    container.innerHTML = products.map(p => `
+                        <div class="product-card">
+                            <div>
+                                <strong>${p.title}</strong>
+                                <div style="color: #0066cc; font-size: 18px; margin-top: 4px;">${p.price.toLocaleString()} ₽</div>
+                            </div>
+                            <div>
+                                <button class="btn-outline" onclick="alert('Редактирование товара #${p.id}')">✏️</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">CRM не найдена. Синхронизируйте данные.</div>';
+            }
+        }
+        
+        document.getElementById('addProductBtn')?.addEventListener('click', () => {
+            alert('Форма добавления товара будет здесь');
+        });
+        
+        loadProducts();
+    </script>
+</div>
