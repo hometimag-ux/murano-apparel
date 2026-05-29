@@ -26,7 +26,6 @@
         updateMenuState();
     }
     
-    // Проверяем, существует ли кнопка, прежде чем добавить событие
     if (collapseBtn) {
         collapseBtn.addEventListener('click', toggleCollapse);
     }
@@ -37,7 +36,6 @@
             if (sidebar) sidebar.classList.toggle('open');
         });
         
-        // Закрытие по клику вне меню на мобильных
         document.addEventListener('click', (e) => {
             if (window.innerWidth <= 768) {
                 if (sidebar && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
@@ -47,7 +45,6 @@
         });
     }
     
-    // Применяем начальное состояние
     updateMenuState();
     
     // ========== ЗАГРУЗКА СТРАНИЦ ==========
@@ -59,6 +56,7 @@
             delivery: 'Доставка',
             payment: 'Оплата',
             'widget-editor': 'Редактор виджетов',
+            chat: 'Чат с клиентами',
             settings: 'Настройки'
         };
         return titles[page] || 'Страница';
@@ -80,7 +78,7 @@
         if (pageTitle) pageTitle.textContent = getPageTitle(page);
     }
     
-    async function loadPage(page) {
+    async function loadPage(page, saveToHistory = true) {
         // Обновляем активный пункт меню
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.dataset.page === page) {
@@ -89,6 +87,11 @@
                 item.classList.remove('active');
             }
         });
+        
+        // Сохраняем текущую страницу в localStorage
+        if (saveToHistory) {
+            localStorage.setItem('lastPage', page);
+        }
         
         if (page === 'widget-editor') {
             if (pageTitle) pageTitle.textContent = 'Редактор виджетов';
@@ -125,10 +128,21 @@
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const page = item.dataset.page;
-            loadPage(page);
+            loadPage(page, true);
         });
     });
     
-    // Загружаем редактор виджетов по умолчанию
-    loadPage('widget-editor');
+    // Загружаем последнюю открытую страницу или редактор по умолчанию
+    const lastPage = localStorage.getItem('lastPage');
+    if (lastPage && lastPage !== 'widget-editor') {
+        // Проверяем, существует ли такой пункт меню
+        const exists = Array.from(document.querySelectorAll('.nav-item')).some(item => item.dataset.page === lastPage);
+        if (exists) {
+            loadPage(lastPage, false);
+        } else {
+            loadPage('widget-editor', false);
+        }
+    } else {
+        loadPage('widget-editor', false);
+    }
 })();
