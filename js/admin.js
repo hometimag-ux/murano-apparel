@@ -44,7 +44,6 @@
         const titles = {
             dashboard: 'Главная',
             products: 'Товары',
-            'products-new': 'Товары',
             orders: 'Заказы',
             chat: 'Диалоги',
             'widget-editor': 'Редактор сайта',
