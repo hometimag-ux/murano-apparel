@@ -2,65 +2,29 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Управление товарами</title>
-    <link rel="stylesheet" href="/murano-apparel/css/products.css">
+    <title>Товары</title>
 </head>
 <body>
-<div class="products-container">
-    <div class="products-header">
-        <h1>📦 Товары</h1>
-        <button class="btn-primary" id="addProductBtn">+ Добавить товар</button>
-    </div>
+    <h1>📦 Товары</h1>
+    <button id="testBtn" style="background: #0066cc; color: white; padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer;">Тест кнопки</button>
+    <div id="output" style="margin-top: 20px;"></div>
 
-    <div class="products-filters">
-        <input type="text" id="searchProducts" class="products-search" placeholder="🔍 Поиск по названию...">
-        <select id="categoryFilter" class="products-category-filter">
-            <option value="all">Все категории</option>
-        </select>
-    </div>
-
-    <div id="productsGrid" class="products-grid">
-        <div class="empty-state">Загрузка...</div>
-    </div>
-</div>
-
-<div class="products-overlay" id="productOverlay"></div>
-
-<div class="products-sidebar" id="productSidebar">
-    <div class="sidebar-header">
-        <h3 id="sidebarTitle">Добавить товар</h3>
-        <button class="close-sidebar" id="closeSidebarBtn">&times;</button>
-    </div>
-    <form id="productForm">
-        <div class="form-group">
-            <label>Название *</label>
-            <input type="text" id="productTitle" required placeholder="Хлопковая футболка">
-        </div>
-        <div class="form-group">
-            <label>Категория</label>
-            <select id="productCategory">
-                <option value="">Без категории</option>
-            </select>
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Цена (₽)</label>
-                <input type="number" id="productPrice" placeholder="1990">
-            </div>
-            <div class="form-group">
-                <label>Цена со скидкой</label>
-                <input type="number" id="productDiscount" placeholder="1490">
-            </div>
-        </div>
-        <div class="form-group">
-            <label>Размеры (через запятую)</label>
-            <input type="text" id="productSizes" placeholder="S, M, L, XL">
-        </div>
-        <button type="submit" class="btn-submit">💾 Сохранить товар</button>
-    </form>
-</div>
-
-<script src="/murano-apparel/js/products.js"></script>
+    <script src="/murano-apparel/js/products.js"></script>
+    <script>
+        // Дополнительная проверка
+        const btn = document.getElementById('testBtn');
+        const output = document.getElementById('output');
+        
+        btn.onclick = function() {
+            output.innerHTML = '✅ Кнопка работает! ' + new Date().toLocaleTimeString();
+        };
+        
+        output.innerHTML = '📄 Страница загружена, ищем products.js...<br>';
+        if (typeof loadData !== 'undefined') {
+            output.innerHTML += '✅ loadData найдена!';
+        } else {
+            output.innerHTML += '❌ loadData НЕ найдена. Скрипт products.js не загрузился.';
+        }
+    </script>
 </body>
 </html>
