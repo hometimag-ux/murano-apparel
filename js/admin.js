@@ -64,7 +64,7 @@
         try {
             // Пробуем загрузить products-new.html для товаров
             let pageFile = page;
-            if (page === 'products') pageFile = 'products-new';
+            if (page === 'products') pageFile = 'products';
             
             const response = await fetch(`pages/${pageFile}.html`);
             if (response.ok) {
