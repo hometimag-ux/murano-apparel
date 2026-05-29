@@ -12,11 +12,12 @@
         }
         
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #f8f9fa;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
             padding: 24px;
         }
         
+        /* ===== ШАПКА ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -28,46 +29,26 @@
         
         h1 {
             font-size: 24px;
-            color: #1a1a2e;
+            color: #0f172a;
         }
         
         .btn-primary {
-            background: #0066cc;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 12px 24px;
+            border-radius: 9999px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s;
         }
         
         .btn-primary:hover {
-            background: #0052a3;
-            transform: translateY(-1px);
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px -5px rgba(99,102,241,0.4);
         }
         
-        .btn-danger {
-            background: #f44336;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
-        .btn-danger:hover {
-            background: #d32f2f;
-        }
-        
-        .btn-outline {
-            background: white;
-            border: 1px solid #ddd;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
+        /* ===== ФИЛЬТРЫ ===== */
         .filters {
             display: flex;
             gap: 12px;
@@ -78,45 +59,48 @@
         .search-input {
             flex: 1;
             min-width: 200px;
-            padding: 10px 16px;
-            border: 1px solid #ddd;
-            border-radius: 30px;
+            padding: 12px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9999px;
             font-size: 14px;
-        }
-        
-        .category-select {
-            padding: 10px 16px;
-            border: 1px solid #ddd;
-            border-radius: 30px;
             background: white;
         }
         
+        .category-select {
+            padding: 12px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 9999px;
+            background: white;
+        }
+        
+        /* ===== СЕТКА ТОВАРОВ ===== */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
+            gap: 24px;
         }
         
         .product-card {
             background: white;
-            border-radius: 16px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+            cursor: pointer;
         }
         
         .product-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 25px -12px rgba(0,0,0,0.15);
         }
         
         .product-image {
-            height: 160px;
-            background: linear-gradient(135deg, #f5f7fa, #e9ecef);
+            height: 180px;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 56px;
+            font-size: 64px;
         }
         
         .product-info {
@@ -125,144 +109,202 @@
         
         .product-title {
             font-size: 18px;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 6px;
         }
         
         .product-category {
             font-size: 12px;
-            color: #0066cc;
+            color: #6366f1;
             margin-bottom: 8px;
         }
         
         .product-sizes {
             font-size: 12px;
-            color: #666;
+            color: #64748b;
             margin-bottom: 8px;
         }
         
         .product-price {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
-            color: #0066cc;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
             margin: 12px 0;
         }
         
         .product-price.old {
             text-decoration: line-through;
-            color: #999;
+            color: #94a3b8;
             font-size: 14px;
             font-weight: normal;
+            background: none;
+            -webkit-background-clip: unset;
+            color: #94a3b8;
             margin-left: 8px;
         }
         
         .product-actions {
             display: flex;
             gap: 8px;
-            margin-top: 12px;
         }
         
         .product-actions button {
             flex: 1;
             padding: 8px;
-            border-radius: 8px;
+            border-radius: 9999px;
             cursor: pointer;
+            font-weight: 500;
         }
         
-        /* Модальное окно */
-        .modal {
-            display: none;
+        /* ===== БОКОВАЯ ПАНЕЛЬ (КАК КОРЗИНА) ===== */
+        .product-sidebar {
             position: fixed;
             top: 0;
-            left: 0;
+            right: -100%;
             width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 20px;
-            width: 90%;
             max-width: 500px;
-            max-height: 85vh;
-            overflow: auto;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(16px);
+            z-index: 1000;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-left: 1px solid rgba(0,0,0,0.1);
+            box-shadow: -5px 0 30px rgba(0,0,0,0.1);
         }
         
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
+        .product-sidebar.open {
+            right: 0;
+        }
+        
+        .sidebar-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
         }
         
-        .modal-header h3 {
-            margin: 0;
+        .sidebar-header h3 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
         }
         
-        .modal-close {
+        .close-sidebar {
             background: none;
             border: none;
-            font-size: 24px;
+            font-size: 28px;
             cursor: pointer;
-            color: #999;
+            color: #64748b;
+            transition: all 0.2s;
         }
         
-        .modal-body {
-            padding: 20px;
+        .close-sidebar:hover {
+            color: #ef4444;
+            transform: scale(1.1);
         }
         
+        /* ===== ФОРМА ===== */
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 500;
-            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #0f172a;
         }
         
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
             font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
         }
         
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 16px;
         }
         
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-        
-        .form-actions button {
-            flex: 1;
-            padding: 10px;
-            border-radius: 10px;
+        .btn-submit {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 16px;
             cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+        
+        .btn-submit:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px -5px rgba(99,102,241,0.4);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+        
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 999;
+        }
+        
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
         }
         
         .empty-state {
             text-align: center;
             padding: 60px;
-            color: #999;
+            color: #94a3b8;
             grid-column: 1/-1;
         }
         
@@ -270,20 +312,22 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background: #1a1a2e;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            z-index: 10001;
-            animation: fadeOut 2s ease;
+            padding: 12px 24px;
+            border-radius: 9999px;
+            font-weight: 600;
+            z-index: 2000;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         
         @keyframes fadeOut {
-            0% { opacity: 0; transform: translateY(20px); }
-            15% { opacity: 1; transform: translateY(0); }
-            85% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(20px); }
+            to { opacity: 0; visibility: hidden; }
         }
     </style>
 </head>
@@ -304,55 +348,71 @@
         <div class="empty-state">Загрузка...</div>
     </div>
     
-    <!-- Модальное окно -->
-    <div id="productModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Добавить товар</h3>
-                <button class="modal-close" id="closeModalBtn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="productForm">
-                    <div class="form-group">
-                        <label>Название *</label>
-                        <input type="text" id="productTitle" required placeholder="Например: Хлопковая футболка">
-                    </div>
-                    <div class="form-group">
-                        <label>Категория</label>
-                        <select id="productCategory">
-                            <option value="">Без категории</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Цена (₽)</label>
-                            <input type="number" id="productPrice" placeholder="1990">
-                        </div>
-                        <div class="form-group">
-                            <label>Цена со скидкой</label>
-                            <input type="number" id="productDiscount" placeholder="1490">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Размеры (через запятую)</label>
-                        <input type="text" id="productSizes" placeholder="S, M, L, XL">
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" id="cancelModalBtn" class="btn-outline">Отмена</button>
-                        <button type="submit" class="btn-primary">Сохранить</button>
-                    </div>
-                </form>
-            </div>
+    <!-- Оверлей -->
+    <div class="overlay" id="overlay"></div>
+    
+    <!-- Боковая панель для добавления/редактирования товара -->
+    <div class="product-sidebar" id="productSidebar">
+        <div class="sidebar-header">
+            <h3 id="sidebarTitle">Добавить товар</h3>
+            <button class="close-sidebar" id="closeSidebarBtn">&times;</button>
         </div>
+        
+        <form id="productForm">
+            <div class="form-group">
+                <label>Название *</label>
+                <input type="text" id="productTitle" required placeholder="Например: Хлопковая футболка">
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <select id="productCategory">
+                    <option value="">Без категории</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Цена (₽)</label>
+                    <input type="number" id="productPrice" placeholder="1990">
+                </div>
+                <div class="form-group">
+                    <label>Цена со скидкой</label>
+                    <input type="number" id="productDiscount" placeholder="1490">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Размеры (через запятую)</label>
+                <input type="text" id="productSizes" placeholder="S, M, L, XL">
+            </div>
+            <button type="submit" class="btn-submit" id="saveProductBtn">💾 Сохранить товар</button>
+        </form>
     </div>
     
     <script>
-        // ========== ДАННЫЕ ==========
+        // ===== ДАННЫЕ =====
         let products = [];
         let categories = [];
         let editingId = null;
         
-        // ========== ЗАГРУЗКА ДАННЫХ ==========
+        // ===== ЭЛЕМЕНТЫ =====
+        const sidebar = document.getElementById('productSidebar');
+        const overlay = document.getElementById('overlay');
+        const sidebarTitle = document.getElementById('sidebarTitle');
+        
+        // ===== ФУНКЦИИ ПАНЕЛИ =====
+        function openSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+        }
+        
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            editingId = null;
+            document.getElementById('productForm').reset();
+            sidebarTitle.innerText = 'Добавить товар';
+        }
+        
+        // ===== ЗАГРУЗКА ДАННЫХ =====
         function loadData() {
             const saved = localStorage.getItem('crm_data');
             if (saved) {
@@ -360,16 +420,13 @@
                     const data = JSON.parse(saved);
                     products = data.products || [];
                     categories = data.categories || [];
-                } catch(e) {
-                    console.error('Ошибка загрузки', e);
-                }
+                } catch(e) {}
             }
             
             if (products.length === 0) {
                 products = [
                     { id: 1, title: 'Хлопковая футболка', price: 1990, discount_price: null, sizes: ['S', 'M', 'L'], category_id: null },
-                    { id: 2, title: 'Джинсы skinny', price: 3990, discount_price: 2990, sizes: ['30', '32', '34'], category_id: null },
-                    { id: 3, title: 'Кеды белые', price: 2990, discount_price: null, sizes: ['36', '37', '38', '39'], category_id: null }
+                    { id: 2, title: 'Джинсы skinny', price: 3990, discount_price: 2990, sizes: ['30', '32', '34'], category_id: null }
                 ];
             }
             
@@ -384,7 +441,7 @@
             renderProducts();
         }
         
-        // ========== СОХРАНЕНИЕ ==========
+        // ===== СОХРАНЕНИЕ =====
         function saveToCRM() {
             let crmData = localStorage.getItem('crm_data');
             if (crmData) {
@@ -401,23 +458,17 @@
                     settings: {}
                 }));
             }
-            showToast('Данные сохранены');
+            showToast('✅ Данные сохранены');
         }
         
-        // ========== ОТРИСОВКА ТОВАРОВ ==========
+        // ===== ОТРИСОВКА ТОВАРОВ =====
         function renderProducts() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryFilter = document.getElementById('categoryFilter').value;
             
             let filtered = [...products];
-            
-            if (searchTerm) {
-                filtered = filtered.filter(p => p.title.toLowerCase().includes(searchTerm));
-            }
-            
-            if (categoryFilter !== 'all') {
-                filtered = filtered.filter(p => p.category_id == categoryFilter);
-            }
+            if (searchTerm) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchTerm));
+            if (categoryFilter !== 'all') filtered = filtered.filter(p => p.category_id == categoryFilter);
             
             const container = document.getElementById('productsGrid');
             
@@ -430,10 +481,11 @@
                 const category = categories.find(c => c.id == p.category_id);
                 const hasDiscount = p.discount_price && p.discount_price < p.price;
                 const sizesText = p.sizes ? p.sizes.join(', ') : '—';
+                const icon = getIcon(p.id);
                 
                 return `
-                    <div class="product-card" data-id="${p.id}">
-                        <div class="product-image">${getIcon(p.id)}</div>
+                    <div class="product-card">
+                        <div class="product-image">${icon}</div>
                         <div class="product-info">
                             <div class="product-title">${escapeHtml(p.title)}</div>
                             <div class="product-category">${category ? escapeHtml(category.title) : 'Без категории'}</div>
@@ -446,27 +498,19 @@
                                 }
                             </div>
                             <div class="product-actions">
-                                <button class="edit-btn" data-id="${p.id}">✏️ Редактировать</button>
-                                <button class="delete-btn" data-id="${p.id}">🗑️ Удалить</button>
+                                <button class="edit-product" data-id="${p.id}">✏️ Редактировать</button>
+                                <button class="delete-product" data-id="${p.id}">🗑️ Удалить</button>
                             </div>
                         </div>
                     </div>
                 `;
             }).join('');
             
-            // Навешиваем события
-            document.querySelectorAll('.edit-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    editProduct(parseInt(btn.dataset.id));
-                });
+            document.querySelectorAll('.edit-product').forEach(btn => {
+                btn.addEventListener('click', () => editProduct(parseInt(btn.dataset.id)));
             });
-            
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteProduct(parseInt(btn.dataset.id));
-                });
+            document.querySelectorAll('.delete-product').forEach(btn => {
+                btn.addEventListener('click', () => deleteProduct(parseInt(btn.dataset.id)));
             });
         }
         
@@ -475,45 +519,30 @@
             return icons[(id - 1) % icons.length];
         }
         
-        // ========== КАТЕГОРИИ ==========
+        // ===== КАТЕГОРИИ =====
         function renderCategories() {
             const filterSelect = document.getElementById('categoryFilter');
             const catSelect = document.getElementById('productCategory');
             
             const options = categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
             
-            if (filterSelect) {
-                filterSelect.innerHTML = '<option value="all">Все категории</option>' + options;
-            }
-            if (catSelect) {
-                catSelect.innerHTML = '<option value="">Без категории</option>' + options;
-            }
+            if (filterSelect) filterSelect.innerHTML = '<option value="all">Все категории</option>' + options;
+            if (catSelect) catSelect.innerHTML = '<option value="">Без категории</option>' + options;
         }
         
-        // ========== CRUD ОПЕРАЦИИ ==========
-        function openModal() {
-            document.getElementById('productModal').classList.add('active');
-        }
-        
-        function closeModal() {
-            document.getElementById('productModal').classList.remove('active');
-            document.getElementById('productForm').reset();
-            editingId = null;
-            document.getElementById('modalTitle').innerText = 'Добавить товар';
-        }
-        
+        // ===== CRUD =====
         function editProduct(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
             
             editingId = id;
-            document.getElementById('modalTitle').innerText = 'Редактировать товар';
+            sidebarTitle.innerText = 'Редактировать товар';
             document.getElementById('productTitle').value = product.title || '';
             document.getElementById('productCategory').value = product.category_id || '';
             document.getElementById('productPrice').value = product.price || '';
             document.getElementById('productDiscount').value = product.discount_price || '';
             document.getElementById('productSizes').value = product.sizes ? product.sizes.join(', ') : '';
-            openModal();
+            openSidebar();
         }
         
         function deleteProduct(id) {
@@ -521,7 +550,7 @@
                 products = products.filter(p => p.id !== id);
                 saveToCRM();
                 renderProducts();
-                showToast('Товар удалён');
+                showToast('🗑️ Товар удалён');
             }
         }
         
@@ -530,7 +559,7 @@
             
             const title = document.getElementById('productTitle').value.trim();
             if (!title) {
-                alert('Введите название товара');
+                showToast('⚠️ Введите название товара');
                 return;
             }
             
@@ -542,42 +571,27 @@
             if (editingId) {
                 const index = products.findIndex(p => p.id === editingId);
                 if (index !== -1) {
-                    products[index] = {
-                        ...products[index],
-                        title,
-                        category_id,
-                        price,
-                        discount_price: discount_price && discount_price < price ? discount_price : null,
-                        sizes
-                    };
-                    showToast('Товар обновлён');
+                    products[index] = { ...products[index], title, category_id, price, discount_price: discount_price && discount_price < price ? discount_price : null, sizes };
+                    showToast('✏️ Товар обновлён');
                 }
             } else {
                 const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-                products.push({
-                    id: newId,
-                    title,
-                    category_id,
-                    price,
-                    discount_price: discount_price && discount_price < price ? discount_price : null,
-                    sizes,
-                    created_at: new Date().toISOString()
-                });
-                showToast('Товар добавлен');
+                products.push({ id: newId, title, category_id, price, discount_price: discount_price && discount_price < price ? discount_price : null, sizes, created_at: new Date().toISOString() });
+                showToast('✅ Товар добавлен');
             }
             
             saveToCRM();
-            closeModal();
+            closeSidebar();
             renderProducts();
         }
         
-        // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
+        // ===== ВСПОМОГАТЕЛЬНЫЕ =====
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast';
             toast.textContent = message;
             document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
+            setTimeout(() => toast.remove(), 3000);
         }
         
         function escapeHtml(str) {
@@ -590,29 +604,22 @@
             });
         }
         
-        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
         function init() {
             loadData();
             
             document.getElementById('addProductBtn').addEventListener('click', () => {
                 editingId = null;
                 document.getElementById('productForm').reset();
-                document.getElementById('modalTitle').innerText = 'Добавить товар';
-                openModal();
+                sidebarTitle.innerText = 'Добавить товар';
+                openSidebar();
             });
             
-            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-            document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+            document.getElementById('closeSidebarBtn').addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
             document.getElementById('productForm').addEventListener('submit', saveProduct);
             document.getElementById('searchInput').addEventListener('input', () => renderProducts());
             document.getElementById('categoryFilter').addEventListener('change', () => renderProducts());
-            
-            // Закрытие по клику вне модалки
-            document.getElementById('productModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('productModal')) {
-                    closeModal();
-                }
-            });
         }
         
         init();
