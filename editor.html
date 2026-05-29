@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Murano Admin — Панель управления</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -17,7 +13,7 @@
             overflow: hidden;
         }
         
-        /* ========== ВЫДВИГАЮЩЕЕСЯ БОКОВОЕ МЕНЮ ========== */
+        /* Админ-контейнер */
         .admin-container {
             display: flex;
             height: 100vh;
@@ -25,37 +21,11 @@
             position: relative;
         }
         
-        /* Кнопка-гамбургер */
-        .menu-toggle {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            width: 44px;
-            height: 44px;
-            background: #1e1f22;
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        
-        .menu-toggle:hover {
-            background: #0066cc;
-            transform: scale(1.02);
-        }
-        
-        /* Боковое меню */
+        /* ========== БОКОВОЕ МЕНЮ ========== */
         .sidebar-menu {
             position: fixed;
             top: 0;
-            left: -300px;
+            left: -280px;
             width: 280px;
             height: 100vh;
             background: #1e1f22;
@@ -67,23 +37,9 @@
             box-shadow: 2px 0 20px rgba(0,0,0,0.2);
         }
         
-        .sidebar-menu.open {
-            left: 0;
-        }
-        
-        /* Фиксированное меню (когда закреплено) */
-        .sidebar-menu.pinned {
-            left: 0;
-        }
-        
-        .sidebar-menu.pinned ~ .menu-toggle {
-            left: 300px;
-        }
-        
-        .sidebar-menu.pinned ~ .main-content {
-            margin-left: 280px;
-            width: calc(100% - 280px);
-        }
+        .sidebar-menu.open { left: 0; }
+        .sidebar-menu.pinned { left: 0; }
+        .sidebar-menu.pinned ~ .main-content { margin-left: 280px; width: calc(100% - 280px); }
         
         /* Шапка меню */
         .sidebar-header {
@@ -113,20 +69,22 @@
             transition: all 0.2s;
         }
         
-        .pin-btn:hover {
-            background: #2b2d31;
-            color: #0066cc;
-        }
-        
-        .pin-btn.active {
-            color: #0066cc;
-        }
+        .pin-btn:hover { background: #2b2d31; color: #0066cc; }
+        .pin-btn.active { color: #0066cc; }
         
         /* Навигация */
         .sidebar-nav {
             flex: 1;
             padding: 20px 0;
             overflow-y: auto;
+        }
+        
+        .nav-category {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #949ba4;
+            padding: 16px 20px 8px 20px;
+            letter-spacing: 0.5px;
         }
         
         .nav-item {
@@ -141,36 +99,12 @@
             color: #e1e3e6;
         }
         
-        .nav-item:hover {
-            background: #2b2d31;
-            transform: translateX(4px);
-        }
+        .nav-item:hover { background: #2b2d31; transform: translateX(4px); }
+        .nav-item.active { background: #0066cc; color: white; }
         
-        .nav-item.active {
-            background: #0066cc;
-            color: white;
-        }
+        .nav-icon { font-size: 20px; width: 28px; }
+        .nav-text { font-size: 14px; font-weight: 500; }
         
-        .nav-icon {
-            font-size: 20px;
-            width: 28px;
-        }
-        
-        .nav-text {
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        /* Категории в меню */
-        .nav-category {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: #949ba4;
-            padding: 16px 20px 8px 20px;
-            letter-spacing: 0.5px;
-        }
-        
-        /* Футер меню */
         .sidebar-footer {
             padding: 20px;
             border-top: 1px solid #2b2d31;
@@ -178,7 +112,7 @@
             color: #949ba4;
         }
         
-        /* Основной контент */
+        /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
         .main-content {
             flex: 1;
             transition: margin-left 0.3s ease;
@@ -187,7 +121,6 @@
             overflow: hidden;
         }
         
-        /* Верхняя панель */
         .top-bar {
             background: white;
             padding: 12px 24px;
@@ -195,8 +128,19 @@
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid #e0e0e0;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
         }
+        
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .menu-toggle:hover { background: #f0f0f0; }
         
         .page-title {
             font-size: 20px;
@@ -222,23 +166,26 @@
             font-weight: 600;
         }
         
-        /* Контентная область (тут будет редактор виджетов) */
         .content-area {
             flex: 1;
             padding: 20px;
             overflow: auto;
         }
         
-        /* Карточка для контента */
         .content-card {
             background: white;
             border-radius: 20px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             overflow: hidden;
             height: 100%;
+            animation: fadeIn 0.3s ease;
         }
         
-        /* Оверлей для меню на мобильных */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
         .menu-overlay {
             display: none;
             position: fixed;
@@ -250,47 +197,26 @@
             z-index: 999;
         }
         
-        .menu-overlay.active {
-            display: block;
-        }
+        .menu-overlay.active { display: block; }
         
-        /* Адаптивность */
         @media (max-width: 768px) {
-            .sidebar-menu.pinned ~ .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-            
-            .sidebar-menu.pinned {
-                box-shadow: 2px 0 20px rgba(0,0,0,0.3);
-            }
-        }
-        
-        /* Анимация для контента */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .content-card {
-            animation: fadeIn 0.3s ease;
+            .sidebar-menu.pinned ~ .main-content { margin-left: 0; width: 100%; }
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Оверлей (для мобильных) -->
         <div class="menu-overlay" id="menuOverlay"></div>
         
-        <!-- Выдвигающееся боковое меню -->
+        <!-- Боковое меню -->
         <aside class="sidebar-menu" id="sidebarMenu">
             <div class="sidebar-header">
                 <h2>Murano Admin</h2>
-                <button class="pin-btn" id="pinBtn" title="Закрепить меню">📌</button>
+                <button class="pin-btn" id="pinBtn">📌</button>
             </div>
             
             <div class="sidebar-nav">
-                <div class="nav-category">Основное</div>
+                <div class="nav-category">Управление</div>
                 <div class="nav-item" data-page="dashboard">
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Главная</span>
@@ -304,7 +230,7 @@
                     <span class="nav-text">Заказы</span>
                 </div>
                 
-                <div class="nav-category">Настройки магазина</div>
+                <div class="nav-category">Настройки</div>
                 <div class="nav-item" data-page="delivery">
                     <span class="nav-icon">🚚</span>
                     <span class="nav-text">Доставка</span>
@@ -315,9 +241,9 @@
                 </div>
                 
                 <div class="nav-category">Дизайн</div>
-                <div class="nav-item" data-page="site-editor">
+                <div class="nav-item" data-page="widget-editor">
                     <span class="nav-icon">🎨</span>
-                    <span class="nav-text">Редактор сайта</span>
+                    <span class="nav-text">Редактор виджетов</span>
                 </div>
                 
                 <div class="nav-category">Система</div>
@@ -329,7 +255,7 @@
             
             <div class="sidebar-footer">
                 <div>Версия 1.0.0</div>
-                <div style="margin-top: 4px;">© Murano Apparel</div>
+                <div>© Murano Apparel</div>
             </div>
         </aside>
         
@@ -337,73 +263,19 @@
         <div class="main-content">
             <div class="top-bar">
                 <button class="menu-toggle" id="menuToggle">☰</button>
-                <div class="page-title" id="pageTitle">Редактор сайта</div>
+                <div class="page-title" id="pageTitle">Редактор виджетов</div>
                 <div class="user-info">
-                    <span>Администратор</span>
+                    <span>Админ</span>
                     <div class="avatar">A</div>
                 </div>
             </div>
             
             <div class="content-area" id="contentArea">
-                <!-- Сюда будет подгружаться контент -->
-                <div class="content-card" id="dynamicContent">
-                    <!-- По умолчанию показываем редактор виджетов -->
-                    <div class="editor-container-inline" style="height: 100%; display: flex; flex-direction: column;">
-                        <div style="display: flex; height: 100%;">
-                            <!-- Левая панель виджетов (уменьшенная) -->
-                            <div class="widgets-panel-inline" style="width: 260px; background: #1e1f22; color: #e1e3e6; display: flex; flex-direction: column; border-right: 1px solid #2b2d31; overflow-y: auto; flex-shrink: 0;">
-                                <div style="padding: 16px; border-bottom: 1px solid #2b2d31;">
-                                    <h3 style="font-size: 14px; color: white;">📦 Блоки</h3>
-                                    <p style="font-size: 11px; color: #949ba4;">Перетащите виджет</p>
-                                </div>
-                                <div style="padding: 12px;">
-                                    <div class="widget-item" data-widget-type="promo-slider" draggable="true" style="background: #2b2d31; border: 1px solid #3b3f46; border-radius: 10px; padding: 12px; margin-bottom: 8px; cursor: grab; display: flex; align-items: center; gap: 12px;">
-                                        <div class="widget-icon">🎠</div>
-                                        <div><div class="widget-name" style="font-size: 14px;">Промо-слайдер</div><div style="font-size: 11px; color: #949ba4;">Карусель с изображениями</div></div>
-                                    </div>
-                                    <div class="widget-item" data-widget-type="product-grid" draggable="true" style="background: #2b2d31; border: 1px solid #3b3f46; border-radius: 10px; padding: 12px; margin-bottom: 8px; cursor: grab; display: flex; align-items: center; gap: 12px;">
-                                        <div class="widget-icon">📦</div>
-                                        <div><div class="widget-name" style="font-size: 14px;">Сетка товаров</div><div style="font-size: 11px; color: #949ba4;">Вывод товаров</div></div>
-                                    </div>
-                                    <div class="widget-item" data-widget-type="header-banner" draggable="true" style="background: #2b2d31; border: 1px solid #3b3f46; border-radius: 10px; padding: 12px; margin-bottom: 8px; cursor: grab; display: flex; align-items: center; gap: 12px;">
-                                        <div class="widget-icon">🏷️</div>
-                                        <div><div class="widget-name" style="font-size: 14px;">Баннер в шапке</div><div style="font-size: 11px; color: #949ba4;">Информационная строка</div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Предпросмотр -->
-                            <div style="flex: 1; background: #e8eaed; display: flex; flex-direction: column;">
-                                <div style="background: white; padding: 8px 16px; border-bottom: 1px solid #ddd; display: flex; gap: 12px; align-items: center;">
-                                    <span style="font-size: 13px; color: #666;">🔍 Предпросмотр</span>
-                                    <span style="margin-left: auto; font-size: 12px;">👇 Кликните на блок для настройки</span>
-                                </div>
-                                <div style="flex: 1; background: #fff; margin: 16px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); overflow: hidden;">
-                                    <iframe id="preview-frame" style="width: 100%; height: 100%; border: none;"></iframe>
-                                </div>
-                            </div>
-                            
-                            <!-- Настройки -->
-                            <div style="width: 300px; background: white; border-left: 1px solid #e0e0e0; display: flex; flex-direction: column;">
-                                <div style="padding: 20px; border-bottom: 1px solid #eee;">
-                                    <h3 style="font-size: 16px;">⚙️ Настройки виджета</h3>
-                                </div>
-                                <div id="settings-panel" style="flex: 1; padding: 20px; overflow-y: auto;">
-                                    <div style="text-align: center; color: #999; padding: 40px 20px;">
-                                        ✨ Выберите виджет на странице
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Сюда будет загружаться выбранная страница -->
             </div>
         </div>
     </div>
 
-    <!-- Подключаем скрипты -->
-    <script src="js/liquid-engine.js"></script>
-    <script src="js/editor.js"></script>
     <script>
         // ========== УПРАВЛЕНИЕ МЕНЮ ==========
         const sidebar = document.getElementById('sidebarMenu');
@@ -411,6 +283,7 @@
         const menuOverlay = document.getElementById('menuOverlay');
         const pinBtn = document.getElementById('pinBtn');
         const pageTitle = document.getElementById('pageTitle');
+        const contentArea = document.getElementById('contentArea');
         
         let isPinned = localStorage.getItem('menuPinned') === 'true';
         
@@ -439,11 +312,8 @@
         }
         
         menuToggle.addEventListener('click', () => {
-            if (sidebar.classList.contains('open')) {
-                closeMenu();
-            } else {
-                openMenu();
-            }
+            if (sidebar.classList.contains('open')) closeMenu();
+            else openMenu();
         });
         
         menuOverlay.addEventListener('click', closeMenu);
@@ -452,23 +322,21 @@
             isPinned = !isPinned;
             localStorage.setItem('menuPinned', isPinned);
             updateMenuState();
-            if (isPinned) {
-                closeMenu();
-            }
+            if (isPinned) closeMenu();
         });
         
         updateMenuState();
         
-        // ========== НАВИГАЦИЯ ПО СТРАНИЦАМ ==========
-        const navItems = document.querySelectorAll('.nav-item');
-        const dynamicContent = document.getElementById('dynamicContent');
+        // ========== ЗАГРУЗКА СТРАНИЦ ==========
+        // Регистрируем все доступные модули
+        const modules = {
+            // Будет добавлен позже
+        };
         
-        // Функция загрузки контента
-        function loadPage(page) {
-            pageTitle.textContent = getPageTitle(page);
-            
+        // Загрузка страницы
+        async function loadPage(page) {
             // Обновляем активный пункт меню
-            navItems.forEach(item => {
+            document.querySelectorAll('.nav-item').forEach(item => {
                 if (item.dataset.page === page) {
                     item.classList.add('active');
                 } else {
@@ -476,35 +344,42 @@
                 }
             });
             
-            // Здесь можно подгружать разные страницы
-            // Пока оставляем редактор виджетов, но в будущем легко расширить
-            if (page === 'site-editor') {
-                // Показываем редактор виджетов (он уже есть)
-                return;
+            // Загружаем HTML страницы
+            try {
+                const response = await fetch(`pages/${page}.html`);
+                if (response.ok) {
+                    const html = await response.text();
+                    contentArea.innerHTML = `<div class="content-card">${html}</div>`;
+                    pageTitle.textContent = getPageTitle(page);
+                } else {
+                    // Если файла нет, показываем заглушку с возможностью создать
+                    showPlaceholder(page);
+                }
+            } catch(e) {
+                showPlaceholder(page);
             }
-            
-            // Для других страниц показываем заглушку
-            if (page !== 'site-editor') {
-                dynamicContent.innerHTML = `
-                    <div class="content-card" style="padding: 40px; text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">🚧</div>
-                        <h2>Страница в разработке</h2>
-                        <p style="color: #666; margin-top: 12px;">Страница "${getPageTitle(page)}" будет доступна в следующей версии</p>
-                        <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 12px; text-align: left;">
-                            <strong>Планируется:</strong>
-                            <ul style="margin-top: 8px; margin-left: 20px;">
-                                <li>Управление товарами и категориями</li>
-                                <li>Просмотр и редактирование заказов</li>
-                                <li>Настройка доставки и оплаты</li>
-                                <li>Системные настройки</li>
-                            </ul>
-                        </div>
+        }
+        
+        function showPlaceholder(page) {
+            contentArea.innerHTML = `
+                <div class="content-card" style="padding: 60px 40px; text-align: center;">
+                    <div style="font-size: 64px; margin-bottom: 20px;">📄</div>
+                    <h2>${getPageTitle(page)}</h2>
+                    <p style="color: #666; margin: 16px 0; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        Страница в разработке. Вы можете создать файл <code style="background: #f0f0f0; padding: 2px 8px; border-radius: 6px;">pages/${page}.html</code>
+                    </p>
+                    <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 16px; text-align: left; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        <strong>📋 Структура страницы:</strong>
+                        <pre style="margin-top: 12px; background: #1e1f22; color: #e1e3e6; padding: 16px; border-radius: 12px; overflow-x: auto; font-size: 12px;">
+&lt;div style="padding: 24px;"&gt;
+    &lt;h1&gt;Заголовок&lt;/h1&gt;
+    &lt;!-- ваш контент --&gt;
+&lt;/div&gt;
+                        </pre>
                     </div>
-                `;
-            } else {
-                // Восстанавливаем редактор (он изначально был)
-                location.reload(); // Простой способ вернуть редактор
-            }
+                </div>
+            `;
+            pageTitle.textContent = getPageTitle(page);
         }
         
         function getPageTitle(page) {
@@ -514,21 +389,43 @@
                 orders: 'Заказы',
                 delivery: 'Доставка',
                 payment: 'Оплата',
-                'site-editor': 'Редактор сайта',
+                'widget-editor': 'Редактор виджетов',
                 settings: 'Настройки'
             };
             return titles[page] || 'Страница';
         }
         
-        // Обработчики навигации
-        navItems.forEach(item => {
+        // ========== ЗАГРУЗКА РЕДАКТОРА ВИДЖЕТОВ (особый случай) ==========
+        async function loadWidgetEditor() {
+            pageTitle.textContent = 'Редактор виджетов';
+            
+            // Обновляем активный пункт
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.page === 'widget-editor') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Загружаем iframe с редактором (отдельная страница)
+            contentArea.innerHTML = `
+                <div class="content-card" style="height: 100%; display: flex; flex-direction: column;">
+                    <iframe src="widget-editor.html" style="width: 100%; height: 100%; border: none;"></iframe>
+                </div>
+            `;
+        }
+        
+        // Навигация
+        document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 const page = item.dataset.page;
-                if (page === 'site-editor') {
-                    location.reload();
+                if (page === 'widget-editor') {
+                    loadWidgetEditor();
                 } else {
                     loadPage(page);
                 }
+                
                 // Закрываем меню на мобильных
                 if (window.innerWidth <= 768) {
                     closeMenu();
@@ -536,12 +433,8 @@
             });
         });
         
-        // Функция для обновления страницы из editor.js (чтобы сохранить совместимость)
-        window.updatePreview = function() {
-            if (window.editor && window.editor.updatePreview) {
-                window.editor.updatePreview();
-            }
-        };
+        // Загружаем редактор виджетов по умолчанию
+        loadWidgetEditor();
     </script>
 </body>
 </html>
