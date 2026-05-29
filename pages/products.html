@@ -1,34 +1,53 @@
-<div class="products-container" style="padding: 20px; font-family: system-ui, sans-serif;">
+<div class="products-container" style="padding: 24px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <h1 style="font-size: 24px;">📦 Товары</h1>
-        <button id="addProductBtn" style="background: #0066cc; color: white; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer;">+ Добавить товар</button>
+        <h1 style="font-size: 24px; margin: 0;">📦 Товары</h1>
+        <button id="addProductBtn" style="background: #0066cc; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">+ Добавить товар</button>
     </div>
 
     <div style="display: flex; gap: 12px; margin-bottom: 24px;">
-        <input type="text" id="searchProducts" placeholder="🔍 Поиск..." style="flex:1; padding: 10px; border: 1px solid #ddd; border-radius: 30px;">
-        <select id="categoryFilter" style="padding: 10px; border: 1px solid #ddd; border-radius: 30px;">
+        <input type="text" id="searchProducts" placeholder="🔍 Поиск по названию..." style="flex: 1; padding: 10px 16px; border: 1px solid #ddd; border-radius: 30px;">
+        <select id="categoryFilter" style="padding: 10px 16px; border: 1px solid #ddd; border-radius: 30px; background: white;">
             <option value="all">Все категории</option>
         </select>
     </div>
 
     <div id="productsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
-        <div style="text-align: center; padding: 40px; grid-column: 1/-1;">Загрузка...</div>
+        <div style="text-align: center; padding: 40px; grid-column: 1/-1; color: #999;">Загрузка...</div>
     </div>
 </div>
 
 <!-- Модальное окно -->
-<div id="productModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10000;">
-    <div style="background: white; border-radius: 24px; width: 90%; max-width: 500px; padding: 20px;">
-        <h3 id="modalTitle">Добавить товар</h3>
-        <form id="productForm">
-            <input type="text" id="productTitle" placeholder="Название" required style="width:100%; margin: 10px 0; padding: 10px;">
-            <select id="productCategory" style="width:100%; margin: 10px 0; padding: 10px;"></select>
-            <input type="number" id="productPrice" placeholder="Цена" style="width:100%; margin: 10px 0; padding: 10px;">
-            <input type="number" id="productDiscount" placeholder="Цена со скидкой" style="width:100%; margin: 10px 0; padding: 10px;">
-            <input type="text" id="productSizes" placeholder="Размеры (через запятую)" style="width:100%; margin: 10px 0; padding: 10px;">
-            <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button type="button" id="cancelModal" style="flex:1; padding: 10px;">Отмена</button>
-                <button type="submit" style="flex:1; padding: 10px; background: #0066cc; color: white; border: none;">Сохранить</button>
+<div id="productModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10000;">
+    <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; max-height: 80vh; overflow: auto;">
+        <div style="padding: 20px; border-bottom: 1px solid #eee;">
+            <h3 id="modalTitle" style="margin: 0;">Добавить товар</h3>
+        </div>
+        <form id="productForm" style="padding: 20px;">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 6px;">Название *</label>
+                <input type="text" id="productTitle" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; margin-bottom: 6px;">Категория</label>
+                <select id="productCategory" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;"></select>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <label>Цена (₽)</label>
+                    <input type="number" id="productPrice" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+                <div>
+                    <label>Цена со скидкой</label>
+                    <input type="number" id="productDiscount" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                </div>
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label>Размеры (через запятую)</label>
+                <input type="text" id="productSizes" placeholder="S, M, L, XL" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button type="button" id="cancelModal" style="flex: 1; padding: 10px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer;">Отмена</button>
+                <button type="submit" style="flex: 1; padding: 10px; background: #0066cc; color: white; border: none; border-radius: 8px; cursor: pointer;">Сохранить</button>
             </div>
         </form>
     </div>
@@ -36,106 +55,203 @@
 
 <script>
     (function() {
-        let products = [], categories = [], editingId = null;
+        let products = [];
+        let categories = [];
+        let editingId = null;
+        
         const modal = document.getElementById('productModal');
+        const addBtn = document.getElementById('addProductBtn');
+        const cancelBtn = document.getElementById('cancelModal');
+        const form = document.getElementById('productForm');
+        const searchInput = document.getElementById('searchProducts');
+        const filterSelect = document.getElementById('categoryFilter');
         
         function loadData() {
             const saved = localStorage.getItem('crm_data');
             if (saved) {
-                const data = JSON.parse(saved);
-                products = data.products || [];
-                categories = data.categories || [];
+                try {
+                    const data = JSON.parse(saved);
+                    products = data.products || [];
+                    categories = data.categories || [];
+                } catch(e) {}
             }
-            if (!products.length) products = [{ id: 1, title: 'Футболка', price: 1990, sizes: ['S','M'] }];
-            if (!categories.length) categories = [{ id: 1, title: 'Одежда' }];
+            if (products.length === 0) {
+                products = [
+                    { id: 1, title: 'Хлопковая футболка', price: 1990, discount_price: null, sizes: ['S', 'M', 'L'], category_id: null },
+                    { id: 2, title: 'Джинсы skinny', price: 3990, discount_price: 2990, sizes: ['30', '32', '34'], category_id: null }
+                ];
+            }
+            if (categories.length === 0) {
+                categories = [{ id: 1, title: 'Одежда' }];
+            }
             renderFilters();
             renderProducts();
         }
         
-        function save() {
-            const data = { products, categories, leads: [], messages: {}, settings: {} };
-            localStorage.setItem('crm_data', JSON.stringify(data));
+        function saveToCRM() {
+            const data = localStorage.getItem('crm_data');
+            if (data) {
+                const crm = JSON.parse(data);
+                crm.products = products;
+                crm.categories = categories;
+                localStorage.setItem('crm_data', JSON.stringify(crm));
+            } else {
+                localStorage.setItem('crm_data', JSON.stringify({ products, categories, leads: [], messages: {}, settings: {} }));
+            }
         }
         
         function renderProducts() {
-            const search = document.getElementById('searchProducts').value.toLowerCase();
-            const catFilter = document.getElementById('categoryFilter').value;
-            let filtered = products.filter(p => p.title.toLowerCase().includes(search));
-            if (catFilter !== 'all') filtered = filtered.filter(p => p.category_id == catFilter);
+            const searchTerm = searchInput?.value.toLowerCase() || '';
+            const categoryFilter = filterSelect?.value || 'all';
+            
+            let filtered = products.filter(p => p.title.toLowerCase().includes(searchTerm));
+            if (categoryFilter !== 'all') {
+                filtered = filtered.filter(p => p.category_id == categoryFilter);
+            }
             
             const container = document.getElementById('productsGrid');
-            if (!filtered.length) { container.innerHTML = '<div style="text-align:center; padding:40px; grid-column:1/-1;">Нет товаров</div>'; return; }
+            if (!container) return;
             
-            container.innerHTML = filtered.map(p => `
-                <div style="border:1px solid #eee; border-radius: 16px; padding: 12px;">
-                    <h3>${p.title}</h3>
-                    <div>${p.price} ₽</div>
-                    <div>Размеры: ${p.sizes?.join(', ') || '—'}</div>
-                    <button class="edit-btn" data-id="${p.id}">✏️</button>
-                    <button class="delete-btn" data-id="${p.id}">🗑️</button>
-                </div>
-            `).join('');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 60px; grid-column: 1/-1; color: #999;">📭 Нет товаров. Добавьте первый!</div>';
+                return;
+            }
             
-            document.querySelectorAll('.edit-btn').forEach(btn => btn.onclick = () => editProduct(+btn.dataset.id));
-            document.querySelectorAll('.delete-btn').forEach(btn => btn.onclick = () => deleteProduct(+btn.dataset.id));
+            container.innerHTML = filtered.map(p => {
+                const category = categories.find(c => c.id == p.category_id);
+                const hasDiscount = p.discount_price && p.discount_price < p.price;
+                const sizesText = p.sizes ? p.sizes.join(', ') : '—';
+                
+                return `
+                    <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div style="height: 140px; background: linear-gradient(135deg, #f5f7fa, #e9ecef); display: flex; align-items: center; justify-content: center; font-size: 48px;">👕</div>
+                        <div style="padding: 16px;">
+                            <h3 style="margin: 0 0 6px 0; font-size: 18px;">${escapeHtml(p.title)}</h3>
+                            <div style="font-size: 12px; color: #0066cc; margin-bottom: 8px;">${category ? escapeHtml(category.title) : 'Без категории'}</div>
+                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">📏 Размеры: ${sizesText}</div>
+                            <div style="margin: 12px 0;">
+                                ${hasDiscount ? 
+                                    `<span style="text-decoration: line-through; color: #999;">${p.price.toLocaleString()} ₽</span>
+                                     <span style="font-size: 18px; font-weight: 700; color: #f44336; margin-left: 8px;">${p.discount_price.toLocaleString()} ₽</span>` :
+                                    `<span style="font-size: 18px; font-weight: 700; color: #0066cc;">${p.price.toLocaleString()} ₽</span>`
+                                }
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                <button class="edit-product" data-id="${p.id}" style="flex: 1; padding: 8px; background: #f0f0f0; border: none; border-radius: 8px; cursor: pointer;">✏️ Редактировать</button>
+                                <button class="delete-product" data-id="${p.id}" style="flex: 1; padding: 8px; background: #ffebee; border: none; border-radius: 8px; cursor: pointer;">🗑️ Удалить</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.querySelectorAll('.edit-product').forEach(btn => {
+                btn.addEventListener('click', () => editProduct(parseInt(btn.dataset.id)));
+            });
+            document.querySelectorAll('.delete-product').forEach(btn => {
+                btn.addEventListener('click', () => deleteProduct(parseInt(btn.dataset.id)));
+            });
         }
         
         function renderFilters() {
-            const filter = document.getElementById('categoryFilter');
-            filter.innerHTML = '<option value="all">Все категории</option>' + categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+            const filterSelect = document.getElementById('categoryFilter');
             const catSelect = document.getElementById('productCategory');
-            catSelect.innerHTML = '<option value="">Без категории</option>' + categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+            if (filterSelect) {
+                filterSelect.innerHTML = '<option value="all">Все категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+            }
+            if (catSelect) {
+                catSelect.innerHTML = '<option value="">Без категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+            }
         }
         
-        function openModal() { modal.style.display = 'flex'; }
-        function closeModal() { modal.style.display = 'none'; editingId = null; document.getElementById('productForm').reset(); }
+        function openModal() {
+            if (modal) modal.style.display = 'flex';
+        }
+        
+        function closeModal() {
+            if (modal) modal.style.display = 'none';
+            editingId = null;
+            if (form) form.reset();
+        }
         
         function editProduct(id) {
-            const p = products.find(p => p.id === id);
-            if (!p) return;
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            
             editingId = id;
-            document.getElementById('productTitle').value = p.title;
-            document.getElementById('productCategory').value = p.category_id || '';
-            document.getElementById('productPrice').value = p.price;
-            document.getElementById('productDiscount').value = p.discount_price || '';
-            document.getElementById('productSizes').value = p.sizes?.join(', ') || '';
+            document.getElementById('modalTitle').innerText = 'Редактировать товар';
+            document.getElementById('productTitle').value = product.title || '';
+            document.getElementById('productCategory').value = product.category_id || '';
+            document.getElementById('productPrice').value = product.price || '';
+            document.getElementById('productDiscount').value = product.discount_price || '';
+            document.getElementById('productSizes').value = product.sizes ? product.sizes.join(', ') : '';
             openModal();
         }
         
         function deleteProduct(id) {
-            if (confirm('Удалить?')) {
+            if (confirm('Удалить товар?')) {
                 products = products.filter(p => p.id !== id);
-                save();
+                saveToCRM();
                 renderProducts();
             }
         }
         
-        document.getElementById('addProductBtn').onclick = () => { editingId = null; document.getElementById('productForm').reset(); openModal(); };
-        document.getElementById('cancelModal').onclick = closeModal;
-        document.getElementById('productForm').onsubmit = (e) => {
+        function saveProduct(e) {
             e.preventDefault();
-            const product = {
-                title: document.getElementById('productTitle').value,
-                category_id: parseInt(document.getElementById('productCategory').value) || null,
-                price: parseInt(document.getElementById('productPrice').value),
-                discount_price: parseInt(document.getElementById('productDiscount').value) || null,
-                sizes: document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s)
-            };
+            const title = document.getElementById('productTitle').value.trim();
+            if (!title) {
+                alert('Введите название товара');
+                return;
+            }
+            
+            const category_id = parseInt(document.getElementById('productCategory').value) || null;
+            const price = parseInt(document.getElementById('productPrice').value) || 0;
+            const discount_price = parseInt(document.getElementById('productDiscount').value) || null;
+            const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+            
             if (editingId) {
                 const index = products.findIndex(p => p.id === editingId);
-                if (index !== -1) products[index] = { ...products[index], ...product };
+                if (index !== -1) {
+                    products[index] = { ...products[index], title, category_id, price, discount_price, sizes };
+                }
             } else {
-                product.id = Date.now();
-                products.push(product);
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({ id: newId, title, category_id, price, discount_price, sizes, created_at: new Date().toISOString() });
             }
-            save();
+            
+            saveToCRM();
             closeModal();
             renderProducts();
-        };
+        }
         
-        document.getElementById('searchProducts').oninput = () => renderProducts();
-        document.getElementById('categoryFilter').onchange = () => renderProducts();
+        function setupEventListeners() {
+            if (addBtn) addBtn.onclick = () => {
+                editingId = null;
+                document.getElementById('modalTitle').innerText = 'Добавить товар';
+                if (form) form.reset();
+                openModal();
+            };
+            if (cancelBtn) cancelBtn.onclick = closeModal;
+            if (form) form.onsubmit = saveProduct;
+            if (searchInput) searchInput.oninput = () => renderProducts();
+            if (filterSelect) filterSelect.onchange = () => renderProducts();
+        }
         
-        loadData();
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function init() {
+            loadData();
+            setupEventListeners();
+        }
+        
+        init();
     })();
 </script>
