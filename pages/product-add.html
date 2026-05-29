@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление товара</title>
+    <link rel="stylesheet" href="/murano-apparel/css/products.css">
+    <style>
+        .add-product-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .form-title {
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: #1a1a2e;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .btn-save {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 16px;
+        }
+        .btn-save:hover {
+            background: #0052a3;
+        }
+        .btn-delete {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            animation: fadeOut 2s ease;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+    </style>
+</head>
+<body>
+<div class="add-product-container">
+    <a href="javascript:history.back()" class="back-link">← Назад к списку товаров</a>
+    
+    <div class="form-card">
+        <h1 class="form-title" id="formTitle">➕ Добавить товар</h1>
+        
+        <form id="productForm">
+            <div class="form-group">
+                <label>Название *</label>
+                <input type="text" id="productTitle" required placeholder="Хлопковая футболка">
+            </div>
+            <div class="form-group">
+                <label>Категория</label>
+                <select id="productCategory">
+                    <option value="">Без категории</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Цена (₽)</label>
+                    <input type="number" id="productPrice" placeholder="1990">
+                </div>
+                <div class="form-group">
+                    <label>Цена со скидкой</label>
+                    <input type="number" id="productDiscount" placeholder="1490">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Размеры (через запятую)</label>
+                <input type="text" id="productSizes" placeholder="S, M, L, XL">
+            </div>
+            
+            <button type="submit" class="btn-save" id="saveBtn">💾 Сохранить товар</button>
+            
+            <button type="button" class="btn-delete" id="deleteBtn" style="display: none;">🗑️ Удалить товар</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ===== ПОЛУЧАЕМ ID ТОВАРА ИЗ URL =====
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('id');
+    
+    let products = [];
+    let categories = [];
+    let editingId = null;
+    
+    // ===== ЗАГРУЗКА ДАННЫХ =====
+    function loadData() {
+        const saved = localStorage.getItem('crm_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                products = data.products || [];
+                categories = data.categories || [];
+            } catch(e) {}
+        }
+        
+        if (categories.length === 0) {
+            categories = [
+                { id: 1, title: 'Одежда' },
+                { id: 2, title: 'Обувь' }
+            ];
+        }
+        
+        // Заполняем категории в select
+        const catSelect = document.getElementById('productCategory');
+        catSelect.innerHTML = '<option value="">Без категории</option>' + 
+            categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
+        
+        // Если редактируем — загружаем данные товара
+        if (editId) {
+            editingId = parseInt(editId);
+            const product = products.find(p => p.id === editingId);
+            if (product) {
+                document.getElementById('formTitle').innerText = '✏️ Редактировать товар';
+                document.getElementById('productTitle').value = product.title || '';
+                document.getElementById('productCategory').value = product.category_id || '';
+                document.getElementById('productPrice').value = product.price || '';
+                document.getElementById('productDiscount').value = product.discount_price || '';
+                document.getElementById('productSizes').value = product.sizes ? product.sizes.join(', ') : '';
+                document.getElementById('deleteBtn').style.display = 'block';
+            }
+        }
+    }
+    
+    // ===== СОХРАНЕНИЕ =====
+    function saveToCRM() {
+        let crmData = localStorage.getItem('crm_data');
+        if (crmData) {
+            const data = JSON.parse(crmData);
+            data.products = products;
+            data.categories = categories;
+            localStorage.setItem('crm_data', JSON.stringify(data));
+        } else {
+            localStorage.setItem('crm_data', JSON.stringify({ 
+                products, categories, leads: [], messages: {}, settings: {} 
+            }));
+        }
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+    
+    function saveProduct(e) {
+        e.preventDefault();
+        
+        const title = document.getElementById('productTitle').value.trim();
+        if (!title) {
+            alert('Введите название товара');
+            return;
+        }
+        
+        const category_id = parseInt(document.getElementById('productCategory').value) || null;
+        const price = parseInt(document.getElementById('productPrice').value) || 0;
+        const discount_price = parseInt(document.getElementById('productDiscount').value) || null;
+        const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+        
+        if (editingId) {
+            // Редактирование
+            const index = products.findIndex(p => p.id === editingId);
+            if (index !== -1) {
+                products[index] = { 
+                    ...products[index], 
+                    title, category_id, price, 
+                    discount_price: discount_price && discount_price < price ? discount_price : null, 
+                    sizes 
+                };
+                showToast('✏️ Товар обновлён');
+            }
+        } else {
+            // Новый товар
+            const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+            products.push({ 
+                id: newId, title, category_id, price, 
+                discount_price: discount_price && discount_price < price ? discount_price : null, 
+                sizes, 
+                created_at: new Date().toISOString() 
+            });
+            showToast('✅ Товар добавлен');
+        }
+        
+        saveToCRM();
+        
+        // Возвращаемся на страницу товаров
+        setTimeout(() => {
+            window.location.href = '/murano-apparel/pages/products.html';
+        }, 500);
+    }
+    
+    function deleteProduct() {
+        if (confirm('Удалить товар? Это действие нельзя отменить.')) {
+            products = products.filter(p => p.id !== editingId);
+            saveToCRM();
+            showToast('🗑️ Товар удалён');
+            setTimeout(() => {
+                window.location.href = '/murano-apparel/pages/products.html';
+            }, 500);
+        }
+    }
+    
+    // ===== ИНИЦИАЛИЗАЦИЯ =====
+    document.getElementById('productForm').addEventListener('submit', saveProduct);
+    document.getElementById('deleteBtn').addEventListener('click', deleteProduct);
+    
+    loadData();
+</script>
+</body>
+</html>
