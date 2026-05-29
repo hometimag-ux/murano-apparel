@@ -163,6 +163,12 @@
 }
 
 /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
+.content-card {
+    background: white;
+    border-radius: 20px;
+    overflow: auto; /* было hidden, меняем на auto */
+    height: 100%;
+}
 .main-content {
     flex: 1;
     transition: margin-left 0.3s ease;
