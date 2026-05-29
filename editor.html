@@ -8,14 +8,16 @@
 </head>
 <body>
     <div class="admin-container">
-        <!-- Оверлей для мобильных -->
-        <div class="menu-overlay" id="menuOverlay"></div>
-        
         <!-- Боковое меню -->
         <aside class="sidebar-menu" id="sidebarMenu">
+            <!-- Кнопка сворачивания/разворачивания -->
+            <button class="collapse-btn" id="collapseBtn" title="Свернуть/развернуть">◀</button>
+            
             <div class="sidebar-header">
                 <h2>Murano Admin</h2>
-                <button class="pin-btn" id="pinBtn">📌</button>
+                <button class="pin-btn" id="pinBtn">
+                    <span>📌</span> <span>Закрепить</span>
+                </button>
             </div>
             
             <div class="sidebar-nav">
@@ -74,7 +76,6 @@
             </div>
             
             <div class="content-area" id="contentArea">
-                <!-- Сюда будет загружаться контент -->
                 <div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px;">
                     <div style="text-align: center; color: #999;">
                         <div style="font-size: 48px; margin-bottom: 16px;">🚀</div>
