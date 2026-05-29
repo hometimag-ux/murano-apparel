@@ -19,33 +19,83 @@ body {
     position: relative;
 }
 
-/* ========== БОКОВОЕ МЕНЮ ========== */
+/* ========== БОКОВОЕ МЕНЮ (СВОРАЧИВАЕМОЕ) ========== */
 .sidebar-menu {
     position: fixed;
     top: 0;
-    left: -280px;
-    width: 280px;
+    left: 0;
+    width: 260px;
     height: 100vh;
     background: #1e1f22;
     color: #e1e3e6;
     z-index: 1000;
-    transition: left 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    transition: width 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     display: flex;
     flex-direction: column;
     box-shadow: 2px 0 20px rgba(0,0,0,0.2);
+    overflow: hidden;
 }
 
-.sidebar-menu.open {
-    left: 0;
+/* Свёрнутое состояние */
+.sidebar-menu.collapsed {
+    width: 70px;
 }
 
-.sidebar-menu.pinned {
-    left: 0;
+.sidebar-menu.collapsed .sidebar-header h2,
+.sidebar-menu.collapsed .nav-text,
+.sidebar-menu.collapsed .nav-category,
+.sidebar-menu.collapsed .sidebar-footer div:first-child {
+    display: none;
 }
 
-.sidebar-menu.pinned ~ .main-content {
-    margin-left: 280px;
-    width: calc(100% - 280px);
+.sidebar-menu.collapsed .nav-icon {
+    margin: 0 auto;
+}
+
+.sidebar-menu.collapsed .nav-item {
+    justify-content: center;
+    padding: 12px;
+    margin: 4px 8px;
+}
+
+.sidebar-menu.collapsed .pin-btn span {
+    display: none;
+}
+
+.sidebar-menu.collapsed .sidebar-header {
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.sidebar-menu.collapsed .sidebar-footer {
+    text-align: center;
+    font-size: 10px;
+}
+
+/* Кнопка сворачивания/разворачивания */
+.collapse-btn {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 48px;
+    background: #0066cc;
+    border: none;
+    border-radius: 0 12px 12px 0;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+    z-index: 1001;
+}
+
+.collapse-btn:hover {
+    background: #0052a3;
+    width: 28px;
 }
 
 /* Шапка меню */
@@ -55,6 +105,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: all 0.3s;
+    white-space: nowrap;
 }
 
 .sidebar-header h2 {
@@ -63,6 +115,7 @@ body {
     background: linear-gradient(135deg, #fff, #949ba4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    transition: opacity 0.2s;
 }
 
 .pin-btn {
@@ -70,10 +123,14 @@ body {
     border: none;
     color: #949ba4;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 14px;
     padding: 6px;
     border-radius: 8px;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
 }
 
 .pin-btn:hover {
@@ -98,6 +155,8 @@ body {
     color: #949ba4;
     padding: 16px 20px 8px 20px;
     letter-spacing: 0.5px;
+    transition: all 0.2s;
+    white-space: nowrap;
 }
 
 .nav-item {
@@ -110,6 +169,7 @@ body {
     cursor: pointer;
     transition: all 0.2s ease;
     color: #e1e3e6;
+    white-space: nowrap;
 }
 
 .nav-item:hover {
@@ -125,6 +185,7 @@ body {
 .nav-icon {
     font-size: 20px;
     width: 28px;
+    text-align: center;
 }
 
 .nav-text {
@@ -138,6 +199,8 @@ body {
     border-top: 1px solid #2b2d31;
     font-size: 12px;
     color: #949ba4;
+    transition: all 0.3s;
+    white-space: nowrap;
 }
 
 /* ========== ОСНОВНОЙ КОНТЕНТ ========== */
@@ -147,6 +210,11 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    margin-left: 260px;
+}
+
+.sidebar-menu.collapsed ~ .main-content {
+    margin-left: 70px;
 }
 
 /* Верхняя панель */
@@ -160,13 +228,13 @@ body {
 }
 
 .menu-toggle {
+    display: none;
     background: none;
     border: none;
     font-size: 24px;
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
-    transition: all 0.2s;
 }
 
 .menu-toggle:hover {
@@ -224,118 +292,29 @@ body {
     }
 }
 
-/* Оверлей для мобильных */
-.menu-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-}
-
-.menu-overlay.active {
-    display: block;
-}
-
-/* ========== РЕДАКТОР ВИДЖЕТОВ (внутренний) ========== */
-.widgets-panel-inline {
-    background: #1e1f22;
-    color: #e1e3e6;
-    overflow-y: auto;
-    flex-shrink: 0;
-}
-
-.widget-item {
-    background: #2b2d31;
-    border: 1px solid #3b3f46;
-    border-radius: 10px;
-    padding: 12px;
-    margin-bottom: 8px;
-    cursor: grab;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.widget-item:hover {
-    background: #3b3f46;
-    transform: translateX(4px);
-    border-color: #0066cc;
-}
-
-.widget-item:active {
-    cursor: grabbing;
-}
-
-.widget-icon {
-    font-size: 20px;
-}
-
-.widget-name {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.widget-desc {
-    font-size: 11px;
-    color: #949ba4;
-    margin-top: 2px;
-}
-
-/* Настройки виджета */
-.setting-field {
-    margin-bottom: 20px;
-}
-
-.setting-field label {
-    display: block;
-    font-size: 12px;
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 6px;
-}
-
-.setting-field input,
-.setting-field select,
-.setting-field textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: inherit;
-}
-
-.setting-field input:focus {
-    outline: none;
-    border-color: #0066cc;
-}
-
-.save-btn {
-    background: #0066cc;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 30px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 14px;
-    font-weight: 600;
-    margin-top: 8px;
-}
-
-.save-btn:hover {
-    background: #0052a3;
-}
-
-.empty-settings {
-    text-align: center;
-    color: #999;
-    padding: 40px 20px;
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .sidebar-menu {
+        left: -260px;
+        width: 260px;
+    }
+    
+    .sidebar-menu.open {
+        left: 0;
+    }
+    
+    .sidebar-menu.collapsed ~ .main-content,
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .menu-toggle {
+        display: block;
+    }
+    
+    .collapse-btn {
+        display: none;
+    }
 }
 
 /* Скроллбары */
@@ -351,16 +330,4 @@ body {
 ::-webkit-scrollbar-thumb {
     background: #5a5f6b;
     border-radius: 3px;
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-    .sidebar-menu.pinned ~ .main-content {
-        margin-left: 0;
-        width: 100%;
-    }
-    
-    .sidebar-menu.pinned {
-        box-shadow: 2px 0 20px rgba(0,0,0,0.3);
-    }
 }
