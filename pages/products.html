@@ -17,7 +17,7 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
-            min-width: 1000px;
+            min-width: 1100px;
         }
         
         .products-table th {
@@ -114,19 +114,25 @@
             border: none;
             cursor: pointer;
             font-size: 18px;
-            padding: 6px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 10px;
             transition: all 0.2s;
         }
         
-        .action-btn.edit:hover {
-            background: #e3f2fd;
+        .action-btn.edit {
             color: #0066cc;
         }
+        .action-btn.edit:hover {
+            background: #e3f2fd;
+            transform: scale(1.05);
+        }
         
+        .action-btn.delete {
+            color: #f44336;
+        }
         .action-btn.delete:hover {
             background: #ffebee;
-            color: #f44336;
+            transform: scale(1.05);
         }
         
         .rating-stars {
@@ -160,38 +166,59 @@
         .search-input {
             flex: 1;
             min-width: 200px;
-            padding: 10px 16px;
+            padding: 12px 18px;
             border: 1px solid #ddd;
-            border-radius: 30px;
+            border-radius: 40px;
             font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
         }
         
         .filter-select {
-            padding: 10px 16px;
+            padding: 12px 18px;
             border: 1px solid #ddd;
-            border-radius: 30px;
+            border-radius: 40px;
             background: white;
             cursor: pointer;
+            font-size: 14px;
         }
         
         .btn-primary {
-            background: #0066cc;
+            background: linear-gradient(135deg, #0066cc, #0052a3);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
+            padding: 12px 24px;
+            border-radius: 40px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,102,204,0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,102,204,0.4);
         }
         
         .btn-secondary {
             background: #f0f0f0;
             color: #333;
             border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
+            padding: 12px 24px;
+            border-radius: 40px;
             cursor: pointer;
             font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
         }
         
         .empty-state {
@@ -220,7 +247,27 @@
             border: none;
             color: #f44336;
             cursor: pointer;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            transition: all 0.2s;
+        }
+        
+        .clear-filters:hover {
+            background: #ffebee;
+        }
+        
+        .price-cell {
+            font-weight: 600;
+            color: #0066cc;
+        }
+        
+        .price-old {
+            text-decoration: line-through;
+            color: #999;
             font-size: 12px;
+            font-weight: normal;
+            margin-left: 6px;
         }
         
         @media (max-width: 768px) {
@@ -240,20 +287,16 @@
     
     <div class="filters-bar">
         <input type="text" id="searchProducts" class="search-input" placeholder="🔍 Поиск по названию, артикулу...">
-        
         <select id="categoryFilter" class="filter-select">
             <option value="all">Все категории</option>
         </select>
-        
         <select id="tagFilter" class="filter-select">
             <option value="all">Все ярлыки</option>
         </select>
-        
         <select id="colorFilter" class="filter-select">
             <option value="all">Все цвета</option>
         </select>
-        
-        <button id="clearFiltersBtn" class="clear-filters">✖ Сбросить фильтры</button>
+        <button id="clearFiltersBtn" class="clear-filters">✖ Сбросить</button>
     </div>
     
     <div class="products-table-container">
@@ -262,6 +305,7 @@
                 <tr>
                     <th>Фото</th>
                     <th>Название / Артикул</th>
+                    <th>Цена</th>
                     <th>Цвет</th>
                     <th>Размеры</th>
                     <th>Штрих-коды</th>
@@ -271,7 +315,7 @@
                 </tr>
             </thead>
             <tbody id="productsTableBody">
-                <tr><td colspan="8" class="empty-state">Загрузка...</td><tr>
+                <tr><td colspan="9" class="empty-state">Загрузка...</td></tr>
             </tbody>
         </table>
     </div>
@@ -280,7 +324,7 @@
 <script>
     let products = [];
     let categories = [];
-    let reviews = []; // для хранения отзывов/оценок
+    let reviews = [];
     
     function loadData() {
         const saved = localStorage.getItem('crm_data');
@@ -312,56 +356,24 @@
     function getDemoProducts() {
         return [
             { 
-                id: 1, 
-                title: 'Хлопковая футболка', 
-                article: 'TSH-001',
-                color: 'Белый',
-                price: 1990, 
-                discount_price: null, 
-                sizes: ['S', 'M', 'L'], 
-                barcodes: ['4601234567890', '4601234567891', '4601234567892'],
-                category_id: 1,
-                images: [],
-                tags: ['новинка', 'хит'],
-                parent_sku: null,
-                rating: 4.8
+                id: 1, title: 'Хлопковая футболка', article: 'TSH-001', color: 'Белый',
+                price: 1990, discount_price: null, sizes: ['S', 'M', 'L'], 
+                sizes_data: [{size:'S',price:1990,barcode:'4601234567890'},{size:'M',price:1990,barcode:'4601234567891'},{size:'L',price:1990,barcode:'4601234567892'}],
+                barcodes: ['4601234567890','4601234567891','4601234567892'],
+                category_id: 1, images: [], tags: ['новинка', 'хит'], parent_sku: null, rating: 4.8
             },
             { 
-                id: 2, 
-                title: 'Джинсы skinny', 
-                article: 'JNS-002',
-                color: 'Синий',
-                price: 3990, 
-                discount_price: 2990, 
-                sizes: ['28', '30', '32', '34'], 
-                barcodes: ['4609876543210', '4609876543211'],
-                category_id: 1,
-                images: [],
-                tags: ['хит'],
-                parent_sku: null,
-                rating: 4.5
-            },
-            { 
-                id: 3, 
-                title: 'Кеды белые', 
-                article: 'SHR-003',
-                color: 'Белый',
-                price: 2990, 
-                discount_price: null, 
-                sizes: ['36', '37', '38', '39', '40'], 
-                barcodes: ['4611122233344'],
-                category_id: 2,
-                images: [],
-                tags: ['новинка'],
-                parent_sku: null,
-                rating: 4.2
+                id: 2, title: 'Джинсы skinny', article: 'JNS-002', color: 'Синий',
+                price: 3990, discount_price: 2990, sizes: ['28','30','32','34'],
+                sizes_data: [{size:'28',price:3990,barcode:'4609876543210'},{size:'30',price:3990,barcode:'4609876543211'}],
+                barcodes: ['4609876543210','4609876543211'], category_id: 1, images: [], tags: ['хит'], parent_sku: null, rating: 4.5
             }
         ];
     }
     
     function getProductRating(productId) {
         const productReviews = reviews.filter(r => r.product_id === productId);
-        if (productReviews.length === 0) return 0;
+        if (productReviews.length === 0) return productId === 1 ? 4.8 : productId === 2 ? 4.5 : 0;
         const avg = productReviews.reduce((sum, r) => sum + r.rating, 0) / productReviews.length;
         return Math.round(avg * 100) / 100;
     }
@@ -372,29 +384,10 @@
             const data = JSON.parse(crmData);
             data.products = products;
             data.categories = categories;
-            data.reviews = reviews;
             localStorage.setItem('crm_data', JSON.stringify(data));
         } else {
-            localStorage.setItem('crm_data', JSON.stringify({ 
-                products, categories, reviews, leads: [], messages: {}, settings: {} 
-            }));
+            localStorage.setItem('crm_data', JSON.stringify({ products, categories, reviews, leads: [], messages: {}, settings: {} }));
         }
-    }
-    
-    function getColorCode(color) {
-        const colors = {
-            'Белый': '#ffffff',
-            'Черный': '#1a1a1a',
-            'Синий': '#1976d2',
-            'Красный': '#f44336',
-            'Зеленый': '#4caf50',
-            'Желтый': '#ffeb3b',
-            'Бежевый': '#f5f5dc',
-            'Серый': '#9e9e9e',
-            'Розовый': '#ff69b4',
-            'Фиолетовый': '#9c27b0'
-        };
-        return colors[color] || '#cccccc';
     }
     
     function renderProductsTable() {
@@ -406,25 +399,16 @@
         let filtered = [...products];
         
         if (searchTerm) {
-            filtered = filtered.filter(p => 
-                p.title.toLowerCase().includes(searchTerm) || 
-                (p.article && p.article.toLowerCase().includes(searchTerm))
-            );
+            filtered = filtered.filter(p => p.title.toLowerCase().includes(searchTerm) || (p.article && p.article.toLowerCase().includes(searchTerm)));
         }
-        if (categoryFilter !== 'all') {
-            filtered = filtered.filter(p => p.category_id == categoryFilter);
-        }
-        if (tagFilter !== 'all') {
-            filtered = filtered.filter(p => p.tags && p.tags.includes(tagFilter));
-        }
-        if (colorFilter !== 'all') {
-            filtered = filtered.filter(p => p.color === colorFilter);
-        }
+        if (categoryFilter !== 'all') filtered = filtered.filter(p => p.category_id == categoryFilter);
+        if (tagFilter !== 'all') filtered = filtered.filter(p => p.tags && p.tags.includes(tagFilter));
+        if (colorFilter !== 'all') filtered = filtered.filter(p => p.color === colorFilter);
         
         const tbody = document.getElementById('productsTableBody');
         
         if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">📭 Нет товаров. Добавьте первый!</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">📭 Нет товаров. Добавьте первый!</td></tr>';
             return;
         }
         
@@ -432,69 +416,39 @@
             const category = categories.find(c => c.id == product.category_id);
             const hasDiscount = product.discount_price && product.discount_price < product.price;
             const priceHtml = hasDiscount ? 
-                `<span style="text-decoration:line-through; color:#999;">${product.price.toLocaleString()} ₽</span> <span style="color:#f44336;">${product.discount_price.toLocaleString()} ₽</span>` :
-                `<span>${product.price.toLocaleString()} ₽</span>`;
+                `<span class="price-cell">${product.discount_price.toLocaleString()} ₽</span><span class="price-old">${product.price.toLocaleString()} ₽</span>` :
+                `<span class="price-cell">${product.price.toLocaleString()} ₽</span>`;
             
             const firstImage = product.images && product.images.length > 0 ? product.images[0] : null;
             const rating = product.rating || getProductRating(product.id);
             const stars = '★'.repeat(Math.floor(rating)) + '☆'.repeat(5 - Math.floor(rating));
             
+            // Берём размеры из sizes_data
+            const sizesList = product.sizes_data ? product.sizes_data.map(s => s.size) : (product.sizes || []);
+            const barcodesList = product.sizes_data ? product.sizes_data.map(s => s.barcode).filter(b => b) : (product.barcodes || []);
+            
             return `
                 <tr>
-                    <td>
-                        <div class="product-thumb">
-                            ${firstImage ? `<img src="${firstImage}" alt="${product.title}">` : getProductIcon(product.id)}
-                        </div>
-                    </td>
+                    <td><div class="product-thumb">${firstImage ? `<img src="${firstImage}">` : getProductIcon(product.id)}</div></td>
                     <td>
                         <div style="font-weight: 600;">${escapeHtml(product.title)}</div>
                         <div style="font-size: 12px; color: #999;">Артикул: ${product.article || '—'}</div>
-                        <div style="font-size: 12px; color: #0066cc; margin-top: 4px;">${priceHtml}</div>
                         <div style="font-size: 11px; color: #999;">${category ? category.title : 'Без категории'}</div>
                         ${product.parent_sku ? `<div style="font-size: 11px; color: #4caf50;">Вариация от: ${product.parent_sku}</div>` : ''}
                     </td>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span>${product.color || '—'}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="sizes-list">
-                            ${product.sizes ? product.sizes.map(s => `<span class="size-badge">${s}</span>`).join('') : '—'}
-                        </div>
-                    </td>
+                    <td class="price-cell">${priceHtml}</td>
+                    <td>${product.color || '—'}</td>
+                    <td><div class="sizes-list">${sizesList.map(s => `<span class="size-badge">${s}</span>`).join('') || '—'}</div></td>
                     <td class="barcode-container">
-                        <span class="barcode-preview">📦 ${product.barcodes ? product.barcodes.length : 0} штрих-кодов</span>
-                        <div class="barcode-popup">
-                            <strong>Штрих-коды:</strong>
-                            <ul style="margin: 8px 0 0 16px;">
-                                ${product.barcodes ? product.barcodes.map(b => `<li style="font-family: monospace;">${b}</li>`).join('') : '<li>Нет штрих-кодов</li>'}
-                            </ul>
-                        </div>
+                        <span class="barcode-preview">📦 ${barcodesList.length} штрих-кодов</span>
+                        <div class="barcode-popup"><strong>Штрих-коды:</strong><ul>${barcodesList.map(b => `<li style="font-family:monospace;">${b}</li>`).join('') || '<li>Нет</li>'}</ul></div>
                     </td>
-                    <td>
-                        <div>
-                            <span class="rating-stars">${stars}</span>
-                            <span class="rating-value">${rating}</span>
-                        </div>
-                        <div style="font-size: 11px; color: #999;">${productReviewsCount(product.id)} отзывов</div>
-                    </td>
-                    <td>
-                        ${product.tags ? product.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : '—'}
-                    </td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="action-btn edit" onclick="editProduct(${product.id})" title="Редактировать">✏️</button>
-                            <button class="action-btn delete" onclick="deleteProduct(${product.id})" title="Удалить">🗑️</button>
-                        </div>
-                    </td>
+                    <td><div><span class="rating-stars">${stars}</span><span class="rating-value">${rating}</span></div><div style="font-size:11px; color:#999;">${reviews.filter(r=>r.product_id===product.id).length} отзывов</div></td>
+                    <td>${product.tags ? product.tags.map(t => `<span class="tag-badge">${t}</span>`).join('') : '—'}</td>
+                    <td><div class="action-buttons"><button class="action-btn edit" onclick="editProduct(${product.id})" title="Редактировать">✏️</button><button class="action-btn delete" onclick="deleteProduct(${product.id})" title="Удалить">🗑️</button></div></td>
                 </tr>
             `;
         }).join('');
-    }
-    
-    function productReviewsCount(productId) {
-        return reviews.filter(r => r.product_id === productId).length;
     }
     
     function getProductIcon(id) {
@@ -503,32 +457,23 @@
     }
     
     function renderFilters() {
-        // Категории
         const catSelect = document.getElementById('categoryFilter');
-        catSelect.innerHTML = '<option value="all">Все категории</option>' + 
-            categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+        catSelect.innerHTML = '<option value="all">Все категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
         
-        // Ярлыки
         const allTags = [...new Set(products.flatMap(p => p.tags || []))];
         const tagSelect = document.getElementById('tagFilter');
-        tagSelect.innerHTML = '<option value="all">Все ярлыки</option>' + 
-            allTags.map(t => `<option value="${t}">${t}</option>`).join('');
+        tagSelect.innerHTML = '<option value="all">Все ярлыки</option>' + allTags.map(t => `<option value="${t}">${t}</option>`).join('');
         
-        // Цвета
         const allColors = [...new Set(products.map(p => p.color).filter(c => c))];
         const colorSelect = document.getElementById('colorFilter');
-        colorSelect.innerHTML = '<option value="all">Все цвета</option>' + 
-            allColors.map(c => `<option value="${c}">${c}</option>`).join('');
+        colorSelect.innerHTML = '<option value="all">Все цвета</option>' + allColors.map(c => `<option value="${c}">${c}</option>`).join('');
     }
     
-    function editProduct(id) {
-        window.location.href = `/murano-apparel/pages/product-add.html?id=${id}`;
-    }
+    function editProduct(id) { window.location.href = `/murano-apparel/pages/product-add.html?id=${id}`; }
     
     function deleteProduct(id) {
-        if (confirm('Удалить товар? Это действие нельзя отменить.')) {
+        if (confirm('Удалить товар?')) {
             products = products.filter(p => p.id !== id);
-            reviews = reviews.filter(r => r.product_id !== id);
             saveToCRM();
             renderFilters();
             renderProductsTable();
@@ -547,36 +492,27 @@
     
     function escapeHtml(str) {
         if (!str) return '';
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    // События
-    document.getElementById('addProductBtn').addEventListener('click', () => {
-        window.location.href = '/murano-apparel/pages/product-add.html';
-    });
-    
-    document.getElementById('searchProducts').addEventListener('input', () => renderProductsTable());
-    document.getElementById('categoryFilter').addEventListener('change', () => renderProductsTable());
-    document.getElementById('tagFilter').addEventListener('change', () => renderProductsTable());
-    document.getElementById('colorFilter').addEventListener('change', () => renderProductsTable());
-    document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+    document.getElementById('addProductBtn').onclick = () => window.location.href = '/murano-apparel/pages/product-add.html';
+    document.getElementById('searchProducts').oninput = () => renderProductsTable();
+    document.getElementById('categoryFilter').onchange = () => renderProductsTable();
+    document.getElementById('tagFilter').onchange = () => renderProductsTable();
+    document.getElementById('colorFilter').onchange = () => renderProductsTable();
+    document.getElementById('clearFiltersBtn').onclick = () => {
         document.getElementById('searchProducts').value = '';
         document.getElementById('categoryFilter').value = 'all';
         document.getElementById('tagFilter').value = 'all';
         document.getElementById('colorFilter').value = 'all';
         renderProductsTable();
-    });
-    
-    loadData();
+    };
     
     const style = document.createElement('style');
     style.textContent = `@keyframes fadeOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); } }`;
     document.head.appendChild(style);
+    
+    loadData();
 </script>
 </body>
 </html>
