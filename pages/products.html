@@ -6,28 +6,194 @@
     <title>Управление товарами</title>
     <link rel="stylesheet" href="/murano-apparel/css/products.css">
     <style>
-        .add-product-btn {
+        /* Стили для табличного списка товаров */
+        .products-table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .products-table th {
+            text-align: left;
+            padding: 16px 12px;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1a1a2e;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .products-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        .products-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Фото товара */
+        .product-thumb {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #f5f7fa, #e9ecef);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            overflow: hidden;
+        }
+        
+        .product-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Размерный ряд */
+        .sizes-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .size-badge {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        /* Штрих-коды */
+        .barcode-container {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .barcode-preview {
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: monospace;
             display: inline-block;
+            cursor: pointer;
+        }
+        
+        .barcode-popup {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 200px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .barcode-container:hover .barcode-popup {
+            display: block;
+        }
+        
+        .barcode-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .barcode-list li {
+            padding: 4px 0;
+            font-family: monospace;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.edit:hover {
+            background: #e3f2fd;
+            color: #0066cc;
+        }
+        
+        .action-btn.delete:hover {
+            background: #ffebee;
+            color: #f44336;
+        }
+        
+        /* Фильтры */
+        .filters-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+        
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            background: white;
+        }
+        
+        .btn-primary {
             background: #0066cc;
             color: white;
-            text-decoration: none;
+            border: none;
             padding: 10px 20px;
             border-radius: 30px;
-            font-weight: 600;
-            margin-bottom: 20px;
-        }
-        .add-product-btn:hover {
-            background: #0052a3;
-        }
-        .edit-link {
-            color: #0066cc;
-            text-decoration: none;
-            margin-right: 10px;
-        }
-        .delete-link {
-            color: #f44336;
-            text-decoration: none;
             cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .products-table th:nth-child(3),
+            .products-table td:nth-child(3),
+            .products-table th:nth-child(4),
+            .products-table td:nth-child(4) {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -35,25 +201,41 @@
 <div class="products-container">
     <div class="products-header">
         <h1>📦 Товары</h1>
-        <a href="/murano-apparel/pages/product-add.html" class="add-product-btn">+ Добавить товар</a>
+        <button class="btn-primary" id="addProductBtn">+ Добавить товар</button>
     </div>
-
-    <div class="products-filters">
-        <input type="text" id="searchProducts" class="products-search" placeholder="🔍 Поиск по названию...">
-        <select id="categoryFilter" class="products-category-filter">
+    
+    <div class="filters-bar">
+        <input type="text" id="searchProducts" class="search-input" placeholder="🔍 Поиск по названию, артикулу...">
+        <select id="categoryFilter" class="filter-select">
             <option value="all">Все категории</option>
         </select>
     </div>
-
-    <div id="productsGrid" class="products-grid">
-        <div class="empty-state">Загрузка...</div>
+    
+    <div class="products-table-container">
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>Фото</th>
+                    <th>Название / Артикул</th>
+                    <th>Цвет</th>
+                    <th>Размеры</th>
+                    <th>Штрих-коды</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody id="productsTableBody">
+                <tr><td colspan="6" class="empty-state">Загрузка...</td></tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
 <script>
+    // ===== ДАННЫЕ =====
     let products = [];
     let categories = [];
-
+    
+    // ===== ЗАГРУЗКА ДАННЫХ =====
     function loadData() {
         const saved = localStorage.getItem('crm_data');
         if (saved) {
@@ -61,15 +243,50 @@
                 const data = JSON.parse(saved);
                 products = data.products || [];
                 categories = data.categories || [];
-            } catch(e) {}
+            } catch(e) { console.error(e); }
         }
         
         if (products.length === 0) {
             products = [
-                { id: 1, title: 'Хлопковая футболка', price: 1990, discount_price: null, sizes: ['S', 'M', 'L'], category_id: null },
-                { id: 2, title: 'Джинсы skinny', price: 3990, discount_price: 2990, sizes: ['30', '32', '34'], category_id: null }
+                { 
+                    id: 1, 
+                    title: 'Хлопковая футболка', 
+                    article: 'TSH-001',
+                    color: 'Белый',
+                    price: 1990, 
+                    discount_price: null, 
+                    sizes: ['S', 'M', 'L'], 
+                    barcodes: ['4601234567890', '4601234567891', '4601234567892'],
+                    category_id: 1,
+                    images: []
+                },
+                { 
+                    id: 2, 
+                    title: 'Джинсы skinny', 
+                    article: 'JNS-002',
+                    color: 'Синий',
+                    price: 3990, 
+                    discount_price: 2990, 
+                    sizes: ['28', '30', '32', '34'], 
+                    barcodes: ['4609876543210', '4609876543211'],
+                    category_id: 1,
+                    images: []
+                },
+                { 
+                    id: 3, 
+                    title: 'Кеды белые', 
+                    article: 'SHR-003',
+                    color: 'Белый',
+                    price: 2990, 
+                    discount_price: null, 
+                    sizes: ['36', '37', '38', '39', '40'], 
+                    barcodes: ['4611122233344'],
+                    category_id: 2,
+                    images: []
+                }
             ];
         }
+        
         if (categories.length === 0) {
             categories = [
                 { id: 1, title: 'Одежда' },
@@ -78,67 +295,9 @@
         }
         
         renderCategories();
-        renderProducts();
+        renderProductsTable();
     }
-
-    function renderProducts() {
-        const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
-        const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
-        
-        let filtered = [...products];
-        if (searchTerm) filtered = filtered.filter(p => p.title.toLowerCase().includes(searchTerm));
-        if (categoryFilter !== 'all') filtered = filtered.filter(p => p.category_id == categoryFilter);
-        
-        const container = document.getElementById('productsGrid');
-        if (!container) return;
-        
-        if (filtered.length === 0) {
-            container.innerHTML = '<div class="empty-state">📭 Нет товаров. Добавьте первый!</div>';
-            return;
-        }
-        
-        container.innerHTML = filtered.map(p => {
-            const category = categories.find(c => c.id == p.category_id);
-            const hasDiscount = p.discount_price && p.discount_price < p.price;
-            const sizesText = p.sizes ? p.sizes.join(', ') : '—';
-            const icon = ['👕', '👖', '👟', '👔', '🧥', '👗', '🧢', '👞'][(p.id - 1) % 8];
-            
-            return `
-                <div class="product-card">
-                    <div class="product-image">${icon}</div>
-                    <div class="product-info">
-                        <div class="product-title">${escapeHtml(p.title)}</div>
-                        <div class="product-category">${category ? escapeHtml(category.title) : 'Без категории'}</div>
-                        <div class="product-sizes">📏 Размеры: ${sizesText}</div>
-                        <div class="product-price">
-                            ${hasDiscount ? 
-                                `<span>${p.discount_price.toLocaleString()} ₽</span>
-                                 <span class="old">${p.price.toLocaleString()} ₽</span>` :
-                                `<span>${p.price.toLocaleString()} ₽</span>`
-                            }
-                        </div>
-                        <div class="product-actions">
-                            <a href="/murano-apparel/pages/product-add.html?id=${p.id}" class="edit-link">✏️ Редактировать</a>
-                            <span class="delete-link" data-id="${p.id}">🗑️ Удалить</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-        
-        document.querySelectorAll('.delete-link').forEach(link => {
-            link.addEventListener('click', () => deleteProduct(parseInt(link.dataset.id)));
-        });
-    }
-
-    function deleteProduct(id) {
-        if (confirm('Удалить товар?')) {
-            products = products.filter(p => p.id !== id);
-            saveToCRM();
-            renderProducts();
-        }
-    }
-
+    
     function saveToCRM() {
         let crmData = localStorage.getItem('crm_data');
         if (crmData) {
@@ -147,16 +306,135 @@
             data.categories = categories;
             localStorage.setItem('crm_data', JSON.stringify(data));
         } else {
-            localStorage.setItem('crm_data', JSON.stringify({ products, categories, leads: [], messages: {}, settings: {} }));
+            localStorage.setItem('crm_data', JSON.stringify({ 
+                products, categories, leads: [], messages: {}, settings: {} 
+            }));
         }
     }
-
+    
+    // ===== ОТРИСОВКА ТАБЛИЦЫ =====
+    function renderProductsTable() {
+        const searchTerm = document.getElementById('searchProducts')?.value.toLowerCase() || '';
+        const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
+        
+        let filtered = [...products];
+        if (searchTerm) {
+            filtered = filtered.filter(p => 
+                p.title.toLowerCase().includes(searchTerm) || 
+                (p.article && p.article.toLowerCase().includes(searchTerm))
+            );
+        }
+        if (categoryFilter !== 'all') {
+            filtered = filtered.filter(p => p.category_id == categoryFilter);
+        }
+        
+        const tbody = document.getElementById('productsTableBody');
+        
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-state">📭 Нет товаров. Добавьте первый!</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = filtered.map(product => {
+            const category = categories.find(c => c.id == product.category_id);
+            const hasDiscount = product.discount_price && product.discount_price < product.price;
+            const priceHtml = hasDiscount ? 
+                `<span style="text-decoration:line-through; color:#999;">${product.price.toLocaleString()} ₽</span> <span style="color:#f44336;">${product.discount_price.toLocaleString()} ₽</span>` :
+                `<span>${product.price.toLocaleString()} ₽</span>`;
+            
+            // Получаем первую фотографию из галереи
+            const firstImage = product.images && product.images.length > 0 ? product.images[0] : null;
+            
+            return `
+                <tr>
+                    <td>
+                        <div class="product-thumb">
+                            ${firstImage ? `<img src="${firstImage}" alt="${product.title}">` : getProductIcon(product.id)}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">${escapeHtml(product.title)}</div>
+                        <div style="font-size: 12px; color: #999;">Артикул: ${product.article || '—'}</div>
+                        <div style="font-size: 12px; color: #0066cc; margin-top: 4px;">${priceHtml}</div>
+                        <div style="font-size: 11px; color: #999;">${category ? category.title : 'Без категории'}</div>
+                    </td>
+                    <td>
+                        <span style="display: inline-block; width: 20px; height: 20px; background: ${getColorCode(product.color)}; border-radius: 50%; vertical-align: middle; margin-right: 8px;"></span>
+                        ${product.color || '—'}
+                    </td>
+                    <td>
+                        <div class="sizes-list">
+                            ${product.sizes ? product.sizes.map(s => `<span class="size-badge">${s}</span>`).join('') : '—'}
+                        </div>
+                    </td>
+                    <td class="barcode-container">
+                        <span class="barcode-preview">📦 ${product.barcodes ? product.barcodes.length : 0} штрих-кодов</span>
+                        <div class="barcode-popup">
+                            <strong>Штрих-коды:</strong>
+                            <ul class="barcode-list">
+                                ${product.barcodes ? product.barcodes.map(b => `<li>${b}</li>`).join('') : '<li>Нет штрих-кодов</li>'}
+                            </ul>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editProduct(${product.id})" title="Редактировать">✏️</button>
+                            <button class="action-btn delete" onclick="deleteProduct(${product.id})" title="Удалить">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    function getProductIcon(id) {
+        const icons = ['👕', '👖', '👟', '👔', '🧥', '👗', '🧢', '👞'];
+        return `<div style="font-size: 32px;">${icons[(id - 1) % icons.length]}</div>`;
+    }
+    
+    function getColorCode(color) {
+        const colors = {
+            'Белый': '#ffffff',
+            'Черный': '#1a1a1a',
+            'Синий': '#1976d2',
+            'Красный': '#f44336',
+            'Зеленый': '#4caf50',
+            'Желтый': '#ffeb3b',
+            'Бежевый': '#f5f5dc',
+            'Серый': '#9e9e9e'
+        };
+        return colors[color] || '#cccccc';
+    }
+    
     function renderCategories() {
         const filterSelect = document.getElementById('categoryFilter');
         const options = '<option value="all">Все категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
         if (filterSelect) filterSelect.innerHTML = options;
     }
-
+    
+    // ===== ДЕЙСТВИЯ =====
+    function editProduct(id) {
+        window.location.href = `/murano-apparel/pages/product-add.html?id=${id}`;
+    }
+    
+    function deleteProduct(id) {
+        if (confirm('Удалить товар? Это действие нельзя отменить.')) {
+            products = products.filter(p => p.id !== id);
+            saveToCRM();
+            renderProductsTable();
+            showToast('🗑️ Товар удалён');
+        }
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'products-toast';
+        toast.textContent = message;
+        toast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 30px; z-index: 1000; animation: fadeOut 2s ease;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+    
     function escapeHtml(str) {
         if (!str) return '';
         return String(str).replace(/[&<>]/g, function(m) {
@@ -166,11 +444,22 @@
             return m;
         });
     }
-
-    document.getElementById('searchProducts')?.addEventListener('input', () => renderProducts());
-    document.getElementById('categoryFilter')?.addEventListener('change', () => renderProducts());
     
+    // ===== СОБЫТИЯ =====
+    document.getElementById('addProductBtn').addEventListener('click', () => {
+        window.location.href = '/murano-apparel/pages/product-add.html';
+    });
+    
+    document.getElementById('searchProducts').addEventListener('input', () => renderProductsTable());
+    document.getElementById('categoryFilter').addEventListener('change', () => renderProductsTable());
+    
+    // ===== ЗАПУСК =====
     loadData();
+    
+    // Добавляем стиль для анимации toast
+    const style = document.createElement('style');
+    style.textContent = `@keyframes fadeOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); } }`;
+    document.head.appendChild(style);
 </script>
 </body>
 </html>
