@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/murano-apparel/css/products.css">
     <style>
         .add-product-container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 40px 20px;
         }
@@ -16,9 +16,6 @@
             margin-bottom: 20px;
             color: #0066cc;
             text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
         }
         .form-card {
             background: white;
@@ -53,6 +50,11 @@
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
         .btn-save {
             background: #0066cc;
             color: white;
@@ -64,9 +66,6 @@
             cursor: pointer;
             width: 100%;
             margin-top: 16px;
-        }
-        .btn-save:hover {
-            background: #0052a3;
         }
         .btn-delete {
             background: #f44336;
@@ -80,8 +79,73 @@
             width: 100%;
             margin-top: 12px;
         }
-        .btn-delete:hover {
-            background: #d32f2f;
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            min-height: 50px;
+        }
+        .tag {
+            background: #e3f2fd;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tag-remove {
+            cursor: pointer;
+            color: #999;
+        }
+        .tag-input {
+            border: none;
+            padding: 6px;
+            flex: 1;
+            min-width: 80px;
+        }
+        .tag-input:focus {
+            outline: none;
+        }
+        .image-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .image-item {
+            width: 80px;
+            height: 80px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-remove {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #f44336;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
         }
         .toast {
             position: fixed;
@@ -109,16 +173,30 @@
         <h1 class="form-title" id="formTitle">➕ Добавить товар</h1>
         
         <form id="productForm">
-            <div class="form-group">
-                <label>Название *</label>
-                <input type="text" id="productTitle" required placeholder="Хлопковая футболка">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Название *</label>
+                    <input type="text" id="productTitle" required placeholder="Хлопковая футболка">
+                </div>
+                <div class="form-group">
+                    <label>Артикул</label>
+                    <input type="text" id="productArticle" placeholder="TSH-001">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Категория</label>
-                <select id="productCategory">
-                    <option value="">Без категории</option>
-                </select>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Категория</label>
+                    <select id="productCategory">
+                        <option value="">Без категории</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Цвет</label>
+                    <input type="text" id="productColor" placeholder="Белый, Черный, Синий...">
+                </div>
             </div>
+            
             <div class="form-row">
                 <div class="form-group">
                     <label>Цена (₽)</label>
@@ -129,13 +207,30 @@
                     <input type="number" id="productDiscount" placeholder="1490">
                 </div>
             </div>
+            
             <div class="form-group">
-                <label>Размеры (через запятую)</label>
-                <input type="text" id="productSizes" placeholder="S, M, L, XL">
+                <label>Размерный ряд</label>
+                <div class="tag-input-container" id="sizesContainer">
+                    <input type="text" class="tag-input" id="sizeInput" placeholder="Введите размер и нажмите Enter">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Штрих-коды</label>
+                <div class="tag-input-container" id="barcodesContainer">
+                    <input type="text" class="tag-input" id="barcodeInput" placeholder="Введите штрих-код и нажмите Enter">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Фотографии (URL)</label>
+                <div class="tag-input-container" id="imagesContainer">
+                    <input type="text" class="tag-input" id="imageInput" placeholder="Введите URL фото и нажмите Enter">
+                </div>
+                <div class="image-gallery" id="imageGallery"></div>
             </div>
             
             <button type="submit" class="btn-save" id="saveBtn">💾 Сохранить товар</button>
-            
             <button type="button" class="btn-delete" id="deleteBtn" style="display: none;">🗑️ Удалить товар</button>
         </form>
     </div>
@@ -149,6 +244,11 @@
     let products = [];
     let categories = [];
     let editingId = null;
+    
+    // Коллекции для тегов
+    let sizes = [];
+    let barcodes = [];
+    let images = [];
     
     // ===== ЗАГРУЗКА ДАННЫХ =====
     function loadData() {
@@ -168,7 +268,7 @@
             ];
         }
         
-        // Заполняем категории в select
+        // Заполняем категории
         const catSelect = document.getElementById('productCategory');
         catSelect.innerHTML = '<option value="">Без категории</option>' + 
             categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
@@ -180,12 +280,145 @@
             if (product) {
                 document.getElementById('formTitle').innerText = '✏️ Редактировать товар';
                 document.getElementById('productTitle').value = product.title || '';
+                document.getElementById('productArticle').value = product.article || '';
                 document.getElementById('productCategory').value = product.category_id || '';
+                document.getElementById('productColor').value = product.color || '';
                 document.getElementById('productPrice').value = product.price || '';
                 document.getElementById('productDiscount').value = product.discount_price || '';
-                document.getElementById('productSizes').value = product.sizes ? product.sizes.join(', ') : '';
+                
+                sizes = product.sizes || [];
+                barcodes = product.barcodes || [];
+                images = product.images || [];
+                
+                renderSizes();
+                renderBarcodes();
+                renderImages();
+                
                 document.getElementById('deleteBtn').style.display = 'block';
             }
+        }
+    }
+    
+    // ===== ФУНКЦИИ ДЛЯ ТЕГОВ =====
+    function setupTagInput(inputId, containerId, collection, renderFunc) {
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const value = input.value.trim();
+                if (value && !collection.includes(value)) {
+                    collection.push(value);
+                    renderFunc();
+                    input.value = '';
+                }
+            }
+        });
+    }
+    
+    function renderSizes() {
+        const container = document.getElementById('sizesContainer');
+        container.innerHTML = '';
+        sizes.forEach((size, index) => {
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.innerHTML = `${size} <span class="tag-remove" data-index="${index}" data-type="size">×</span>`;
+            container.appendChild(tag);
+        });
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'tag-input';
+        input.id = 'sizeInput';
+        input.placeholder = 'Введите размер и нажмите Enter';
+        container.appendChild(input);
+        
+        document.getElementById('sizeInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const value = e.target.value.trim();
+                if (value && !sizes.includes(value)) {
+                    sizes.push(value);
+                    renderSizes();
+                }
+            }
+        });
+        
+        document.querySelectorAll('.tag-remove[data-type="size"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                sizes.splice(index, 1);
+                renderSizes();
+            });
+        });
+    }
+    
+    function renderBarcodes() {
+        const container = document.getElementById('barcodesContainer');
+        container.innerHTML = '';
+        barcodes.forEach((code, index) => {
+            const tag = document.createElement('span');
+            tag.className = 'tag';
+            tag.innerHTML = `${code} <span class="tag-remove" data-index="${index}" data-type="barcode">×</span>`;
+            container.appendChild(tag);
+        });
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'tag-input';
+        input.id = 'barcodeInput';
+        input.placeholder = 'Введите штрих-код и нажмите Enter';
+        container.appendChild(input);
+        
+        document.getElementById('barcodeInput')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const value = e.target.value.trim();
+                if (value && !barcodes.includes(value)) {
+                    barcodes.push(value);
+                    renderBarcodes();
+                }
+            }
+        });
+        
+        document.querySelectorAll('.tag-remove[data-type="barcode"]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                barcodes.splice(index, 1);
+                renderBarcodes();
+            });
+        });
+    }
+    
+    function renderImages() {
+        const gallery = document.getElementById('imageGallery');
+        gallery.innerHTML = images.map((url, index) => `
+            <div class="image-item">
+                <img src="${url}" alt="Фото">
+                <span class="image-remove" data-index="${index}">×</span>
+            </div>
+        `).join('');
+        
+        document.querySelectorAll('.image-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const index = parseInt(btn.dataset.index);
+                images.splice(index, 1);
+                renderImages();
+            });
+        });
+        
+        const input = document.getElementById('imageInput');
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const value = input.value.trim();
+                    if (value) {
+                        images.push(value);
+                        renderImages();
+                        input.value = '';
+                    }
+                }
+            });
         }
     }
     
@@ -221,38 +454,32 @@
             return;
         }
         
-        const category_id = parseInt(document.getElementById('productCategory').value) || null;
-        const price = parseInt(document.getElementById('productPrice').value) || 0;
-        const discount_price = parseInt(document.getElementById('productDiscount').value) || null;
-        const sizes = document.getElementById('productSizes').value.split(',').map(s => s.trim()).filter(s => s);
+        const productData = {
+            title: title,
+            article: document.getElementById('productArticle').value.trim() || null,
+            category_id: parseInt(document.getElementById('productCategory').value) || null,
+            color: document.getElementById('productColor').value.trim() || null,
+            price: parseInt(document.getElementById('productPrice').value) || 0,
+            discount_price: parseInt(document.getElementById('productDiscount').value) || null,
+            sizes: sizes,
+            barcodes: barcodes,
+            images: images
+        };
         
         if (editingId) {
-            // Редактирование
             const index = products.findIndex(p => p.id === editingId);
             if (index !== -1) {
-                products[index] = { 
-                    ...products[index], 
-                    title, category_id, price, 
-                    discount_price: discount_price && discount_price < price ? discount_price : null, 
-                    sizes 
-                };
+                products[index] = { ...products[index], ...productData };
                 showToast('✏️ Товар обновлён');
             }
         } else {
-            // Новый товар
             const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
-            products.push({ 
-                id: newId, title, category_id, price, 
-                discount_price: discount_price && discount_price < price ? discount_price : null, 
-                sizes, 
-                created_at: new Date().toISOString() 
-            });
+            products.push({ id: newId, ...productData, created_at: new Date().toISOString() });
             showToast('✅ Товар добавлен');
         }
         
         saveToCRM();
         
-        // Возвращаемся на страницу товаров
         setTimeout(() => {
             window.location.href = '/murano-apparel/pages/products.html';
         }, 500);
@@ -273,6 +500,9 @@
     document.getElementById('productForm').addEventListener('submit', saveProduct);
     document.getElementById('deleteBtn').addEventListener('click', deleteProduct);
     
+    renderSizes();
+    renderBarcodes();
+    renderImages();
     loadData();
 </script>
 </body>
