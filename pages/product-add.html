@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Добавление товара</title>
+    <title>Добавление/Редактирование товара</title>
     <link rel="stylesheet" href="/murano-apparel/css/products.css">
     <style>
         .add-product-container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
         }
@@ -28,6 +28,16 @@
             margin-bottom: 24px;
             color: #1a1a2e;
         }
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-section h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #0066cc;
+        }
         .form-group {
             margin-bottom: 20px;
         }
@@ -38,21 +48,20 @@
             color: #333;
         }
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid #ddd;
             border-radius: 12px;
             font-size: 14px;
         }
+        .form-group textarea {
+            resize: vertical;
+        }
         .form-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        .form-row-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 16px;
         }
         .btn-save {
@@ -79,6 +88,45 @@
             width: 100%;
             margin-top: 12px;
         }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        /* Таблица размеров */
+        .sizes-table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+        .sizes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .sizes-table th,
+        .sizes-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .sizes-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .sizes-table input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .add-row-btn {
+            margin-top: 12px;
+        }
+        /* Теги */
         .tag-input-container {
             display: flex;
             flex-wrap: wrap;
@@ -110,11 +158,12 @@
         .tag-input:focus {
             outline: none;
         }
+        /* Галерея */
         .image-gallery {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
-            margin-top: 8px;
+            margin-top: 12px;
         }
         .image-item {
             width: 80px;
@@ -147,6 +196,16 @@
             font-size: 12px;
             cursor: pointer;
         }
+        /* Вариации */
+        .variations-list {
+            margin-top: 16px;
+        }
+        .variation-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
         .toast {
             position: fixed;
             bottom: 20px;
@@ -156,6 +215,7 @@
             padding: 12px 20px;
             border-radius: 30px;
             animation: fadeOut 2s ease;
+            z-index: 1000;
         }
         @keyframes fadeOut {
             0% { opacity: 0; transform: translateY(20px); }
@@ -173,61 +233,156 @@
         <h1 class="form-title" id="formTitle">➕ Добавить товар</h1>
         
         <form id="productForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Название *</label>
-                    <input type="text" id="productTitle" required placeholder="Хлопковая футболка">
+            <!-- Основная информация -->
+            <div class="form-section">
+                <h3>📋 Основная информация</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Название *</label>
+                        <input type="text" id="productTitle" required placeholder="Хлопковая футболка">
+                    </div>
+                    <div class="form-group">
+                        <label>Артикул</label>
+                        <input type="text" id="productArticle" placeholder="TSH-001">
+                    </div>
                 </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Категория</label>
+                        <div style="display: flex; gap: 8px;">
+                            <select id="productCategory" style="flex: 1;">
+                                <option value="">Без категории</option>
+                            </select>
+                            <button type="button" class="btn-secondary" id="addCategoryBtn">➕ Новая</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Цвет</label>
+                        <input type="text" id="productColor" placeholder="Белый, Черный, Синий...">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Цена (₽)</label>
+                        <input type="number" id="productPrice" placeholder="1990">
+                    </div>
+                    <div class="form-group">
+                        <label>Цена со скидкой</label>
+                        <input type="number" id="productDiscount" placeholder="1490">
+                    </div>
+                </div>
+                
                 <div class="form-group">
-                    <label>Артикул</label>
-                    <input type="text" id="productArticle" placeholder="TSH-001">
+                    <label>Описание (до 2000 символов)</label>
+                    <textarea id="productDescription" rows="5" maxlength="2000" placeholder="Подробное описание товара..."></textarea>
+                    <div style="font-size: 11px; color: #999; text-align: right;"><span id="charCount">0</span>/2000</div>
                 </div>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Категория</label>
-                    <select id="productCategory">
-                        <option value="">Без категории</option>
-                    </select>
+            <!-- Характеристики -->
+            <div class="form-section">
+                <h3>📏 Характеристики</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Воротник</label>
+                        <select id="charCollar">
+                            <option value="">Не указано</option>
+                            <option>Круглый</option><option>V-образный</option><option>Стойка</option>
+                            <option>Отложной</option><option>Хомут</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Рукава</label>
+                        <select id="CharSleeves">
+                            <option value="">Не указано</option>
+                            <option>Короткие</option><option>Длинные</option><option>3/4</option>
+                            <option>Без рукавов</option><option>Реглан</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Цвет</label>
-                    <input type="text" id="productColor" placeholder="Белый, Черный, Синий...">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Карманы</label>
+                        <select id="charPockets">
+                            <option value="">Не указано</option>
+                            <option>Нет</option><option>Накладные</option><option>Прорезные</option>
+                            <option>Внутренние</option><option>С кармашком</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Вид застёжки</label>
+                        <select id="charClasp">
+                            <option value="">Не указано</option>
+                            <option>Молния</option><option>Пуговицы</option><option>Кнопки</option>
+                            <option>Крючки</option><option>Без застёжки</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Длина изделия</label>
+                        <select id="charLength">
+                            <option value="">Не указано</option>
+                            <option>Короткое</option><option>Стандартное</option>
+                            <option>Удлинённое</option><option>Длинное</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Силуэт</label>
+                        <select id="charSilhouette">
+                            <option value="">Не указано</option>
+                            <option>Прямой</option><option>Приталенный</option>
+                            <option>Оверсайз</option><option>Трапеция</option><option>Расширенный</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Цена (₽)</label>
-                    <input type="number" id="productPrice" placeholder="1990">
+            <!-- Размерная таблица -->
+            <div class="form-section">
+                <h3>📊 Размерная таблица</h3>
+                <div class="sizes-table-container">
+                    <table class="sizes-table" id="sizesTable">
+                        <thead>
+                            <tr><th>Размер</th><th>Цена (₽)</th><th>Штрих-код</th><th style="width: 40px;"></th></tr>
+                        </thead>
+                        <tbody id="sizesTableBody"></tbody>
+                    </table>
                 </div>
-                <div class="form-group">
-                    <label>Цена со скидкой</label>
-                    <input type="number" id="productDiscount" placeholder="1490">
+                <button type="button" class="btn-secondary add-row-btn" id="addSizeRowBtn">+ Добавить размер</button>
+                <button type="button" class="btn-secondary" id="generateBarcodesBtn" style="margin-left: 8px;">🔢 Сгенерировать штрих-коды для всех</button>
+            </div>
+            
+            <!-- Ярлыки -->
+            <div class="form-section">
+                <h3>🏷️ Ярлыки</h3>
+                <div class="tag-input-container" id="tagsContainer">
+                    <input type="text" class="tag-input" id="tagInput" placeholder="Введите ярлык и нажмите Enter (хит, новинка, распродажа...)">
                 </div>
             </div>
             
-            <div class="form-group">
-                <label>Размерный ряд</label>
-                <div class="tag-input-container" id="sizesContainer">
-                    <input type="text" class="tag-input" id="sizeInput" placeholder="Введите размер и нажмите Enter">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Штрих-коды</label>
-                <div class="tag-input-container" id="barcodesContainer">
-                    <input type="text" class="tag-input" id="barcodeInput" placeholder="Введите штрих-код и нажмите Enter">
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Фотографии (URL)</label>
+            <!-- Фотографии -->
+            <div class="form-section">
+                <h3>🖼️ Фотографии</h3>
                 <div class="tag-input-container" id="imagesContainer">
                     <input type="text" class="tag-input" id="imageInput" placeholder="Введите URL фото и нажмите Enter">
                 </div>
                 <div class="image-gallery" id="imageGallery"></div>
+            </div>
+            
+            <!-- Объединение карточек (вариации) -->
+            <div class="form-section">
+                <h3>🔄 Объединение карточек товаров</h3>
+                <div class="form-group">
+                    <label>SKU родительской карточки (для объединения вариаций)</label>
+                    <input type="text" id="parentSku" placeholder="Введите общий SKU для всех вариаций товара">
+                </div>
+                <div style="font-size: 12px; color: #999; margin-top: 8px;">
+                    💡 Товары с одинаковым SKU будут отображаться как вариации (размеры/цвета) одной карточки
+                </div>
+                <div id="variationsList" class="variations-list"></div>
             </div>
             
             <button type="submit" class="btn-save" id="saveBtn">💾 Сохранить товар</button>
@@ -245,155 +400,109 @@
     let categories = [];
     let editingId = null;
     
-    // Коллекции для тегов
-    let sizes = [];
-    let barcodes = [];
+    // Коллекции
+    let tags = [];
     let images = [];
+    let sizeRows = []; // { size, price, barcode }
     
-    // ===== ЗАГРУЗКА ДАННЫХ =====
-    function loadData() {
-        const saved = localStorage.getItem('crm_data');
-        if (saved) {
-            try {
-                const data = JSON.parse(saved);
-                products = data.products || [];
-                categories = data.categories || [];
-            } catch(e) {}
-        }
+    // Характеристики
+    let characteristics = {
+        collar: '', sleeves: '', pockets: '', clasp: '', length: '', silhouette: ''
+    };
+    
+    // ===== ФУНКЦИИ ДЛЯ ТАБЛИЦЫ РАЗМЕРОВ =====
+    function renderSizesTable() {
+        const tbody = document.getElementById('sizesTableBody');
+        tbody.innerHTML = sizeRows.map((row, index) => `
+            <tr>
+                <td><input type="text" class="size-input" data-index="${index}" value="${escapeHtml(row.size)}" placeholder="S, M, L..."></td>
+                <td><input type="number" class="price-input" data-index="${index}" value="${row.price || ''}" placeholder="Цена"></td>
+                <td><input type="text" class="barcode-input" data-index="${index}" value="${escapeHtml(row.barcode || '')}" placeholder="Штрих-код"></td>
+                <td><button type="button" class="btn-secondary remove-row" data-index="${index}" style="background:#ffebee; color:#f44336;">✖</button></td>
+            </tr>
+        `).join('');
         
-        if (categories.length === 0) {
-            categories = [
-                { id: 1, title: 'Одежда' },
-                { id: 2, title: 'Обувь' }
-            ];
-        }
-        
-        // Заполняем категории
-        const catSelect = document.getElementById('productCategory');
-        catSelect.innerHTML = '<option value="">Без категории</option>' + 
-            categories.map(c => `<option value="${c.id}">${c.title}</option>`).join('');
-        
-        // Если редактируем — загружаем данные товара
-        if (editId) {
-            editingId = parseInt(editId);
-            const product = products.find(p => p.id === editingId);
-            if (product) {
-                document.getElementById('formTitle').innerText = '✏️ Редактировать товар';
-                document.getElementById('productTitle').value = product.title || '';
-                document.getElementById('productArticle').value = product.article || '';
-                document.getElementById('productCategory').value = product.category_id || '';
-                document.getElementById('productColor').value = product.color || '';
-                document.getElementById('productPrice').value = product.price || '';
-                document.getElementById('productDiscount').value = product.discount_price || '';
-                
-                sizes = product.sizes || [];
-                barcodes = product.barcodes || [];
-                images = product.images || [];
-                
-                renderSizes();
-                renderBarcodes();
-                renderImages();
-                
-                document.getElementById('deleteBtn').style.display = 'block';
+        // Навешиваем события на инпуты
+        document.querySelectorAll('.size-input').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                sizeRows[idx].size = e.target.value;
+            });
+        });
+        document.querySelectorAll('.price-input').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                sizeRows[idx].price = parseInt(e.target.value) || 0;
+            });
+        });
+        document.querySelectorAll('.barcode-input').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                sizeRows[idx].barcode = e.target.value;
+            });
+        });
+        document.querySelectorAll('.remove-row').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.dataset.index);
+                sizeRows.splice(idx, 1);
+                renderSizesTable();
+            });
+        });
+    }
+    
+    function generateBarcodes() {
+        sizeRows.forEach(row => {
+            if (!row.barcode) {
+                row.barcode = '46' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
             }
-        }
+        });
+        renderSizesTable();
+        showToast('✅ Штрих-коды сгенерированы');
     }
     
     // ===== ФУНКЦИИ ДЛЯ ТЕГОВ =====
-    function setupTagInput(inputId, containerId, collection, renderFunc) {
-        const input = document.getElementById(inputId);
-        const container = document.getElementById(containerId);
-        
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const value = input.value.trim();
-                if (value && !collection.includes(value)) {
-                    collection.push(value);
-                    renderFunc();
-                    input.value = '';
-                }
-            }
-        });
-    }
-    
-    function renderSizes() {
-        const container = document.getElementById('sizesContainer');
+    function renderTags() {
+        const container = document.getElementById('tagsContainer');
         container.innerHTML = '';
-        sizes.forEach((size, index) => {
-            const tag = document.createElement('span');
-            tag.className = 'tag';
-            tag.innerHTML = `${size} <span class="tag-remove" data-index="${index}" data-type="size">×</span>`;
-            container.appendChild(tag);
+        tags.forEach((tag, index) => {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'tag';
+            tagEl.innerHTML = `${escapeHtml(tag)} <span class="tag-remove" data-index="${index}">×</span>`;
+            container.appendChild(tagEl);
         });
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'tag-input';
-        input.id = 'sizeInput';
-        input.placeholder = 'Введите размер и нажмите Enter';
+        input.id = 'tagInput';
+        input.placeholder = 'Введите ярлык и нажмите Enter';
         container.appendChild(input);
         
-        document.getElementById('sizeInput')?.addEventListener('keypress', (e) => {
+        document.getElementById('tagInput')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 const value = e.target.value.trim();
-                if (value && !sizes.includes(value)) {
-                    sizes.push(value);
-                    renderSizes();
+                if (value && !tags.includes(value)) {
+                    tags.push(value);
+                    renderTags();
                 }
             }
         });
         
-        document.querySelectorAll('.tag-remove[data-type="size"]').forEach(btn => {
+        document.querySelectorAll('.tag-remove').forEach(btn => {
             btn.addEventListener('click', () => {
                 const index = parseInt(btn.dataset.index);
-                sizes.splice(index, 1);
-                renderSizes();
+                tags.splice(index, 1);
+                renderTags();
             });
         });
     }
     
-    function renderBarcodes() {
-        const container = document.getElementById('barcodesContainer');
-        container.innerHTML = '';
-        barcodes.forEach((code, index) => {
-            const tag = document.createElement('span');
-            tag.className = 'tag';
-            tag.innerHTML = `${code} <span class="tag-remove" data-index="${index}" data-type="barcode">×</span>`;
-            container.appendChild(tag);
-        });
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'tag-input';
-        input.id = 'barcodeInput';
-        input.placeholder = 'Введите штрих-код и нажмите Enter';
-        container.appendChild(input);
-        
-        document.getElementById('barcodeInput')?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const value = e.target.value.trim();
-                if (value && !barcodes.includes(value)) {
-                    barcodes.push(value);
-                    renderBarcodes();
-                }
-            }
-        });
-        
-        document.querySelectorAll('.tag-remove[data-type="barcode"]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const index = parseInt(btn.dataset.index);
-                barcodes.splice(index, 1);
-                renderBarcodes();
-            });
-        });
-    }
-    
+    // ===== ФУНКЦИИ ДЛЯ ФОТОГРАФИЙ =====
     function renderImages() {
         const gallery = document.getElementById('imageGallery');
         gallery.innerHTML = images.map((url, index) => `
             <div class="image-item">
-                <img src="${url}" alt="Фото">
+                <img src="${escapeHtml(url)}" alt="Фото">
                 <span class="image-remove" data-index="${index}">×</span>
             </div>
         `).join('');
@@ -422,7 +531,115 @@
         }
     }
     
+    // ===== ЗАГРУЗКА ДАННЫХ =====
+    function loadData() {
+        const saved = localStorage.getItem('crm_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                products = data.products || [];
+                categories = data.categories || [];
+            } catch(e) {}
+        }
+        
+        if (categories.length === 0) {
+            categories = [
+                { id: 1, title: 'Одежда' },
+                { id: 2, title: 'Обувь' },
+                { id: 3, title: 'Аксессуары' }
+            ];
+        }
+        
+        renderCategories();
+        loadVariations();
+        
+        // Если редактируем
+        if (editId) {
+            editingId = parseInt(editId);
+            const product = products.find(p => p.id === editingId);
+            if (product) {
+                document.getElementById('formTitle').innerText = '✏️ Редактировать товар';
+                document.getElementById('productTitle').value = product.title || '';
+                document.getElementById('productArticle').value = product.article || '';
+                document.getElementById('productCategory').value = product.category_id || '';
+                document.getElementById('productColor').value = product.color || '';
+                document.getElementById('productPrice').value = product.price || '';
+                document.getElementById('productDiscount').value = product.discount_price || '';
+                document.getElementById('productDescription').value = product.description || '';
+                document.getElementById('charCount').innerText = (product.description || '').length;
+                
+                // Характеристики
+                const chars = product.characteristics || {};
+                document.getElementById('charCollar').value = chars.collar || '';
+                document.getElementById('CharSleeves').value = chars.sleeves || '';
+                document.getElementById('charPockets').value = chars.pockets || '';
+                document.getElementById('charClasp').value = chars.clasp || '';
+                document.getElementById('charLength').value = chars.length || '';
+                document.getElementById('charSilhouette').value = chars.silhouette || '';
+                
+                tags = product.tags || [];
+                images = product.images || [];
+                sizeRows = product.sizes_data || [];
+                document.getElementById('parentSku').value = product.parent_sku || '';
+                
+                renderTags();
+                renderImages();
+                renderSizesTable();
+                
+                document.getElementById('deleteBtn').style.display = 'block';
+            }
+        }
+        
+        // Подсчёт символов в описании
+        const descInput = document.getElementById('productDescription');
+        descInput.addEventListener('input', () => {
+            document.getElementById('charCount').innerText = descInput.value.length;
+        });
+    }
+    
+    function renderCategories() {
+        const catSelect = document.getElementById('productCategory');
+        catSelect.innerHTML = '<option value="">Без категории</option>' + 
+            categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+    }
+    
+    function loadVariations() {
+        const parentSkuInput = document.getElementById('parentSku');
+        const variationsDiv = document.getElementById('variationsList');
+        
+        parentSkuInput.addEventListener('input', () => {
+            const sku = parentSkuInput.value.trim();
+            if (sku && editingId) {
+                const variations = products.filter(p => p.parent_sku === sku && p.id !== editingId);
+                if (variations.length > 0) {
+                    variationsDiv.innerHTML = `
+                        <div style="background: #e8f5e9; padding: 12px; border-radius: 12px;">
+                            <strong>🔗 Найдено вариаций с таким же SKU:</strong>
+                            ${variations.map(v => `<div>• ${v.title} (${v.sizes?.join(', ') || 'без размеров'})</div>`).join('')}
+                            <div style="font-size: 12px; color: #666; margin-top: 8px;">Товары с одинаковым SKU будут объединены в одну карточку как вариации</div>
+                        </div>
+                    `;
+                } else {
+                    variationsDiv.innerHTML = '';
+                }
+            } else {
+                variationsDiv.innerHTML = '';
+            }
+        });
+    }
+    
     // ===== СОХРАНЕНИЕ =====
+    function addCategory() {
+        const newCat = prompt('Введите название новой категории:');
+        if (newCat && newCat.trim()) {
+            const newId = categories.length > 0 ? Math.max(...categories.map(c => c.id)) + 1 : 1;
+            categories.push({ id: newId, title: newCat.trim() });
+            renderCategories();
+            saveToCRM();
+            showToast(`✅ Категория "${newCat}" добавлена`);
+        }
+    }
+    
     function saveToCRM() {
         let crmData = localStorage.getItem('crm_data');
         if (crmData) {
@@ -461,9 +678,19 @@
             color: document.getElementById('productColor').value.trim() || null,
             price: parseInt(document.getElementById('productPrice').value) || 0,
             discount_price: parseInt(document.getElementById('productDiscount').value) || null,
-            sizes: sizes,
-            barcodes: barcodes,
-            images: images
+            description: document.getElementById('productDescription').value || null,
+            characteristics: {
+                collar: document.getElementById('charCollar').value || null,
+                sleeves: document.getElementById('CharSleeves').value || null,
+                pockets: document.getElementById('charPockets').value || null,
+                clasp: document.getElementById('charClasp').value || null,
+                length: document.getElementById('charLength').value || null,
+                silhouette: document.getElementById('charSilhouette').value || null
+            },
+            tags: tags,
+            images: images,
+            sizes_data: sizeRows,
+            parent_sku: document.getElementById('parentSku').value.trim() || null
         };
         
         if (editingId) {
@@ -496,13 +723,30 @@
         }
     }
     
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
     // ===== ИНИЦИАЛИЗАЦИЯ =====
     document.getElementById('productForm').addEventListener('submit', saveProduct);
     document.getElementById('deleteBtn').addEventListener('click', deleteProduct);
+    document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
+    document.getElementById('addSizeRowBtn').addEventListener('click', () => {
+        sizeRows.push({ size: '', price: 0, barcode: '' });
+        renderSizesTable();
+    });
+    document.getElementById('generateBarcodesBtn').addEventListener('click', generateBarcodes);
     
-    renderSizes();
-    renderBarcodes();
+    // Инициализация тегов и галереи
+    renderTags();
     renderImages();
+    renderSizesTable();
     loadData();
 </script>
 </body>
