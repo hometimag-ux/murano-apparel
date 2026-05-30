@@ -4,136 +4,844 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Добавление/Редактирование товара</title>
-    <link rel="stylesheet" href="/murano-apparel/css/products.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .add-product-container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
-        .back-link { display: inline-block; margin-bottom: 20px; color: #0066cc; text-decoration: none; }
-        .form-card { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-        .form-title { font-size: 24px; margin-bottom: 24px; color: #1a1a2e; }
-        .form-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
-        .form-section h3 { font-size: 18px; margin-bottom: 16px; color: #0066cc; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #333; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; }
-        .form-group textarea { resize: vertical; }
-        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         
-        .btn-save { background: linear-gradient(135deg, #0066cc, #0052a3); color: white; border: none; padding: 14px 24px; border-radius: 40px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; box-shadow: 0 2px 8px rgba(0,102,204,0.3); transition: all 0.2s; }
-        .btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,102,204,0.4); }
-        .btn-delete { background: linear-gradient(135deg, #f44336, #d32f2f); color: white; border: none; padding: 14px 24px; border-radius: 40px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; transition: all 0.2s; }
-        .btn-delete:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(244,67,54,0.3); }
-        .btn-secondary { background: #f0f0f0; color: #333; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-        .btn-secondary:hover { background: #e0e0e0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 40px 20px;
+        }
         
-        .sizes-table-container { overflow-x: auto; margin-top: 16px; }
-        .sizes-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .sizes-table th, .sizes-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        .sizes-table th { background: #f8f9fa; font-weight: 600; }
-        .sizes-table input { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 6px; }
+        .add-product-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
         
-        .tag-input-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; border: 1px solid #ddd; border-radius: 12px; min-height: 50px; }
-        .tag { background: #e3f2fd; padding: 4px 12px; border-radius: 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
-        .tag-remove { cursor: pointer; color: #999; }
-        .tag-input { border: none; padding: 6px; flex: 1; min-width: 80px; }
-        .tag-input:focus { outline: none; }
+        /* Навигация */
+        .nav-links {
+            margin-bottom: 24px;
+        }
         
-        .image-gallery { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
-        .image-item { width: 80px; height: 80px; background: #f5f5f5; border-radius: 12px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .image-item img { width: 100%; height: 100%; object-fit: cover; }
-        .image-remove { position: absolute; top: -6px; right: -6px; background: #f44336; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
         
-        .variations-list { margin-top: 16px; }
-        .variation-item { background: #f8f9fa; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 30px; animation: fadeOut 2s ease; z-index: 1000; }
-        @keyframes fadeOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); } }
+        .back-link:hover {
+            background: #0066cc;
+            color: white;
+            transform: translateX(-4px);
+        }
+        
+        /* Основная карточка */
+        .form-card {
+            background: white;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .form-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            padding: 28px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .form-title {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+        
+        .form-body {
+            padding: 32px;
+        }
+        
+        /* Секции */
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 24px;
+            margin-bottom: 28px;
+            transition: all 0.3s;
+        }
+        
+        .form-section:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-title i {
+            color: #0066cc;
+            font-size: 22px;
+        }
+        
+        /* Сетки */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 0;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .form-group label i {
+            margin-right: 6px;
+            color: #0066cc;
+            width: 20px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        
+        /* Таблица размеров */
+        .sizes-table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+        
+        .sizes-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .sizes-table th,
+        .sizes-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .sizes-table th {
+            background: #f0f0f0;
+            font-weight: 600;
+        }
+        
+        .sizes-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+        }
+        
+        /* Теги (ярлыки, до 3) */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .tag {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tag-remove {
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        
+        .tag-remove:hover {
+            opacity: 1;
+        }
+        
+        .tag-add-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tag-add-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Галерея фото */
+        .gallery-container {
+            margin-top: 16px;
+        }
+        
+        .gallery-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            overflow: hidden;
+            background: #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .gallery-item.main {
+            border: 3px solid #0066cc;
+            box-shadow: 0 0 0 2px rgba(0,102,204,0.3);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .gallery-item .main-badge {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,102,204,0.9);
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            padding: 2px;
+        }
+        
+        .gallery-item .remove-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        
+        .gallery-item .remove-btn:hover {
+            background: #f44336;
+        }
+        
+        .gallery-item .make-main {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .gallery-item .make-main:hover {
+            background: #0066cc;
+        }
+        
+        .add-photo-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 16px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #999;
+        }
+        
+        .add-photo-btn:hover {
+            background: #e8e8e8;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+        
+        /* Кнопки */
+        .btn-save {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 24px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,102,204,0.4);
+        }
+        
+        .btn-delete {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 60px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 12px;
+            transition: all 0.3s;
+        }
+        
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(244,67,54,0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            body { padding: 20px; }
+            .form-body { padding: 20px; }
+            .form-section { padding: 16px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .gallery-grid { gap: 12px; }
+            .gallery-item, .add-photo-btn { width: 80px; height: 80px; }
+        }
+        
+        /* Стили для инпутов с иконками */
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .input-with-icon input {
+            padding-left: 38px;
+        }
     </style>
 </head>
 <body>
 <div class="add-product-container">
-    <a href="javascript:history.back()" class="back-link">← Назад к списку товаров</a>
+    <div class="nav-links">
+        <a href="javascript:history.back()" class="back-link">
+            <i class="fas fa-arrow-left"></i> Назад к списку товаров
+        </a>
+    </div>
+    
     <div class="form-card">
-        <h1 class="form-title" id="formTitle">➕ Добавить товар</h1>
-        <form id="productForm">
-            <!-- Основная информация -->
-            <div class="form-section">
-                <h3>📋 Основная информация</h3>
-                <div class="form-row">
-                    <div class="form-group"><label>Название *</label><input type="text" id="productTitle" required placeholder="Хлопковая футболка"></div>
-                    <div class="form-group"><label>Артикул</label><input type="text" id="productArticle" placeholder="TSH-001"></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Категория</label>
-                        <div style="display: flex; gap: 8px;"><select id="productCategory" style="flex:1;"><option value="">Без категории</option></select><button type="button" class="btn-secondary" id="addCategoryBtn">➕ Новая</button></div>
+        <div class="form-header">
+            <h1 class="form-title" id="formTitle">
+                <i class="fas fa-plus-circle"></i> Добавить товар
+            </h1>
+        </div>
+        
+        <div class="form-body">
+            <form id="productForm">
+                <!-- ===== ОСНОВНАЯ ИНФОРМАЦИЯ ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Основная информация</span>
                     </div>
-                    <div class="form-group"><label>Цвет</label><input type="text" id="productColor" placeholder="Белый, Черный, Синий..."></div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Название *</label>
+                            <input type="text" id="productTitle" required placeholder="Например: Хлопковая футболка">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-barcode"></i> Артикул</label>
+                            <input type="text" id="productArticle" placeholder="TSH-001">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-layer-group"></i> Категория</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="productCategory" style="flex: 1;">
+                                    <option value="">Без категории</option>
+                                </select>
+                                <button type="button" class="btn-secondary" id="addCategoryBtn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-palette"></i> Цвет</label>
+                            <input type="text" id="productColor" placeholder="Белый, Черный, Синий...">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label><i class="fas fa-align-left"></i> Описание (до 2000 символов)</label>
+                        <textarea id="productDescription" rows="5" maxlength="2000" placeholder="Подробное описание товара..."></textarea>
+                        <div style="font-size: 12px; color: #999; text-align: right; margin-top: 6px;">
+                            <span id="charCount">0</span>/2000
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group"><label>Описание (до 2000 символов)</label><textarea id="productDescription" rows="5" maxlength="2000" placeholder="Подробное описание товара..."></textarea><div style="font-size: 11px; color: #999; text-align: right;"><span id="charCount">0</span>/2000</div></div>
-            </div>
-            
-            <!-- Характеристики -->
-            <div class="form-section">
-                <h3>📏 Характеристики</h3>
-                <div class="form-row">
-                    <div class="form-group"><label>Воротник</label><select id="charCollar"><option value="">Не указано</option><option>Круглый</option><option>V-образный</option><option>Стойка</option><option>Отложной</option><option>Хомут</option></select></div>
-                    <div class="form-group"><label>Рукава</label><select id="charSleeves"><option value="">Не указано</option><option>Короткие</option><option>Длинные</option><option>3/4</option><option>Без рукавов</option><option>Реглан</option></select></div>
+                
+                <!-- ===== ХАРАКТЕРИСТИКИ ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-ruler-combined"></i>
+                        <span>Характеристики товара</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-building"></i> Бренд</label>
+                            <input type="text" id="charBrand" placeholder="Nike, Adidas, Zara...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-tshirt"></i> Состав</label>
+                            <input type="text" id="charMaterial" placeholder="100% хлопок, полиэстер...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-weight-hanging"></i> Плотность</label>
+                            <input type="text" id="charDensity" placeholder="200 г/м², плотный...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-hand-peace"></i> Текстура ткани</label>
+                            <input type="text" id="charTexture" placeholder="Гладкая, рифленая, велюр...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-venus-mars"></i> Пол</label>
+                            <select id="charGender">
+                                <option value="">Не указано</option>
+                                <option>Мужской</option><option>Женский</option>
+                                <option>Унисекс</option><option>Детский</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar-alt"></i> Возраст</label>
+                            <input type="text" id="charAge" placeholder="Взрослый, подросток, 3-7 лет...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt"></i> Размер на модели</label>
+                            <input type="text" id="charModelSize" placeholder="S, M, L, 48, 50...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-arrow-up"></i> Рост на модели</label>
+                            <input type="text" id="charModelHeight" placeholder="170 см, 175 см...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-tshirt"></i> Воротник</label>
+                            <select id="charCollar">
+                                <option value="">Не указано</option>
+                                <option>Круглый</option><option>V-образный</option>
+                                <option>Стойка</option><option>Отложной</option><option>Хомут</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-hand-peace"></i> Рукава</label>
+                            <select id="charSleeves">
+                                <option value="">Не указано</option>
+                                <option>Короткие</option><option>Длинные</option>
+                                <option>3/4</option><option>Без рукавов</option><option>Реглан</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-archive"></i> Карманы</label>
+                            <select id="charPockets">
+                                <option value="">Не указано</option>
+                                <option>Нет</option><option>Накладные</option>
+                                <option>Прорезные</option><option>Внутренние</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-lock"></i> Вид застёжки</label>
+                            <select id="charClasp">
+                                <option value="">Не указано</option>
+                                <option>Молния</option><option>Пуговицы</option>
+                                <option>Кнопки</option><option>Крючки</option><option>Без застёжки</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt-v"></i> Длина изделия</label>
+                            <select id="charLength">
+                                <option value="">Не указано</option>
+                                <option>Короткое</option><option>Стандартное</option>
+                                <option>Удлинённое</option><option>Длинное</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-shapes"></i> Силуэт</label>
+                            <select id="charSilhouette">
+                                <option value="">Не указано</option>
+                                <option>Прямой</option><option>Приталенный</option>
+                                <option>Оверсайз</option><option>Трапеция</option><option>Расширенный</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Карманы</label><select id="charPockets"><option value="">Не указано</option><option>Нет</option><option>Накладные</option><option>Прорезные</option><option>Внутренние</option></select></div>
-                    <div class="form-group"><label>Вид застёжки</label><select id="charClasp"><option value="">Не указано</option><option>Молния</option><option>Пуговицы</option><option>Кнопки</option><option>Крючки</option><option>Без застёжки</option></select></div>
+                
+                <!-- ===== ДОПОЛНИТЕЛЬНЫЕ ХАРАКТЕРИСТИКИ ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Дополнительная информация</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-star"></i> Особенности изделия</label>
+                            <input type="text" id="charFeatures" placeholder="Дышащий, влагоотводящий, утеплённый...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-hand-sparkles"></i> Уход за изделием</label>
+                            <input type="text" id="charCare" placeholder="Машинная стирка 30°, не отбеливать...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-boxes"></i> Комплектация</label>
+                            <input type="text" id="charSet" placeholder="Футболка, пакет, наклейка...">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-globe"></i> ТН ВЭД</label>
+                            <input type="text" id="charTnved" placeholder="6109100000">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-flag"></i> Страна производства</label>
+                            <input type="text" id="charCountry" placeholder="Китай, Россия, Турция...">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Длина изделия</label><select id="charLength"><option value="">Не указано</option><option>Короткое</option><option>Стандартное</option><option>Удлинённое</option><option>Длинное</option></select></div>
-                    <div class="form-group"><label>Силуэт</label><select id="charSilhouette"><option value="">Не указано</option><option>Прямой</option><option>Приталенный</option><option>Оверсайз</option><option>Трапеция</option><option>Расширенный</option></select></div>
+                
+                <!-- ===== ГАБАРИТЫ И ВЕС УПАКОВКИ ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-box"></i>
+                        <span>Габариты и вес упаковки</span>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt"></i> Длина (см)</label>
+                            <input type="number" id="packLength" placeholder="30">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt-h"></i> Ширина (см)</label>
+                            <input type="number" id="packWidth" placeholder="20">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-arrows-alt-v"></i> Высота (см)</label>
+                            <input type="number" id="packHeight" placeholder="5">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-weight-hanging"></i> Вес (кг)</label>
+                            <input type="number" id="packWeight" step="0.1" placeholder="0.3">
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Размерная таблица (с ценой и штрих-кодом) -->
-            <div class="form-section">
-                <h3>📊 Размерная таблица</h3>
-                <div class="sizes-table-container">
-                    <table class="sizes-table" id="sizesTable">
-                        <thead><tr><th>Размер</th><th>Цена (₽)</th><th>Цена со скидкой (₽)</th><th>Штрих-код</th><th style="width:40px;"></th></tr></thead>
-                        <tbody id="sizesTableBody"></tbody>
-                    </table>
+                
+                <!-- ===== РАЗМЕРНАЯ ТАБЛИЦА ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-table"></i>
+                        <span>Размерная таблица</span>
+                    </div>
+                    <div class="sizes-table-container">
+                        <table class="sizes-table" id="sizesTable">
+                            <thead>
+                                <tr><th>Размер</th><th>Цена (₽)</th><th>Цена со скидкой (₽)</th><th>Штрих-код</th><th style="width:40px;"></th></tr>
+                            </thead>
+                            <tbody id="sizesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button type="button" class="btn-secondary" id="addSizeRowBtn">
+                            <i class="fas fa-plus"></i> Добавить размер
+                        </button>
+                        <button type="button" class="btn-secondary" id="generateBarcodesBtn">
+                            <i class="fas fa-qrcode"></i> Сгенерировать штрих-коды
+                        </button>
+                    </div>
                 </div>
-                <button type="button" class="btn-secondary" id="addSizeRowBtn" style="margin-right:8px;">+ Добавить размер</button>
-                <button type="button" class="btn-secondary" id="generateBarcodesBtn">🔢 Сгенерировать штрих-коды</button>
-            </div>
-            
-            <!-- Ярлыки -->
-            <div class="form-section">
-                <h3>🏷️ Ярлыки</h3>
-                <div class="tag-input-container" id="tagsContainer"><input type="text" class="tag-input" id="tagInput" placeholder="Введите ярлык и нажмите Enter (хит, новинка, распродажа...)"></div>
-            </div>
-            
-            <!-- Фотографии -->
-            <div class="form-section">
-                <h3>🖼️ Фотографии</h3>
-                <div class="tag-input-container" id="imagesContainer"><input type="text" class="tag-input" id="imageInput" placeholder="Введите URL фото и нажмите Enter"></div>
-                <div class="image-gallery" id="imageGallery"></div>
-            </div>
-            
-            <!-- Объединение карточек -->
-            <div class="form-section">
-                <h3>🔄 Объединение карточек товаров</h3>
-                <div class="form-group"><label>SKU родительской карточки (для объединения вариаций)</label><input type="text" id="parentSku" placeholder="Введите общий SKU для всех вариаций товара"></div>
-                <div style="font-size:12px; color:#999; margin-top:8px;">💡 Товары с одинаковым SKU будут отображаться как вариации (размеры/цвета) одной карточки</div>
-                <div id="variationsList" class="variations-list"></div>
-            </div>
-            
-            <button type="submit" class="btn-save" id="saveBtn">💾 Сохранить товар</button>
-            <button type="button" class="btn-delete" id="deleteBtn" style="display: none;">🗑️ Удалить товар</button>
-        </form>
+                
+                <!-- ===== ЯРЛЫКИ (МАКСИМУМ 3) ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-tags"></i>
+                        <span>Ярлыки (максимум 3)</span>
+                    </div>
+                    <div class="tags-container" id="tagsContainer">
+                        <div id="tagList"></div>
+                        <button type="button" class="tag-add-btn" id="addTagBtn" style="display: none;">
+                            <i class="fas fa-plus"></i> Добавить ярлык
+                        </button>
+                    </div>
+                    <div style="font-size: 12px; color: #999; margin-top: 12px;">
+                        <i class="fas fa-info-circle"></i> Популярные: хит, новинка, распродажа, лимитировано, эксклюзив
+                    </div>
+                </div>
+                
+                <!-- ===== ФОТОГРАФИИ ===== -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="fas fa-images"></i>
+                        <span>Фотографии</span>
+                    </div>
+                    <div class="gallery-container">
+                        <div class="gallery-grid" id="galleryGrid"></div>
+                    </div>
+                    <div style="font-size: 12px; color: #999; margin-top: 12px;">
+                        <i class="fas fa-info-circle"></i> Первое фото будет главным. Нажмите на фото, чтобы сделать его главным.
+                    </div>
+                </div>
+                
+                <!-- Кнопки -->
+                <button type="submit" class="btn-save" id="saveBtn">
+                    <i class="fas fa-save"></i> Сохранить товар
+                </button>
+                <button type="button" class="btn-delete" id="deleteBtn" style="display: none;">
+                    <i class="fas fa-trash-alt"></i> Удалить товар
+                </button>
+            </form>
+        </div>
     </div>
 </div>
 
 <script>
+    // ===== ПЕРЕМЕННЫЕ =====
     const urlParams = new URLSearchParams(window.location.search);
     const editId = urlParams.get('id');
     let products = [], categories = [], editingId = null;
-    let tags = [], images = [], sizeRows = [];
+    let tags = [];
+    let images = [];
+    let sizeRows = [];
     
+    // ===== ГАЛЕРЕЯ ФОТО =====
+    function renderGallery() {
+        const gallery = document.getElementById('galleryGrid');
+        gallery.innerHTML = '';
+        
+        images.forEach((url, idx) => {
+            const isMain = idx === 0;
+            const item = document.createElement('div');
+            item.className = `gallery-item ${isMain ? 'main' : ''}`;
+            item.innerHTML = `
+                <img src="${escapeHtml(url)}" alt="Фото ${idx+1}">
+                ${isMain ? '<div class="main-badge"><i class="fas fa-crown"></i> Главное</div>' : ''}
+                <button class="remove-btn" data-index="${idx}" title="Удалить"><i class="fas fa-times"></i></button>
+                ${!isMain ? `<button class="make-main" data-index="${idx}" title="Сделать главным"><i class="fas fa-star"></i></button>` : ''}
+            `;
+            gallery.appendChild(item);
+        });
+        
+        // Кнопка добавления фото
+        const addBtn = document.createElement('div');
+        addBtn.className = 'add-photo-btn';
+        addBtn.innerHTML = '<i class="fas fa-plus" style="font-size: 24px;"></i><span>Добавить</span>';
+        addBtn.onclick = () => addPhoto();
+        gallery.appendChild(addBtn);
+        
+        // Обработчики
+        document.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.index);
+                images.splice(idx, 1);
+                renderGallery();
+                showToast('Фото удалено');
+            });
+        });
+        
+        document.querySelectorAll('.make-main').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const idx = parseInt(btn.dataset.index);
+                const [moved] = images.splice(idx, 1);
+                images.unshift(moved);
+                renderGallery();
+                showToast('Главное фото обновлено');
+            });
+        });
+    }
+    
+    function addPhoto() {
+        const url = prompt('Введите URL фотографии:', 'https://');
+        if (url && url.startsWith('http')) {
+            images.push(url);
+            renderGallery();
+            showToast('Фото добавлено');
+        } else if (url) {
+            alert('Введите корректный URL (начинается с http:// или https://)');
+        }
+    }
+    
+    // ===== ЯРЛЫКИ (МАКС 3) =====
+    function renderTags() {
+        const container = document.getElementById('tagList');
+        container.innerHTML = '';
+        
+        tags.forEach((tag, idx) => {
+            const tagEl = document.createElement('span');
+            tagEl.className = 'tag';
+            tagEl.innerHTML = `${escapeHtml(tag)} <span class="tag-remove" data-index="${idx}"><i class="fas fa-times"></i></span>`;
+            container.appendChild(tagEl);
+        });
+        
+        const addBtn = document.getElementById('addTagBtn');
+        if (addBtn) addBtn.style.display = tags.length >= 3 ? 'none' : 'inline-flex';
+        
+        document.querySelectorAll('.tag-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.parentElement.dataset.index);
+                if (!isNaN(idx)) {
+                    tags.splice(idx, 1);
+                    renderTags();
+                }
+            });
+        });
+    }
+    
+    function addTag() {
+        if (tags.length >= 3) {
+            alert('Максимум 3 ярлыка');
+            return;
+        }
+        const newTag = prompt('Введите новый ярлык (хит, новинка, распродажа...):');
+        if (newTag && newTag.trim() && !tags.includes(newTag.trim())) {
+            tags.push(newTag.trim());
+            renderTags();
+            showToast(`Ярлык "${newTag.trim()}" добавлен`);
+        } else if (newTag && tags.includes(newTag.trim())) {
+            alert('Такой ярлык уже есть');
+        }
+    }
+    
+    // ===== ТАБЛИЦА РАЗМЕРОВ =====
     function renderSizesTable() {
         const tbody = document.getElementById('sizesTableBody');
         tbody.innerHTML = sizeRows.map((row, index) => `
@@ -141,8 +849,8 @@
                 <td><input type="text" class="size-input" data-index="${index}" value="${escapeHtml(row.size)}" placeholder="S, M, L..."></td>
                 <td><input type="number" class="price-input" data-index="${index}" value="${row.price || ''}" placeholder="Цена"></td>
                 <td><input type="number" class="discount-input" data-index="${index}" value="${row.discount_price || ''}" placeholder="Цена со скидкой"></td>
-                <td><input type="text" class="barcode-input" data-index="${index}" value="${escapeHtml(row.barcode || '')}" placeholder="Штрих-код"></td>
-                <td><button type="button" class="btn-secondary remove-row" data-index="${index}" style="background:#ffebee; color:#f44336;">✖</button></td>
+                <td><input type="text" class="barcode-input" data-index="${index}" value="${escapeHtml(row.barcode || '')}" placeholder="Штрих-код" maxlength="20"></td>
+                <td><button type="button" class="btn-secondary remove-row" data-index="${index}" style="background:#ffebee; color:#f44336;"><i class="fas fa-trash"></i></button></td>
             </tr>
         `).join('');
         
@@ -154,29 +862,14 @@
     }
     
     function generateBarcodes() {
-        sizeRows.forEach(row => { if (!row.barcode) row.barcode = '46' + Math.floor(Math.random() * 1000000000000).toString().padStart(12,'0'); });
+        sizeRows.forEach(row => {
+            if (!row.barcode) row.barcode = '46' + Math.floor(Math.random() * 1000000000000).toString().padStart(12,'0');
+        });
         renderSizesTable();
         showToast('✅ Штрих-коды сгенерированы');
     }
     
-    function renderTags() {
-        const container = document.getElementById('tagsContainer');
-        container.innerHTML = '';
-        tags.forEach((tag, index) => { const tagEl = document.createElement('span'); tagEl.className = 'tag'; tagEl.innerHTML = `${escapeHtml(tag)} <span class="tag-remove" data-index="${index}">×</span>`; container.appendChild(tagEl); });
-        const input = document.createElement('input'); input.type = 'text'; input.className = 'tag-input'; input.id = 'tagInput'; input.placeholder = 'Введите ярлык и нажмите Enter';
-        container.appendChild(input);
-        document.getElementById('tagInput')?.addEventListener('keypress', (e) => { if(e.key === 'Enter') { e.preventDefault(); const value = e.target.value.trim(); if(value && !tags.includes(value)) { tags.push(value); renderTags(); } } });
-        document.querySelectorAll('.tag-remove').forEach(btn => btn.addEventListener('click', () => { const idx = parseInt(btn.dataset.index); tags.splice(idx,1); renderTags(); }));
-    }
-    
-    function renderImages() {
-        const gallery = document.getElementById('imageGallery');
-        gallery.innerHTML = images.map((url, idx) => `<div class="image-item"><img src="${escapeHtml(url)}"><span class="image-remove" data-index="${idx}">×</span></div>`).join('');
-        document.querySelectorAll('.image-remove').forEach(btn => btn.addEventListener('click', () => { const idx = parseInt(btn.dataset.index); images.splice(idx,1); renderImages(); }));
-        const input = document.getElementById('imageInput');
-        if(input) input.addEventListener('keypress', (e) => { if(e.key === 'Enter') { e.preventDefault(); const value = input.value.trim(); if(value) { images.push(value); renderImages(); input.value = ''; } } });
-    }
-    
+    // ===== ЗАГРУЗКА ДАННЫХ =====
     function loadData() {
         const saved = localStorage.getItem('crm_data');
         if(saved) { try { const data = JSON.parse(saved); products = data.products || []; categories = data.categories || []; } catch(e) {} }
@@ -189,29 +882,53 @@
             editingId = parseInt(editId);
             const product = products.find(p => p.id === editingId);
             if(product) {
-                document.getElementById('formTitle').innerText = '✏️ Редактировать товар';
+                document.getElementById('formTitle').innerHTML = '<i class="fas fa-edit"></i> Редактировать товар';
                 document.getElementById('productTitle').value = product.title || '';
                 document.getElementById('productArticle').value = product.article || '';
                 document.getElementById('productCategory').value = product.category_id || '';
                 document.getElementById('productColor').value = product.color || '';
                 document.getElementById('productDescription').value = product.description || '';
                 document.getElementById('charCount').innerText = (product.description || '').length;
+                
                 const chars = product.characteristics || {};
+                document.getElementById('charBrand').value = chars.brand || '';
+                document.getElementById('charMaterial').value = chars.material || '';
+                document.getElementById('charDensity').value = chars.density || '';
+                document.getElementById('charTexture').value = chars.texture || '';
+                document.getElementById('charGender').value = chars.gender || '';
+                document.getElementById('charAge').value = chars.age || '';
+                document.getElementById('charModelSize').value = chars.model_size || '';
+                document.getElementById('charModelHeight').value = chars.model_height || '';
                 document.getElementById('charCollar').value = chars.collar || '';
                 document.getElementById('charSleeves').value = chars.sleeves || '';
                 document.getElementById('charPockets').value = chars.pockets || '';
                 document.getElementById('charClasp').value = chars.clasp || '';
                 document.getElementById('charLength').value = chars.length || '';
                 document.getElementById('charSilhouette').value = chars.silhouette || '';
+                document.getElementById('charFeatures').value = chars.features || '';
+                document.getElementById('charCare').value = chars.care || '';
+                document.getElementById('charSet').value = chars.set || '';
+                document.getElementById('charTnved').value = chars.tnved || '';
+                document.getElementById('charCountry').value = chars.country || '';
+                
+                const pack = product.packaging || {};
+                document.getElementById('packLength').value = pack.length || '';
+                document.getElementById('packWidth').value = pack.width || '';
+                document.getElementById('packHeight').value = pack.height || '';
+                document.getElementById('packWeight').value = pack.weight || '';
+                
                 tags = product.tags || [];
                 images = product.images || [];
-                sizeRows = product.sizes_data && product.sizes_data.length ? product.sizes_data : (product.sizes ? product.sizes.map(s => ({ size: s, price: product.price, discount_price: product.discount_price, barcode: '' })) : []);
-                document.getElementById('parentSku').value = product.parent_sku || '';
-                renderTags(); renderImages(); renderSizesTable();
+                sizeRows = product.sizes_data && product.sizes_data.length ? product.sizes_data : [];
+                
+                renderTags(); renderGallery(); renderSizesTable();
                 document.getElementById('deleteBtn').style.display = 'block';
             }
         }
-        document.getElementById('productDescription')?.addEventListener('input', () => document.getElementById('charCount').innerText = document.getElementById('productDescription').value.length);
+        
+        document.getElementById('productDescription')?.addEventListener('input', () => {
+            document.getElementById('charCount').innerText = document.getElementById('productDescription').value.length;
+        });
     }
     
     function addCategory() {
@@ -231,14 +948,16 @@
         else { localStorage.setItem('crm_data', JSON.stringify({ products, categories, leads: [], messages: {}, settings: {} })); }
     }
     
-    function showToast(message) { const toast = document.createElement('div'); toast.className = 'toast'; toast.textContent = message; document.body.appendChild(toast); setTimeout(() => toast.remove(), 2000); }
+    function showToast(message) {
+        const toast = document.createElement('div'); toast.className = 'toast'; toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+    }
     
     function saveProduct(e) {
         e.preventDefault();
         const title = document.getElementById('productTitle').value.trim();
         if(!title) { alert('Введите название товара'); return; }
         
-        // Цены берём из первой строки размерной таблицы как основные
         const firstSize = sizeRows[0] || {};
         const mainPrice = firstSize.price || 0;
         const mainDiscount = firstSize.discount_price || null;
@@ -250,14 +969,33 @@
             price: mainPrice, discount_price: mainDiscount,
             description: document.getElementById('productDescription').value || null,
             characteristics: {
+                brand: document.getElementById('charBrand').value || null,
+                material: document.getElementById('charMaterial').value || null,
+                density: document.getElementById('charDensity').value || null,
+                texture: document.getElementById('charTexture').value || null,
+                gender: document.getElementById('charGender').value || null,
+                age: document.getElementById('charAge').value || null,
+                model_size: document.getElementById('charModelSize').value || null,
+                model_height: document.getElementById('charModelHeight').value || null,
                 collar: document.getElementById('charCollar').value || null,
                 sleeves: document.getElementById('charSleeves').value || null,
                 pockets: document.getElementById('charPockets').value || null,
                 clasp: document.getElementById('charClasp').value || null,
                 length: document.getElementById('charLength').value || null,
-                silhouette: document.getElementById('charSilhouette').value || null
+                silhouette: document.getElementById('charSilhouette').value || null,
+                features: document.getElementById('charFeatures').value || null,
+                care: document.getElementById('charCare').value || null,
+                set: document.getElementById('charSet').value || null,
+                tnved: document.getElementById('charTnved').value || null,
+                country: document.getElementById('charCountry').value || null
             },
-            tags, images, sizes_data: sizeRows, parent_sku: document.getElementById('parentSku').value.trim() || null
+            packaging: {
+                length: parseFloat(document.getElementById('packLength').value) || null,
+                width: parseFloat(document.getElementById('packWidth').value) || null,
+                height: parseFloat(document.getElementById('packHeight').value) || null,
+                weight: parseFloat(document.getElementById('packWeight').value) || null
+            },
+            tags, images, sizes_data: sizeRows
         };
         
         if(editingId) {
@@ -269,22 +1007,24 @@
             showToast('✅ Товар добавлен');
         }
         saveToCRM();
-        setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500);
+        setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 600);
     }
     
     function deleteProduct() {
-        if(confirm('Удалить товар?')) { products = products.filter(p => p.id !== editingId); saveToCRM(); showToast('🗑️ Товар удалён'); setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); }
+        if(confirm('Удалить товар?')) { products = products.filter(p => p.id !== editingId); saveToCRM(); showToast('🗑️ Товар удалён'); setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 600); }
     }
     
     function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     
+    // Инициализация
     document.getElementById('productForm').addEventListener('submit', saveProduct);
     document.getElementById('deleteBtn').addEventListener('click', deleteProduct);
     document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
     document.getElementById('addSizeRowBtn').addEventListener('click', () => { sizeRows.push({ size: '', price: 0, discount_price: null, barcode: '' }); renderSizesTable(); });
     document.getElementById('generateBarcodesBtn').addEventListener('click', generateBarcodes);
+    document.getElementById('addTagBtn').addEventListener('click', addTag);
     
-    renderTags(); renderImages(); renderSizesTable(); loadData();
+    renderTags(); renderGallery(); renderSizesTable(); loadData();
 </script>
 </body>
 </html>
