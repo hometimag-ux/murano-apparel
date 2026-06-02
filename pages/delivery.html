@@ -25,7 +25,6 @@
             margin: 0 auto;
         }
         
-        /* Шапка */
         .delivery-header {
             margin-bottom: 28px;
         }
@@ -44,7 +43,41 @@
             margin-right: 12px;
         }
         
-        /* Сетка карточек способов доставки */
+        /* Табы */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.2s;
+            color: #666;
+        }
+        
+        .tab-btn.active {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        /* Сетка карточек */
         .delivery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
@@ -177,7 +210,7 @@
             background: #e3f2fd;
         }
         
-        /* Форма добавления нового способа */
+        /* Форма добавления */
         .add-section {
             background: white;
             border-radius: 28px;
@@ -192,10 +225,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        
-        .add-section h3 i {
-            color: #0066cc;
         }
         
         .form-grid {
@@ -224,14 +253,6 @@
             border-radius: 16px;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
         }
         
         .btn-primary {
@@ -243,111 +264,44 @@
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
         }
         
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+        .sdek-card {
+            border-left: 4px solid #0066cc;
         }
         
-        .btn-danger {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-size: 12px;
-            cursor: pointer;
+        .cdek-tariffs {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed #eee;
         }
         
-        /* Модальное окно */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 32px;
-            width: 90%;
-            max-width: 500px;
-            animation: modalSlideIn 0.3s ease;
-        }
-        
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #eee;
+        .tariff-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            padding: 6px 0;
+            font-size: 13px;
         }
         
-        .modal-header h3 {
-            font-size: 20px;
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
             font-weight: 600;
         }
         
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
+        .badge-active {
+            background: #e8f5e9;
+            color: #4caf50;
         }
         
-        .modal-body {
-            padding: 24px;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a1a2e;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 14px;
-            z-index: 1100;
-            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
+        .badge-express {
+            background: #fff3e0;
+            color: #ff9800;
         }
         
         @media (max-width: 768px) {
-            body { padding: 16px; }
             .delivery-grid { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
         }
@@ -359,77 +313,222 @@
         <h1><i class="fas fa-truck"></i> Настройка доставки</h1>
     </div>
     
-    <!-- Сетка способов доставки -->
-    <div class="delivery-grid" id="deliveryGrid">
-        <!-- Способы доставки будут загружены через JS -->
+    <!-- Табы -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="standard">📦 Стандартные</button>
+        <button class="tab-btn" data-tab="cdek">🚚 СДЭК</button>
     </div>
     
-    <!-- Форма добавления нового способа -->
-    <div class="add-section">
-        <h3><i class="fas fa-plus-circle"></i> Добавить способ доставки</h3>
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Название</label>
-                <input type="text" id="newName" placeholder="Курьер, Самовывоз...">
+    <!-- Вкладка: Стандартные способы -->
+    <div class="tab-pane active" id="tab-standard">
+        <div class="delivery-grid" id="deliveryGrid"></div>
+        
+        <div class="add-section">
+            <h3><i class="fas fa-plus-circle"></i> Добавить способ доставки</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" id="newName" placeholder="Курьер, Самовывоз...">
+                </div>
+                <div class="form-group">
+                    <label>Стоимость (₽)</label>
+                    <input type="number" id="newPrice" placeholder="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Срок доставки</label>
+                    <input type="text" id="newDays" placeholder="1-3 дня">
+                </div>
+                <div class="form-group">
+                    <label>Иконка</label>
+                    <select id="newIcon">
+                        <option value="fa-truck">🚚 Грузовик</option>
+                        <option value="fa-box">📦 Коробка</option>
+                        <option value="fa-store">🏬 Магазин</option>
+                        <option value="fa-motorcycle">🏍️ Мотоцикл</option>
+                        <option value="fa-shipping-fast">⚡ Быстрая</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Стоимость (₽)</label>
-                <input type="number" id="newPrice" placeholder="0" value="0">
-            </div>
-            <div class="form-group">
-                <label>Срок доставки</label>
-                <input type="text" id="newDays" placeholder="1-3 дня, сегодня-завтра...">
-            </div>
-            <div class="form-group">
-                <label>Иконка</label>
-                <select id="newIcon">
-                    <option value="fa-truck">🚚 Грузовик</option>
-                    <option value="fa-box">📦 Коробка</option>
-                    <option value="fa-store">🏬 Магазин</option>
-                    <option value="fa-motorcycle">🏍️ Мотоцикл</option>
-                    <option value="fa-shipping-fast">⚡ Быстрая</option>
-                </select>
-            </div>
+            <button class="btn-primary" id="addDeliveryBtn"><i class="fas fa-plus"></i> Добавить</button>
         </div>
-        <button class="btn-primary" id="addDeliveryBtn"><i class="fas fa-plus"></i> Добавить</button>
     </div>
-</div>
-
-<!-- Модальное окно редактирования -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3><i class="fas fa-edit"></i> Редактировать способ доставки</h3>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+    
+    <!-- Вкладка: СДЭК -->
+    <div class="tab-pane" id="tab-cdek">
+        <div class="delivery-grid" id="cdekGrid">
+            <div class="delivery-card sdek-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-truck" style="color: #0066cc;"></i>
+                        <h3>СДЭК — Курьер</h3>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cdekCourierToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="info-label">Тип доставки:</span>
+                        <span class="info-value">Дверь-дверь</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Тариф:</span>
+                        <span class="info-value">Доставка курьером</span>
+                    </div>
+                    <div class="cdek-tariffs">
+                        <div class="tariff-item">
+                            <span>Примерная стоимость:</span>
+                            <span class="price-value">от 350 ₽</span>
+                        </div>
+                        <div class="tariff-item">
+                            <span>Срок:</span>
+                            <span>1-3 дня</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <span class="badge badge-active"><i class="fas fa-check-circle"></i> Активен</span>
+                        <span class="badge badge-express"><i class="fas fa-bolt"></i> Можно отслеживать</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="delivery-card sdek-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-store" style="color: #0066cc;"></i>
+                        <h3>СДЭК — ПВЗ</h3>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cdekPvzToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="info-label">Тип доставки:</span>
+                        <span class="info-value">Дверь-ПВЗ</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Тариф:</span>
+                        <span class="info-value">Пункт выдачи</span>
+                    </div>
+                    <div class="cdek-tariffs">
+                        <div class="tariff-item">
+                            <span>Примерная стоимость:</span>
+                            <span class="price-value">от 250 ₽</span>
+                        </div>
+                        <div class="tariff-item">
+                            <span>Срок:</span>
+                            <span>1-3 дня</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <span class="badge badge-active"><i class="fas fa-check-circle"></i> Активен</span>
+                        <span class="badge"><i class="fas fa-map-marker-alt"></i> 5000+ пунктов</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="delivery-card sdek-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-box" style="color: #0066cc;"></i>
+                        <h3>СДЭК — Постамат</h3>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cdekPostamatToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="info-label">Тип доставки:</span>
+                        <span class="info-value">Постамат</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Тариф:</span>
+                        <span class="info-value">Самовывоз из постамата</span>
+                    </div>
+                    <div class="cdek-tariffs">
+                        <div class="tariff-item">
+                            <span>Примерная стоимость:</span>
+                            <span class="price-value">от 200 ₽</span>
+                        </div>
+                        <div class="tariff-item">
+                            <span>Срок:</span>
+                            <span>1-3 дня</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <span class="badge badge-active"><i class="fas fa-check-circle"></i> Активен</span>
+                        <span class="badge"><i class="fas fa-clock"></i> Круглосуточно</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="delivery-card sdek-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-bolt" style="color: #ff9800;"></i>
+                        <h3>СДЭК — Экспресс</h3>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="cdekExpressToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="info-label">Тип доставки:</span>
+                        <span class="info-value">Дверь-дверь</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Тариф:</span>
+                        <span class="info-value">Экспресс</span>
+                    </div>
+                    <div class="cdek-tariffs">
+                        <div class="tariff-item">
+                            <span>Примерная стоимость:</span>
+                            <span class="price-value">от 650 ₽</span>
+                        </div>
+                        <div class="tariff-item">
+                            <span>Срок:</span>
+                            <span>1 день</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 16px;">
+                        <span class="badge"><i class="fas fa-bolt"></i> Скоростная</span>
+                        <span class="badge"><i class="fas fa-calendar"></i> Заказ сегодня — доставка завтра</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-            <input type="hidden" id="editId">
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label>Название</label>
-                <input type="text" id="editName" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
+        
+        <div class="add-section">
+            <h3><i class="fas fa-sliders-h"></i> Настройки СДЭК</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label><i class="fas fa-key"></i> Аккаунт (API логин)</label>
+                    <input type="text" id="sdekAccount" placeholder="Введите Account из кабинета СДЭК">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> Secure пароль</label>
+                    <input type="password" id="sdekPassword" placeholder="Введите пароль из кабинета СДЭК">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-city"></i> Город отправления</label>
+                    <input type="text" id="sdekCity" placeholder="Москва, Санкт-Петербург...">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-code-branch"></i> Режим работы</label>
+                    <select id="sdekMode">
+                        <option value="test">Тестовый (для разработки)</option>
+                        <option value="prod">Боевой (реальные заказы)</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label>Стоимость (₽)</label>
-                <input type="number" id="editPrice" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
-            </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label>Срок доставки</label>
-                <input type="text" id="editDays" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
-            </div>
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label>Иконка</label>
-                <select id="editIcon" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
-                    <option value="fa-truck">🚚 Грузовик</option>
-                    <option value="fa-box">📦 Коробка</option>
-                    <option value="fa-store">🏬 Магазин</option>
-                    <option value="fa-motorcycle">🏍️ Мотоцикл</option>
-                    <option value="fa-shipping-fast">⚡ Быстрая</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 12px; margin-top: 20px;">
-                <button class="btn-primary" style="flex:1;" onclick="saveEdit()">Сохранить</button>
-                <button class="btn-danger" style="flex:1;" onclick="closeModal()">Отмена</button>
-            </div>
+            <button class="btn-primary" id="saveSdekSettingsBtn"><i class="fas fa-save"></i> Сохранить настройки СДЭК</button>
         </div>
     </div>
 </div>
@@ -437,6 +536,16 @@
 <script>
     // ===== ДАННЫЕ =====
     let deliveryMethods = [];
+    let sdekSettings = {
+        account: '',
+        password: '',
+        city: 'Москва',
+        mode: 'test',
+        courier_enabled: true,
+        pvz_enabled: true,
+        postamat_enabled: true,
+        express_enabled: false
+    };
     
     function loadData() {
         const saved = localStorage.getItem('crm_data');
@@ -444,6 +553,7 @@
             try {
                 const data = JSON.parse(saved);
                 deliveryMethods = data.settings?.delivery_methods || [];
+                if (data.settings?.sdek) sdekSettings = { ...sdekSettings, ...data.settings.sdek };
             } catch(e) { console.error(e); }
         }
         
@@ -457,6 +567,7 @@
         }
         
         renderDeliveryGrid();
+        renderSdekSettings();
     }
     
     function saveToCRM() {
@@ -465,10 +576,11 @@
             const data = JSON.parse(crmData);
             if (!data.settings) data.settings = {};
             data.settings.delivery_methods = deliveryMethods;
+            data.settings.sdek = sdekSettings;
             localStorage.setItem('crm_data', JSON.stringify(data));
         } else {
             localStorage.setItem('crm_data', JSON.stringify({ 
-                settings: { delivery_methods: deliveryMethods },
+                settings: { delivery_methods: deliveryMethods, sdek: sdekSettings },
                 products: [], categories: [], leads: [], messages: {}
             }));
         }
@@ -486,7 +598,7 @@
             <div class="delivery-card">
                 <div class="card-header">
                     <div class="card-title">
-                        <i class="fas ${method.icon}" style="color: #0066cc;"></i>
+                        <i class="fas ${method.icon}"></i>
                         <h3>${escapeHtml(method.name)}</h3>
                     </div>
                     <label class="toggle-switch">
@@ -496,11 +608,11 @@
                 </div>
                 <div class="card-body">
                     <div class="info-row">
-                        <span class="info-label"><i class="fas fa-ruble-sign"></i> Стоимость:</span>
+                        <span class="info-label">Стоимость:</span>
                         <span class="info-value price-value">${method.price === 0 ? '<span class="free-value">Бесплатно</span>' : method.price.toLocaleString() + ' ₽'}</span>
                     </div>
                     <div class="info-row">
-                        <span class="info-label"><i class="fas fa-clock"></i> Срок доставки:</span>
+                        <span class="info-label">Срок доставки:</span>
                         <span class="info-value">${escapeHtml(method.days)}</span>
                     </div>
                     <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
@@ -511,7 +623,6 @@
             </div>
         `).join('');
         
-        // Навешиваем обработчики на toggle
         document.querySelectorAll('.toggle-enabled').forEach(toggle => {
             toggle.addEventListener('change', (e) => {
                 const id = parseInt(toggle.dataset.id);
@@ -523,6 +634,31 @@
                 }
             });
         });
+    }
+    
+    function renderSdekSettings() {
+        document.getElementById('sdekAccount').value = sdekSettings.account || '';
+        document.getElementById('sdekPassword').value = sdekSettings.password || '';
+        document.getElementById('sdekCity').value = sdekSettings.city || 'Москва';
+        document.getElementById('sdekMode').value = sdekSettings.mode || 'test';
+        document.getElementById('cdekCourierToggle').checked = sdekSettings.courier_enabled !== false;
+        document.getElementById('cdekPvzToggle').checked = sdekSettings.pvz_enabled !== false;
+        document.getElementById('cdekPostamatToggle').checked = sdekSettings.postamat_enabled !== false;
+        document.getElementById('cdekExpressToggle').checked = sdekSettings.express_enabled || false;
+    }
+    
+    function saveSdekSettings() {
+        sdekSettings.account = document.getElementById('sdekAccount').value;
+        sdekSettings.password = document.getElementById('sdekPassword').value;
+        sdekSettings.city = document.getElementById('sdekCity').value;
+        sdekSettings.mode = document.getElementById('sdekMode').value;
+        sdekSettings.courier_enabled = document.getElementById('cdekCourierToggle').checked;
+        sdekSettings.pvz_enabled = document.getElementById('cdekPvzToggle').checked;
+        sdekSettings.postamat_enabled = document.getElementById('cdekPostamatToggle').checked;
+        sdekSettings.express_enabled = document.getElementById('cdekExpressToggle').checked;
+        
+        saveToCRM();
+        showToast('Настройки СДЭК сохранены');
     }
     
     function addDelivery() {
@@ -550,42 +686,11 @@
         saveToCRM();
         renderDeliveryGrid();
         
-        // Очищаем форму
         document.getElementById('newName').value = '';
         document.getElementById('newPrice').value = '0';
         document.getElementById('newDays').value = '';
         
         showToast(`✅ Способ доставки "${name}" добавлен`);
-    }
-    
-    function openEditModal(id) {
-        const method = deliveryMethods.find(m => m.id === id);
-        if (!method) return;
-        
-        document.getElementById('editId').value = method.id;
-        document.getElementById('editName').value = method.name;
-        document.getElementById('editPrice').value = method.price;
-        document.getElementById('editDays').value = method.days;
-        document.getElementById('editIcon').value = method.icon;
-        
-        document.getElementById('editModal').classList.add('active');
-    }
-    
-    function saveEdit() {
-        const id = parseInt(document.getElementById('editId').value);
-        const method = deliveryMethods.find(m => m.id === id);
-        
-        if (method) {
-            method.name = document.getElementById('editName').value.trim();
-            method.price = parseInt(document.getElementById('editPrice').value) || 0;
-            method.days = document.getElementById('editDays').value.trim() || '—';
-            method.icon = document.getElementById('editIcon').value;
-            
-            saveToCRM();
-            renderDeliveryGrid();
-            closeModal();
-            showToast(`✅ Способ доставки "${method.name}" обновлён`);
-        }
     }
     
     function deleteDelivery(id) {
@@ -598,14 +703,11 @@
         }
     }
     
-    function closeModal() {
-        document.getElementById('editModal').classList.remove('active');
-    }
-    
     function showToast(message) {
         const toast = document.createElement('div');
         toast.className = 'toast';
         toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        toast.style.cssText = 'position:fixed; bottom:24px; right:24px; background:#1a1a2e; color:white; padding:12px 24px; border-radius:40px; z-index:1100; animation:slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;';
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
@@ -615,8 +717,22 @@
         return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    document.getElementById('addDeliveryBtn').addEventListener('click', addDelivery);
+    // Табы
+    function initTabs() {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+            });
+        });
+    }
     
+    document.getElementById('addDeliveryBtn').addEventListener('click', addDelivery);
+    document.getElementById('saveSdekSettingsBtn').addEventListener('click', saveSdekSettings);
+    
+    initTabs();
     loadData();
 </script>
 </body>
