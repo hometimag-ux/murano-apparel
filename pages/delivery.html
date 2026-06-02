@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройка доставки</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 24px;
+            min-height: 100vh;
+        }
+        
+        .delivery-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Шапка */
+        .delivery-header {
+            margin-bottom: 28px;
+        }
+        
+        .delivery-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .delivery-header h1 i {
+            background: none;
+            -webkit-text-fill-color: #0066cc;
+            margin-right: 12px;
+        }
+        
+        /* Сетка карточек способов доставки */
+        .delivery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .delivery-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .delivery-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            padding: 20px 24px;
+            background: linear-gradient(135deg, #f8f9fa, white);
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .card-title i {
+            font-size: 28px;
+        }
+        
+        .card-title h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 28px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #0066cc;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .card-body {
+            padding: 20px 24px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        
+        .price-value {
+            color: #0066cc;
+            font-size: 18px;
+        }
+        
+        .free-value {
+            color: #4caf50;
+        }
+        
+        .edit-btn {
+            background: none;
+            border: none;
+            color: #0066cc;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn:hover {
+            background: #e3f2fd;
+        }
+        
+        /* Форма добавления нового способа */
+        .add-section {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .add-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .add-section h3 i {
+            color: #0066cc;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .form-group input,
+        .form-group select {
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 500px;
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1100;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .delivery-grid { grid-template-columns: 1fr; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="delivery-container">
+    <div class="delivery-header">
+        <h1><i class="fas fa-truck"></i> Настройка доставки</h1>
+    </div>
+    
+    <!-- Сетка способов доставки -->
+    <div class="delivery-grid" id="deliveryGrid">
+        <!-- Способы доставки будут загружены через JS -->
+    </div>
+    
+    <!-- Форма добавления нового способа -->
+    <div class="add-section">
+        <h3><i class="fas fa-plus-circle"></i> Добавить способ доставки</h3>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Название</label>
+                <input type="text" id="newName" placeholder="Курьер, Самовывоз...">
+            </div>
+            <div class="form-group">
+                <label>Стоимость (₽)</label>
+                <input type="number" id="newPrice" placeholder="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Срок доставки</label>
+                <input type="text" id="newDays" placeholder="1-3 дня, сегодня-завтра...">
+            </div>
+            <div class="form-group">
+                <label>Иконка</label>
+                <select id="newIcon">
+                    <option value="fa-truck">🚚 Грузовик</option>
+                    <option value="fa-box">📦 Коробка</option>
+                    <option value="fa-store">🏬 Магазин</option>
+                    <option value="fa-motorcycle">🏍️ Мотоцикл</option>
+                    <option value="fa-shipping-fast">⚡ Быстрая</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn-primary" id="addDeliveryBtn"><i class="fas fa-plus"></i> Добавить</button>
+    </div>
+</div>
+
+<!-- Модальное окно редактирования -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Редактировать способ доставки</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editId">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>Название</label>
+                <input type="text" id="editName" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>Стоимость (₽)</label>
+                <input type="number" id="editPrice" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>Срок доставки</label>
+                <input type="text" id="editDays" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label>Иконка</label>
+                <select id="editIcon" class="form-control" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:16px;">
+                    <option value="fa-truck">🚚 Грузовик</option>
+                    <option value="fa-box">📦 Коробка</option>
+                    <option value="fa-store">🏬 Магазин</option>
+                    <option value="fa-motorcycle">🏍️ Мотоцикл</option>
+                    <option value="fa-shipping-fast">⚡ Быстрая</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+                <button class="btn-primary" style="flex:1;" onclick="saveEdit()">Сохранить</button>
+                <button class="btn-danger" style="flex:1;" onclick="closeModal()">Отмена</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== ДАННЫЕ =====
+    let deliveryMethods = [];
+    
+    function loadData() {
+        const saved = localStorage.getItem('crm_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                deliveryMethods = data.settings?.delivery_methods || [];
+            } catch(e) { console.error(e); }
+        }
+        
+        if (deliveryMethods.length === 0) {
+            deliveryMethods = [
+                { id: 1, name: 'Курьерская доставка', price: 350, days: '1-3 дня', icon: 'fa-truck', enabled: true },
+                { id: 2, name: 'Самовывоз (ПВЗ)', price: 0, days: 'сегодня-завтра', icon: 'fa-store', enabled: true },
+                { id: 3, name: 'Почта России', price: 250, days: '5-14 дней', icon: 'fa-box', enabled: false }
+            ];
+            saveToCRM();
+        }
+        
+        renderDeliveryGrid();
+    }
+    
+    function saveToCRM() {
+        let crmData = localStorage.getItem('crm_data');
+        if (crmData) {
+            const data = JSON.parse(crmData);
+            if (!data.settings) data.settings = {};
+            data.settings.delivery_methods = deliveryMethods;
+            localStorage.setItem('crm_data', JSON.stringify(data));
+        } else {
+            localStorage.setItem('crm_data', JSON.stringify({ 
+                settings: { delivery_methods: deliveryMethods },
+                products: [], categories: [], leads: [], messages: {}
+            }));
+        }
+    }
+    
+    function renderDeliveryGrid() {
+        const container = document.getElementById('deliveryGrid');
+        
+        if (deliveryMethods.length === 0) {
+            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; color:#999;">Нет способов доставки. Добавьте первый!</div>';
+            return;
+        }
+        
+        container.innerHTML = deliveryMethods.map(method => `
+            <div class="delivery-card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas ${method.icon}" style="color: #0066cc;"></i>
+                        <h3>${escapeHtml(method.name)}</h3>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="toggle-enabled" data-id="${method.id}" ${method.enabled ? 'checked' : ''}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-ruble-sign"></i> Стоимость:</span>
+                        <span class="info-value price-value">${method.price === 0 ? '<span class="free-value">Бесплатно</span>' : method.price.toLocaleString() + ' ₽'}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-clock"></i> Срок доставки:</span>
+                        <span class="info-value">${escapeHtml(method.days)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
+                        <button class="edit-btn" onclick="openEditModal(${method.id})"><i class="fas fa-edit"></i> Редактировать</button>
+                        <button class="edit-btn" style="color: #f44336;" onclick="deleteDelivery(${method.id})"><i class="fas fa-trash-alt"></i> Удалить</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        // Навешиваем обработчики на toggle
+        document.querySelectorAll('.toggle-enabled').forEach(toggle => {
+            toggle.addEventListener('change', (e) => {
+                const id = parseInt(toggle.dataset.id);
+                const method = deliveryMethods.find(m => m.id === id);
+                if (method) {
+                    method.enabled = toggle.checked;
+                    saveToCRM();
+                    showToast(`${method.enabled ? 'Включён' : 'Отключён'} способ "${method.name}"`);
+                }
+            });
+        });
+    }
+    
+    function addDelivery() {
+        const name = document.getElementById('newName').value.trim();
+        if (!name) {
+            alert('Введите название способа доставки');
+            return;
+        }
+        
+        const price = parseInt(document.getElementById('newPrice').value) || 0;
+        const days = document.getElementById('newDays').value.trim() || '—';
+        const icon = document.getElementById('newIcon').value;
+        
+        const newId = deliveryMethods.length > 0 ? Math.max(...deliveryMethods.map(m => m.id)) + 1 : 1;
+        
+        deliveryMethods.push({
+            id: newId,
+            name: name,
+            price: price,
+            days: days,
+            icon: icon,
+            enabled: true
+        });
+        
+        saveToCRM();
+        renderDeliveryGrid();
+        
+        // Очищаем форму
+        document.getElementById('newName').value = '';
+        document.getElementById('newPrice').value = '0';
+        document.getElementById('newDays').value = '';
+        
+        showToast(`✅ Способ доставки "${name}" добавлен`);
+    }
+    
+    function openEditModal(id) {
+        const method = deliveryMethods.find(m => m.id === id);
+        if (!method) return;
+        
+        document.getElementById('editId').value = method.id;
+        document.getElementById('editName').value = method.name;
+        document.getElementById('editPrice').value = method.price;
+        document.getElementById('editDays').value = method.days;
+        document.getElementById('editIcon').value = method.icon;
+        
+        document.getElementById('editModal').classList.add('active');
+    }
+    
+    function saveEdit() {
+        const id = parseInt(document.getElementById('editId').value);
+        const method = deliveryMethods.find(m => m.id === id);
+        
+        if (method) {
+            method.name = document.getElementById('editName').value.trim();
+            method.price = parseInt(document.getElementById('editPrice').value) || 0;
+            method.days = document.getElementById('editDays').value.trim() || '—';
+            method.icon = document.getElementById('editIcon').value;
+            
+            saveToCRM();
+            renderDeliveryGrid();
+            closeModal();
+            showToast(`✅ Способ доставки "${method.name}" обновлён`);
+        }
+    }
+    
+    function deleteDelivery(id) {
+        if (confirm('Удалить способ доставки?')) {
+            const method = deliveryMethods.find(m => m.id === id);
+            deliveryMethods = deliveryMethods.filter(m => m.id !== id);
+            saveToCRM();
+            renderDeliveryGrid();
+            showToast(`🗑️ Способ доставки "${method?.name}" удалён`);
+        }
+    }
+    
+    function closeModal() {
+        document.getElementById('editModal').classList.remove('active');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+    
+    document.getElementById('addDeliveryBtn').addEventListener('click', addDelivery);
+    
+    loadData();
+</script>
+</body>
+</html>
