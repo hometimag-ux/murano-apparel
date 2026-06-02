@@ -1,44 +1,763 @@
-<div style="padding: 24px;">
-    <h1>📋 Заказы</h1>
-    <div style="margin-top: 20px; background: #f8f9fa; border-radius: 16px; padding: 20px;">
-        <table style="width: 100%; border-collapse: collapse;">
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление заказами</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 24px;
+            min-height: 100vh;
+        }
+        
+        .orders-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* ===== ШАПКА ===== */
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .orders-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .orders-header h1 i {
+            background: none;
+            -webkit-text-fill-color: #0066cc;
+            margin-right: 12px;
+        }
+        
+        /* ===== КАРТОЧКИ СТАТИСТИКИ ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #e3f2fd, #bbdef5);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #0066cc;
+        }
+        
+        .stat-info h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        
+        .stat-info p {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        /* ===== ФИЛЬТРЫ ===== */
+        .filters-bar {
+            background: white;
+            border-radius: 24px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .search-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .search-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .date-input {
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 13px;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+        }
+        
+        /* ===== ТАБЛИЦА ЗАКАЗОВ ===== */
+        .orders-table-container {
+            background: white;
+            border-radius: 24px;
+            overflow-x: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1000px;
+        }
+        
+        .orders-table th {
+            text-align: left;
+            padding: 18px 16px;
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1a1a2e;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .orders-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        .orders-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Статусы заказов */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-new { background: #e3f2fd; color: #0066cc; }
+        .status-processing { background: #fff3e0; color: #ff9800; }
+        .status-shipped { background: #e8eaf6; color: #3f51b5; }
+        .status-delivered { background: #e8f5e9; color: #4caf50; }
+        .status-cancelled { background: #ffebee; color: #f44336; }
+        .status-refunded { background: #fce4ec; color: #e91e63; }
+        
+        /* Список товаров в заказе */
+        .products-list {
+            max-width: 250px;
+        }
+        
+        .product-item {
+            font-size: 13px;
+            padding: 4px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Сумма */
+        .total-amount {
+            font-weight: 700;
+            color: #0066cc;
+        }
+        
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            background: none;
+            border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 34px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #666;
+        }
+        
+        .action-btn:hover {
+            background: #f0f0f0;
+        }
+        
+        .action-btn.edit:hover { color: #0066cc; }
+        .action-btn.print:hover { color: #4caf50; }
+        .action-btn.delete:hover { color: #f44336; }
+        
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8f9fa, white);
+            border-radius: 32px 32px 0 0;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .order-detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .order-detail-label {
+            width: 130px;
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .order-detail-value {
+            flex: 1;
+            color: #333;
+        }
+        
+        .status-select {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+        
+        /* Уведомления */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1100;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .filters-bar { flex-direction: column; align-items: stretch; }
+            .search-wrapper { width: 100%; }
+            .filter-select, .date-input, .btn-secondary { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="orders-container">
+    <!-- Шапка -->
+    <div class="orders-header">
+        <h1><i class="fas fa-shopping-cart"></i> Управление заказами</h1>
+        <button class="btn-primary" id="exportBtn"><i class="fas fa-download"></i> Экспорт в CSV</button>
+    </div>
+    
+    <!-- Статистика -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-spinner fa-pulse"></i></div><div class="stat-info"><h3 id="totalOrders">0</h3><p>Всего заказов</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-info"><h3 id="newOrders">0</h3><p>Новых</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-truck"></i></div><div class="stat-info"><h3 id="processingOrders">0</h3><p>В обработке</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-info"><h3 id="deliveredOrders">0</h3><p>Доставлено</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-ruble-sign"></i></div><div class="stat-info"><h3 id="totalRevenue">0 ₽</h3><p>Выручка</p></div></div>
+    </div>
+    
+    <!-- Фильтры -->
+    <div class="filters-bar">
+        <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchOrders" class="search-input" placeholder="Поиск по номеру, клиенту, телефону...">
+        </div>
+        <select id="statusFilter" class="filter-select">
+            <option value="all">Все статусы</option>
+            <option value="new">🆕 Новые</option>
+            <option value="processing">⏳ В обработке</option>
+            <option value="shipped">📦 Отправлен</option>
+            <option value="delivered">✅ Доставлен</option>
+            <option value="cancelled">❌ Отменён</option>
+            <option value="refunded">🔄 Возврат</option>
+        </select>
+        <input type="date" id="dateFrom" class="date-input" placeholder="Дата от">
+        <input type="date" id="dateTo" class="date-input" placeholder="Дата до">
+        <button id="clearFilters" class="btn-secondary"><i class="fas fa-times"></i> Сбросить</button>
+    </div>
+    
+    <!-- Таблица заказов -->
+    <div class="orders-table-container">
+        <table class="orders-table">
             <thead>
-                <tr style="border-bottom: 1px solid #ddd;">
-                    <th style="text-align: left; padding: 12px;">ID</th>
-                    <th style="text-align: left; padding: 12px;">Клиент</th>
-                    <th style="text-align: left; padding: 12px;">Сумма</th>
-                    <th style="text-align: left; padding: 12px;">Статус</th>
-                    <th style="text-align: left; padding: 12px;">Дата</th>
+                <tr>
+                    <th>№ заказа</th>
+                    <th>Дата</th>
+                    <th>Клиент</th>
+                    <th>Контакты</th>
+                    <th>Товары</th>
+                    <th>Сумма</th>
+                    <th>Доставка</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
                 </tr>
             </thead>
-            <tbody id="ordersTable">
-                <tr><td colspan="5" style="padding: 40px; text-align: center;">Загрузка...</td></tr>
+            <tbody id="ordersTableBody">
+                <tr><td colspan="9" class="empty-state">Загрузка...</td></tr>
             </tbody>
         </table>
     </div>
-    
-    <script>
-        function loadOrders() {
-            const data = localStorage.getItem('crm_data');
-            if (data) {
-                const crm = JSON.parse(data);
-                const leads = crm.leads || [];
-                const tbody = document.getElementById('ordersTable');
-                if (leads.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="padding: 40px; text-align: center;">Нет заказов</td></tr>';
-                } else {
-                    tbody.innerHTML = leads.map(lead => `
-                        <tr style="border-bottom: 1px solid #eee;">
-                            <td style="padding: 12px;">${lead.id}</td>
-                            <td style="padding: 12px;">${lead.client_name}</td>
-                            <td style="padding: 12px;">${(lead.total || 0).toLocaleString()} ₽</td>
-                            <td style="padding: 12px;"><span style="background: #e3f2fd; padding: 4px 12px; border-radius: 20px;">${lead.status}</span></td>
-                            <td style="padding: 12px;">${new Date(lead.created_at).toLocaleDateString()}</td>
-                        </tr>
-                    `).join('');
-                }
-            }
-        }
-        loadOrders();
-    </script>
 </div>
+
+<!-- Модальное окно деталей заказа -->
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-receipt"></i> Детали заказа <span id="modalOrderId"></span></h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <!-- Данные загружаются через JS -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===== ДАННЫЕ =====
+    let orders = [];
+    let products = [];
+    
+    function loadData() {
+        const saved = localStorage.getItem('crm_data');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                orders = data.leads || [];
+                products = data.products || [];
+            } catch(e) { console.error(e); }
+        }
+        
+        if (orders.length === 0) {
+            orders = getDemoOrders();
+        }
+        
+        renderStats();
+        renderOrdersTable();
+    }
+    
+    function getDemoOrders() {
+        return [
+            { id: 1001, client_name: 'Иван Петров', phone: '+7 (999) 123-45-67', email: 'ivan@example.com', products: [{id:1, count:2}], total: 3980, status: 'new', delivery_method: 'courier', payment_method: 'card', address: 'г. Москва, ул. Тверская, д. 10', comment: 'Позвонить перед доставкой', created_at: new Date().toISOString() },
+            { id: 1002, client_name: 'Мария Сидорова', phone: '+7 (888) 555-12-34', email: 'maria@example.com', products: [{id:2, count:1}], total: 3990, status: 'processing', delivery_method: 'pickup', payment_method: 'cash', address: 'г. Санкт-Петербург, Невский пр., д. 25', comment: '', created_at: new Date(Date.now() - 86400000).toISOString() },
+            { id: 1003, client_name: 'Алексей Смирнов', phone: '+7 (777) 555-66-77', email: 'alex@example.com', products: [{id:3, count:1}, {id:1, count:1}], total: 4980, status: 'delivered', delivery_method: 'post', payment_method: 'online', address: 'г. Казань, ул. Баумана, д. 5', comment: 'Оставить у двери', created_at: new Date(Date.now() - 172800000).toISOString() },
+            { id: 1004, client_name: 'Елена Козлова', phone: '+7 (916) 123-45-67', email: 'elena@example.com', products: [{id:2, count:2}], total: 7980, status: 'cancelled', delivery_method: 'courier', payment_method: 'card', address: 'г. Новосибирск, ул. Ленина, д. 15', comment: 'Отказ от заказа', created_at: new Date(Date.now() - 259200000).toISOString() }
+        ];
+    }
+    
+    function getProductTitle(productId) {
+        const product = products.find(p => p.id == productId);
+        return product ? product.title : `Товар #${productId}`;
+    }
+    
+    // ===== СТАТИСТИКА =====
+    function renderStats() {
+        document.getElementById('totalOrders').innerText = orders.length;
+        document.getElementById('newOrders').innerText = orders.filter(o => o.status === 'new').length;
+        document.getElementById('processingOrders').innerText = orders.filter(o => o.status === 'processing').length;
+        document.getElementById('deliveredOrders').innerText = orders.filter(o => o.status === 'delivered').length;
+        
+        const revenue = orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
+        document.getElementById('totalRevenue').innerText = revenue.toLocaleString() + ' ₽';
+    }
+    
+    // ===== ТАБЛИЦА ЗАКАЗОВ =====
+    function renderOrdersTable() {
+        const searchTerm = document.getElementById('searchOrders')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+        const dateFrom = document.getElementById('dateFrom')?.value;
+        const dateTo = document.getElementById('dateTo')?.value;
+        
+        let filtered = [...orders];
+        
+        if (searchTerm) {
+            filtered = filtered.filter(o => 
+                o.id.toString().includes(searchTerm) ||
+                o.client_name.toLowerCase().includes(searchTerm) ||
+                (o.phone && o.phone.includes(searchTerm)) ||
+                (o.email && o.email.toLowerCase().includes(searchTerm))
+            );
+        }
+        if (statusFilter !== 'all') {
+            filtered = filtered.filter(o => o.status === statusFilter);
+        }
+        if (dateFrom) {
+            filtered = filtered.filter(o => new Date(o.created_at) >= new Date(dateFrom));
+        }
+        if (dateTo) {
+            filtered = filtered.filter(o => new Date(o.created_at) <= new Date(dateTo));
+        }
+        
+        filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
+        const tbody = document.getElementById('ordersTableBody');
+        
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">📭 Нет заказов</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = filtered.map(order => {
+            const productsHtml = (order.products || []).map(p => {
+                const product = products.find(pr => pr.id == p.id);
+                return `<div class="product-item">${product ? product.title : 'Товар'} x${p.count}</div>`;
+            }).join('');
+            
+            return `
+                <tr>
+                    <td><strong>#${order.id}</strong></td>
+                    <td>${new Date(order.created_at).toLocaleDateString()}</td>
+                    <td>${escapeHtml(order.client_name)}</td>
+                    <td>${order.phone || '-'}<br><small>${order.email || '-'}</small></td>
+                    <td><div class="products-list">${productsHtml || '—'}</div></td>
+                    <td class="total-amount">${(order.total || 0).toLocaleString()} ₽</td>
+                    <td>${getDeliveryText(order.delivery_method)}</td>
+                    <td><span class="status-badge status-${order.status}">${getStatusText(order.status)}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="viewOrder(${order.id})" title="Просмотр"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn edit" onclick="editOrderStatus(${order.id})" title="Изменить статус"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deleteOrder(${order.id})" title="Удалить"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    function getDeliveryText(method) {
+        const map = { courier: '🚚 Курьер', pickup: '📦 Самовывоз', post: '📮 Почта' };
+        return map[method] || method || '—';
+    }
+    
+    function getStatusText(status) {
+        const map = { new: '🆕 Новый', processing: '⏳ В обработке', shipped: '📦 Отправлен', delivered: '✅ Доставлен', cancelled: '❌ Отменён', refunded: '🔄 Возврат' };
+        return map[status] || status;
+    }
+    
+    // ===== ДЕЙСТВИЯ =====
+    function viewOrder(id) {
+        const order = orders.find(o => o.id == id);
+        if (!order) return;
+        
+        const modal = document.getElementById('orderModal');
+        const modalBody = document.getElementById('modalBody');
+        document.getElementById('modalOrderId').innerText = `#${order.id}`;
+        
+        const productsHtml = (order.products || []).map(p => {
+            const product = products.find(pr => pr.id == p.id);
+            return `<div>${product ? product.title : 'Товар'} — ${p.count} шт.</div>`;
+        }).join('');
+        
+        modalBody.innerHTML = `
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-user"></i> Клиент:</div>
+                <div class="order-detail-value">${escapeHtml(order.client_name)}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-phone"></i> Телефон:</div>
+                <div class="order-detail-value">${order.phone || '—'}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-envelope"></i> Email:</div>
+                <div class="order-detail-value">${order.email || '—'}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-box"></i> Товары:</div>
+                <div class="order-detail-value">${productsHtml || '—'}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-truck"></i> Доставка:</div>
+                <div class="order-detail-value">${getDeliveryText(order.delivery_method)}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-credit-card"></i> Оплата:</div>
+                <div class="order-detail-value">${order.payment_method || '—'}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-map-marker-alt"></i> Адрес:</div>
+                <div class="order-detail-value">${order.address || '—'}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-comment"></i> Комментарий:</div>
+                <div class="order-detail-value">${order.comment || '—'}</div>
+            </div>
+            <div class="order-detail-row">
+                <div class="order-detail-label"><i class="fas fa-ruble-sign"></i> Итого:</div>
+                <div class="order-detail-value"><strong>${(order.total || 0).toLocaleString()} ₽</strong></div>
+            </div>
+        `;
+        
+        modal.classList.add('active');
+    }
+    
+    function editOrderStatus(id) {
+        const order = orders.find(o => o.id == id);
+        if (!order) return;
+        
+        const newStatus = prompt('Изменить статус заказа:\n\nДоступные статусы:\n- new (Новый)\n- processing (В обработке)\n- shipped (Отправлен)\n- delivered (Доставлен)\n- cancelled (Отменён)\n- refunded (Возврат)', order.status);
+        
+        if (newStatus && ['new', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded'].includes(newStatus)) {
+            order.status = newStatus;
+            saveOrders();
+            renderStats();
+            renderOrdersTable();
+            showToast(`Статус заказа #${id} изменён на ${getStatusText(newStatus)}`);
+        } else if (newStatus) {
+            alert('Неверный статус');
+        }
+    }
+    
+    function deleteOrder(id) {
+        if (confirm(`Удалить заказ #${id}?`)) {
+            orders = orders.filter(o => o.id != id);
+            saveOrders();
+            renderStats();
+            renderOrdersTable();
+            showToast(`Заказ #${id} удалён`);
+        }
+    }
+    
+    function saveOrders() {
+        const saved = localStorage.getItem('crm_data');
+        if (saved) {
+            const data = JSON.parse(saved);
+            data.leads = orders;
+            localStorage.setItem('crm_data', JSON.stringify(data));
+        }
+    }
+    
+    function exportToCSV() {
+        const headers = ['ID заказа', 'Дата', 'Клиент', 'Телефон', 'Email', 'Товары', 'Сумма', 'Доставка', 'Статус', 'Адрес'];
+        const rows = orders.map(o => [
+            o.id,
+            new Date(o.created_at).toLocaleDateString(),
+            o.client_name,
+            o.phone || '',
+            o.email || '',
+            (o.products || []).map(p => `${p.id}x${p.count}`).join(', '),
+            o.total || 0,
+            o.delivery_method || '',
+            o.status,
+            o.address || ''
+        ]);
+        
+        const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `orders_${new Date().toISOString().slice(0,19)}.csv`;
+        link.click();
+        showToast('Экспорт завершён');
+    }
+    
+    function closeModal() {
+        document.getElementById('orderModal').classList.remove('active');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+    
+    // ===== СОБЫТИЯ =====
+    document.getElementById('searchOrders').addEventListener('input', () => renderOrdersTable());
+    document.getElementById('statusFilter').addEventListener('change', () => renderOrdersTable());
+    document.getElementById('dateFrom').addEventListener('change', () => renderOrdersTable());
+    document.getElementById('dateTo').addEventListener('change', () => renderOrdersTable());
+    document.getElementById('clearFilters').addEventListener('click', () => {
+        document.getElementById('searchOrders').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('dateFrom').value = '';
+        document.getElementById('dateTo').value = '';
+        renderOrdersTable();
+    });
+    document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+    
+    loadData();
+</script>
+</body>
+</html>
