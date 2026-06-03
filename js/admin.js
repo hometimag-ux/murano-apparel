@@ -72,12 +72,13 @@
         if (pageTitle) pageTitle.textContent = titles[page] || 'Страница';
         
         // Редактор виджетов
-       if (page === 'widget-editor') {
-    if (contentArea) {
+        if (page === 'widget-editor') {
+        if (contentArea) {
         contentArea.innerHTML = `<iframe src="/murano-apparel/widget-editor.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-    }
-    return;
-}
+            }
+        return;
+         }
+
         // Чат
         if (page === 'chat') {
             if (contentArea) {
