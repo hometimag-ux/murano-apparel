@@ -3,12 +3,11 @@
         {
             "id": "form-1",
             "type": "contact-form",
-            "name": "Классическая форма",
+            "name": "Форма обратной связи",
             "icon": "📧",
             "category": "forms",
             "path": "contact-form/form-1",
             "description": "Стандартная форма с именем, email и сообщением",
-            "preview": "contact-form/form-1/preview.png",
             "tags": ["форма", "лид", "обратная связь"]
         },
         {
@@ -19,7 +18,6 @@
             "category": "forms",
             "path": "contact-form/form-2",
             "description": "Упрощённая форма — только email и кнопка",
-            "preview": "contact-form/form-2/preview.png",
             "tags": ["форма", "подписка", "email"]
         },
         {
@@ -30,7 +28,6 @@
             "category": "forms",
             "path": "contact-form/form-3",
             "description": "Форма с телефоном, городом и комментарием",
-            "preview": "contact-form/form-3/preview.png",
             "tags": ["форма", "заявка", "лид"]
         },
         {
@@ -41,7 +38,6 @@
             "category": "hero",
             "path": "banners/banner-1",
             "description": "Изображение, заголовок, подзаголовок, кнопка",
-            "preview": "banners/banner-1/preview.png",
             "tags": ["баннер", "hero", "акция"]
         },
         {
@@ -52,7 +48,6 @@
             "category": "hero",
             "path": "banners/banner-2",
             "description": "Крупный баннер по центру с текстом",
-            "preview": "banners/banner-2/preview.png",
             "tags": ["баннер", "акция", "распродажа"]
         },
         {
@@ -63,38 +58,65 @@
             "category": "hero",
             "path": "banners/banner-3",
             "description": "Фоновый баннер с текстом и кнопкой",
-            "preview": "banners/banner-3/preview.png",
             "tags": ["баннер", "фон", "call to action"]
         },
         {
             "id": "grid-1",
             "type": "product-grid",
-            "name": "Сетка 4 товара",
+            "name": "Сетка товаров 4",
             "icon": "📦",
             "category": "products",
             "path": "product-grids/grid-1",
             "description": "Выводит 4 товара в строку",
-            "preview": "product-grids/grid-1/preview.png",
             "tags": ["товары", "каталог", "сетка"]
         },
         {
             "id": "grid-2",
             "type": "product-grid",
-            "name": "Сетка 3 товара",
+            "name": "Сетка товаров 3",
             "icon": "📦",
             "category": "products",
             "path": "product-grids/grid-2",
             "description": "Выводит 3 товара в строку (адаптивно)",
-            "preview": "product-grids/grid-2/preview.png",
             "tags": ["товары", "каталог", "сетка"]
+        },
+        {
+            "id": "slider-1",
+            "type": "slider",
+            "name": "Промо-слайдер",
+            "icon": "🎠",
+            "category": "sliders",
+            "path": "sliders/slider-1",
+            "description": "Карусель изображений с текстом и кнопкой",
+            "tags": ["слайдер", "карусель", "промо"]
+        },
+        {
+            "id": "header-1",
+            "type": "header",
+            "name": "Шапка простая",
+            "icon": "🏠",
+            "category": "headers",
+            "path": "headers/header-1",
+            "description": "Логотип + меню + кнопка",
+            "tags": ["шапка", "навигация"]
+        },
+        {
+            "id": "footer-1",
+            "type": "footer",
+            "name": "Подвал простой",
+            "icon": "📋",
+            "category": "footers",
+            "path": "footers/footer-1",
+            "description": "Контакты, соцсети, копирайт",
+            "tags": ["подвал", "footer", "контакты"]
         }
     ],
     "categories": {
-        "forms": "Формы",
-        "hero": "Баннеры",
-        "products": "Товары",
-        "sliders": "Слайдеры",
-        "headers": "Шапки",
-        "footers": "Подвалы"
+        "forms": "📝 Формы",
+        "hero": "🎯 Баннеры",
+        "products": "📦 Товары",
+        "sliders": "🎠 Слайдеры",
+        "headers": "🏠 Шапки",
+        "footers": "📋 Подвалы"
     }
 }
