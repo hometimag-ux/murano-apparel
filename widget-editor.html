@@ -367,10 +367,11 @@
         `).join('');
     }
 
-    function openEditor(siteId) {
-        localStorage.setItem('current_site_id', siteId);
-        localStorage.setItem('current_site_name', sites.find(s => s.id === siteId)?.name || '');
-        window.open('/murano-apparel/site-editor.html', '_blank');
+   function openEditor(siteId) {
+    localStorage.setItem('current_site_id', siteId);
+    localStorage.setItem('current_site_name', sites.find(s => s.id === siteId)?.name || '');
+    window.location.href = '/murano-apparel/site-editor.html';
+    }
     }
 
     function viewSite(siteId) {
