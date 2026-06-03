@@ -1,0 +1,45 @@
+{
+    "name": "Каталог товаров",
+    "icon": "📦",
+    "description": "Сетка товаров с фильтрацией и корзиной",
+    "category": "products",
+    "fields": [
+        {
+            "name": "title",
+            "label": "Заголовок блока",
+            "type": "text",
+            "default": "Наши товары"
+        },
+        {
+            "name": "columns",
+            "label": "Колонок в строке",
+            "type": "select",
+            "options": ["2", "3", "4"],
+            "default": "3"
+        },
+        {
+            "name": "show_filters",
+            "label": "Показывать фильтры",
+            "type": "checkbox",
+            "default": true
+        },
+        {
+            "name": "show_search",
+            "label": "Показывать поиск",
+            "type": "checkbox",
+            "default": true
+        },
+        {
+            "name": "primary_color",
+            "label": "Основной цвет",
+            "type": "color",
+            "default": "#6366f1"
+        },
+        {
+            "name": "card_bg_color",
+            "label": "Цвет фона карточки",
+            "type": "color",
+            "default": "#ffffff"
+        }
+    ]
+}
