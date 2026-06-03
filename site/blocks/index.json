@@ -1,5 +1,25 @@
 {
     "blocks": [
+      {
+    "blocks": [
+        {
+            "id": "grid-1",
+            "type": "product-grid",
+            "name": "Каталог товаров",
+            "icon": "📦",
+            "category": "products",
+            "path": "product-grid/grid-1",
+            "description": "Сетка товаров с фильтрацией, поиском и корзиной. Товары загружаются из CRM",
+            "tags": ["товары", "каталог", "корзина", "фильтр"]
+        }
+    ],
+    "categories": {
+        "products": "📦 Товары"
+    }
+}
+        
+        
+        
         {
             "id": "form-1",
             "type": "contact-form",
