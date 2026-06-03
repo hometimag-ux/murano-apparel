@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предпросмотр сайта</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #e8eaed; }
+        
+        /* Верхняя панель */
+        .preview-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #1a1a2e;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .preview-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .preview-header-right {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .view-buttons {
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.1);
+            padding: 4px;
+            border-radius: 30px;
+        }
+        
+        .view-btn {
+            background: none;
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .view-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .view-btn.active {
+            background: #0066cc;
+        }
+        
+        .preview-header button {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .preview-header button:hover {
+            background: #0052a3;
+        }
+        
+        .back-to-editor {
+            background: #4caf50 !important;
+        }
+        
+        .back-to-editor:hover {
+            background: #45a049 !important;
+        }
+        
+        /* Контейнер для предпросмотра с возможностью переключения вида */
+        .preview-wrapper {
+            padding-top: 60px;
+            display: flex;
+            justify-content: center;
+            background: #e8eaed;
+            min-height: 100vh;
+        }
+        
+        /* Десктопная версия */
+        .preview-content.desktop {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 0;
+            box-shadow: none;
+            transition: all 0.3s;
+        }
+        
+        /* Мобильная версия */
+        .preview-content.mobile {
+            max-width: 375px;
+            width: 100%;
+            margin: 20px auto;
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .preview-content {
+            padding: 20px;
+            min-height: calc(100vh - 60px);
+        }
+        
+        /* Адаптация для мобильной версии */
+        .preview-content.mobile .products-grid {
+            gap: 12px !important;
+        }
+        
+        .preview-content.mobile .product-card {
+            margin-bottom: 12px;
+        }
+        
+        @media (max-width: 768px) {
+            .preview-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .preview-header-left {
+                justify-content: center;
+            }
+            .preview-header-right {
+                justify-content: center;
+            }
+            .preview-content.desktop {
+                padding: 20px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-header">
+        <div class="preview-header-left">
+            <span><i class="fas fa-eye"></i> Предпросмотр — <span id="siteName">Загрузка...</span></span>
+            <div class="view-buttons">
+                <button class="view-btn active" id="desktopViewBtn">
+                    <i class="fas fa-desktop"></i> Десктоп
+                </button>
+                <button class="view-btn" id="mobileViewBtn">
+                    <i class="fas fa-mobile-alt"></i> Мобильный
+                </button>
+            </div>
+        </div>
+        <div class="preview-header-right">
+            <button id="backToEditorBtn" class="back-to-editor">
+                <i class="fas fa-arrow-left"></i> Назад в редактор
+            </button>
+            <button id="closePreviewBtn">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
+        </div>
+    </div>
+    
+    <div class="preview-wrapper">
+        <div class="preview-content desktop" id="previewContent">
+            Загрузка...
+        </div>
+    </div>
+
+    <script>
+        // Загружаем данные предпросмотра из localStorage
+        let previewHtml = localStorage.getItem('preview_html');
+        const siteName = localStorage.getItem('preview_site_name');
+        let currentView = 'desktop';
+        
+        if (previewHtml) {
+            document.getElementById('previewContent').innerHTML = previewHtml;
+            document.getElementById('siteName').innerText = siteName || 'Мой сайт';
+        } else {
+            document.getElementById('previewContent').innerHTML = '<div style="text-align:center; padding:40px;">Нет данных для предпросмотра. Вернитесь в редактор и сохраните сайт.</div>';
+        }
+        
+        // Функция переключения вида
+        function setView(view) {
+            currentView = view;
+            const previewDiv = document.getElementById('previewContent');
+            
+            // Меняем класс
+            previewDiv.classList.remove('desktop', 'mobile');
+            previewDiv.classList.add(view);
+            
+            // Обновляем активную кнопку
+            const desktopBtn = document.getElementById('desktopViewBtn');
+            const mobileBtn = document.getElementById('mobileViewBtn');
+            
+            if (view === 'desktop') {
+                desktopBtn.classList.add('active');
+                mobileBtn.classList.remove('active');
+            } else {
+                mobileBtn.classList.add('active');
+                desktopBtn.classList.remove('active');
+            }
+            
+            // Сохраняем выбор
+            localStorage.setItem('preview_view', view);
+        }
+        
+        // Загружаем сохранённый вид
+        const savedView = localStorage.getItem('preview_view');
+        if (savedView && (savedView === 'desktop' || savedView === 'mobile')) {
+            setView(savedView);
+        }
+        
+        // Кнопки переключения
+        document.getElementById('desktopViewBtn').onclick = () => setView('desktop');
+        document.getElementById('mobileViewBtn').onclick = () => setView('mobile');
+        
+        // Кнопка "Назад в редактор"
+        document.getElementById('backToEditorBtn').onclick = () => {
+            window.location.href = '/murano-apparel/site-editor.html';
+        };
+        
+        // Кнопка "Закрыть"
+        document.getElementById('closePreviewBtn').onclick = () => {
+            window.close();
+        };
+        
+        // Эмуляция touch-событий для мобильной версии (опционально)
+        if ('ontouchstart' in window) {
+            console.log('Сенсорный экран обнаружен');
+        }
+    </script>
+</body>
+</html>
