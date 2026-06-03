@@ -1,0 +1,19 @@
+<div class="banner-block-1" style="background: {{ bg_color|default('#0066cc') }}; border-radius: 32px; margin: 40px 0; overflow: hidden;">
+    <div style="display: flex; flex-wrap: wrap; align-items: center;">
+        {% if image %}
+        <div style="flex: 0.8;">
+            <img src="{{ image }}" alt="{{ title }}" style="width: 100%; height: auto; object-fit: cover;">
+        </div>
+        {% endif %}
+        <div style="flex: 1; padding: 48px;">
+            <div style="font-size: 14px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; color: {{ accent_color|default('#ffcc00') }};">
+                {{ badge|default('Акция') }}
+            </div>
+            <h2 style="font-size: 2.5rem; margin-bottom: 16px; color: #ffffff;">{{ title|default('Специальное предложение') }}</h2>
+            <p style="margin-bottom: 24px; color: #ffffff;">{{ subtitle|default('Успейте купить со скидкой до 50%') }}</p>
+            <a href="{{ button_link|default('#') }}" style="background: #ffffff; color: {{ bg_color|default('#0066cc') }}; padding: 12px 28px; border-radius: 40px; text-decoration: none; font-weight: 600; display: inline-block;">
+                {{ button_text|default('Подробнее') }}
+            </a>
+        </div>
+    </div>
+</div>
