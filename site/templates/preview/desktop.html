@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предпросмотр — Десктоп</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #fff; }
+        .preview-placeholder { padding: 40px; text-align: center; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="preview-placeholder">
+        <i class="fas fa-desktop" style="font-size: 48px; margin-bottom: 16px;"></i>
+        <p>Предпросмотр сайта (десктопная версия)</p>
+        <p style="font-size: 12px; margin-top: 16px;">Здесь будет отображаться сайт, собранный из блоков</p>
+    </div>
+    <script>
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'updateSiteData') {
+                console.log('Получены данные сайта:', event.data.data);
+                // Здесь будет рендер сайта
+            }
+        });
+    </script>
+</body>
+</html>
