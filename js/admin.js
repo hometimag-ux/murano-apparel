@@ -73,12 +73,11 @@
         
         // Редактор виджетов
         if (page === 'widget-editor') {
-            if (contentArea) {
-                contentArea.innerHTML = `<iframe src="widget-editor.html" style="width:100%; height:100%; border:none; background: white; border-radius: 0;"></iframe>`;
-            }
-            return;
-        }
-        
+    if (contentArea) {
+        contentArea.innerHTML = `<iframe src="/murano-apparel/site-editor.html" style="width:100%; height:100%; border:none; background: white; border-radius: 0;"></iframe>`;
+    }
+    return;
+}
         // Чат
         if (page === 'chat') {
             if (contentArea) {
