@@ -435,7 +435,112 @@
             closeModal('siteSettingsModal'); showToast('Настройки сохранены');
         }
 
-        function openPreview() { saveSite(); window.open('/murano-apparel/site-preview.html', '_blank'); }
+        function openPreview() {
+    saveSite();
+    
+    // Собираем HTML всех блоков для предпросмотра
+    let previewHtml = '';
+    
+    currentSite.blocks.forEach(block => {
+        if (block.type === 'header-banner') {
+            previewHtml += `<div style="background:${block.content.bg_color || '#f8f9fa'}; padding:12px; text-align:center;">🏷️ ${escapeHtml(block.content.text || 'Баннер')}</div>`;
+        }
+        else if (block.type === 'promo-slider') {
+            const slide = block.content.slides?.[0] || {};
+            previewHtml += `<div style="background:#0066cc; color:white; padding:60px 20px; text-align:center;"><div style="font-size:48px;">🎠</div><h2>${escapeHtml(slide.title)}</h2><p>${escapeHtml(slide.subtitle)}</p><button style="background:white; color:#0066cc; border:none; padding:10px 24px; border-radius:30px;">${escapeHtml(slide.button_text)}</button></div>`;
+        }
+        else if (block.type === 'product-grid') {
+            const products = getProductsFromCRM();
+            const categories = getCategoriesFromCRM();
+            const cols = block.content.columns || 3;
+            const primaryColor = block.content.primary_color || '#6366f1';
+            
+            let productsHtml = '';
+            if (products.length === 0) {
+                productsHtml = '<div style="text-align:center; padding:40px;">Нет товаров</div>';
+            } else {
+                productsHtml = `<div style="display:grid; grid-template-columns:repeat(${cols}, 1fr); gap:20px;">`;
+                products.slice(0, 12).forEach(product => {
+                    const category = categories.find(c => c.id == product.category_id);
+                    const hasDiscount = product.discount_price && product.discount_price < product.price;
+                    productsHtml += `
+                        <div style="background:white; border-radius:16px; overflow:hidden; border:1px solid #eee;">
+                            <div style="height:180px; background:#f5f5f5; display:flex; align-items:center; justify-content:center; font-size:48px;">👕</div>
+                            <div style="padding:12px;">
+                                <div style="font-weight:600;">${escapeHtml(product.title)}</div>
+                                <div style="font-size:12px; color:#999;">${category ? escapeHtml(category.title) : ''}</div>
+                                <div style="margin:8px 0;">
+                                    ${hasDiscount ? 
+                                        `<span style="text-decoration:line-through; color:#999;">${product.price} ₽</span>
+                                         <span style="color:${primaryColor}; font-size:18px; font-weight:700; margin-left:8px;">${product.discount_price} ₽</span>` :
+                                        `<span style="color:${primaryColor}; font-size:18px; font-weight:700;">${product.price} ₽</span>`
+                                    }
+                                </div>
+                                <button style="width:100%; background:${primaryColor}; color:white; border:none; padding:8px; border-radius:30px;">В корзину</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                productsHtml += `</div>`;
+            }
+            previewHtml += `<div style="padding:20px;"><h3 style="margin-bottom:16px;">📦 ${escapeHtml(block.content.title || 'Каталог товаров')}</h3>${productsHtml}</div>`;
+        }
+        else if (block.type === 'footer-subscribe') {
+            previewHtml += `<div style="background:#f8f9fa; padding:40px; text-align:center;"><h3>✉️ ${escapeHtml(block.content.title)}</h3><input type="email" placeholder="Ваш email" style="margin-top:12px; padding:10px; width:250px; border:1px solid #ddd; border-radius:30px;"><button style="background:#0066cc; color:white; border:none; padding:10px 20px; border-radius:30px;">Подписаться</button></div>`;
+        }
+    });
+    
+    // Создаём полноценную HTML-страницу для предпросмотра
+    const previewWindow = window.open();
+    previewWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Предпросмотр — ${escapeHtml(currentSite.name)}</title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body { font-family: 'Inter', sans-serif; background: #f8fafc; }
+                .preview-header {
+                    position: fixed; top: 0; left: 0; right: 0;
+                    background: #1a1a2e; color: white;
+                    padding: 12px 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    z-index: 1000;
+                    font-size: 14px;
+                }
+                .preview-header button {
+                    background: #0066cc; color: white;
+                    border: none; padding: 6px 12px;
+                    border-radius: 20px; cursor: pointer;
+                }
+                .preview-content {
+                    padding: 80px 20px 40px 20px;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                @media (max-width: 768px) {
+                    .preview-content { padding: 70px 12px 20px 12px; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="preview-header">
+                <span><i class="fas fa-eye"></i> Режим предпросмотра — ${escapeHtml(currentSite.name)}</span>
+                <button onclick="window.close()">Закрыть</button>
+            </div>
+            <div class="preview-content">
+                ${previewHtml}
+            </div>
+        </body>
+        </html>
+    `);
+    previewWindow.document.close();
+}
         function setView(view) { currentView = view; document.getElementById('previewFrame').classList.toggle('mobile', view === 'mobile'); document.getElementById('desktopViewBtn').classList.toggle('active', view === 'desktop'); document.getElementById('mobileViewBtn').classList.toggle('active', view === 'mobile'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `✅ ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
