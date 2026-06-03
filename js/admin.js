@@ -1,3 +1,4 @@
+// ========== УПРОЩЁННЫЙ, НО РАБОЧИЙ ADMIN.JS ==========
 (function() {
     const sidebar = document.getElementById('sidebarMenu');
     const collapseBtn = document.getElementById('collapseBtn');
@@ -23,7 +24,6 @@
     }
     
     if (collapseBtn) collapseBtn.addEventListener('click', toggleCollapse);
-    
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
             if (sidebar) sidebar.classList.toggle('open');
@@ -32,19 +32,34 @@
     
     updateMenuState();
     
+    // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПАРАМЕТРОВ URL =====
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+    
     // ===== ЗАГРУЗКА СТРАНИЦ =====
     const titles = {
+        dashboard: 'Главная',
         products: 'Товары',
         orders: 'Заказы',
-        chat: 'Диалоги',
         delivery: 'Доставка',
         payment: 'Оплата',
+        chat: 'Диалоги',
         'widget-editor': 'Редактор сайта',
         settings: 'Настройки'
     };
     
+    function loadPageInIframe(url, title) {
+        if (contentArea) {
+            contentArea.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
+        }
+        if (pageTitle) pageTitle.textContent = title;
+    }
+    
     async function loadPage(page, saveToHistory = true) {
-        // Обновляем активный пункт меню
+        console.log(`Загрузка страницы: ${page}`);
+        
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.dataset.page === page) {
                 item.classList.add('active');
@@ -56,15 +71,13 @@
         if (saveToHistory) localStorage.setItem('lastPage', page);
         if (pageTitle) pageTitle.textContent = titles[page] || 'Страница';
         
-        // ===== РЕДАКТОР САЙТА — ОТКРЫВАЕМ В НОВОЙ ВКЛАДКЕ =====
+        // Редактор сайта — загружаем менеджер сайтов в iframe
         if (page === 'widget-editor') {
-        if (contentArea) {
-        contentArea.innerHTML = `<iframe src="/murano-apparel/widget-editor.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-    }
-    return;
-}
+            loadPageInIframe('/murano-apparel/widget-editor.html', titles[page]);
+            return;
+        }
         
-        // ===== ОСТАЛЬНЫЕ СТРАНИЦЫ — ЗАГРУЖАЕМ В IFRAME =====
+        // Остальные страницы
         let iframeSrc = '';
         switch(page) {
             case 'products': iframeSrc = '/murano-apparel/pages/products.html'; break;
@@ -74,10 +87,10 @@
             default: iframeSrc = '';
         }
         
-        if (iframeSrc && contentArea) {
-            contentArea.innerHTML = `<iframe src="${iframeSrc}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
+        if (iframeSrc) {
+            loadPageInIframe(iframeSrc, titles[page]);
         } else if (contentArea) {
-            contentArea.innerHTML = `<div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;"><div style="text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 16px;">🚧</div><div>Страница в разработке</div></div></div>`;
+            contentArea.innerHTML = `<div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;"><div style="text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 16px;">🚧</div><div>Страница "${titles[page] || page}" в разработке</div></div></div>`;
         }
         
         if (window.innerWidth <= 768 && sidebar) {
@@ -85,6 +98,7 @@
         }
     }
     
+    // Навешиваем обработчики на пункты меню
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const page = item.dataset.page;
@@ -92,6 +106,22 @@
         });
     });
     
-    // Загружаем товары по умолчанию
-    loadPage('products', false);
+    // ===== ОПРЕДЕЛЕНИЕ СТАРТОВОЙ СТРАНИЦЫ =====
+    // Проверяем параметр open в URL (например, ?open=widget-editor)
+    const openPage = getUrlParameter('open');
+    
+    if (openPage === 'widget-editor') {
+        // Если пришли из редактора — сразу показываем менеджер сайтов
+        loadPage('widget-editor', false);
+    } else {
+        // Иначе загружаем последнюю открытую страницу или товары по умолчанию
+        const lastPage = localStorage.getItem('lastPage');
+        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery'];
+        
+        if (lastPage && validPages.includes(lastPage)) {
+            loadPage(lastPage, false);
+        } else {
+            loadPage('products', false);
+        }
+    }
 })();
