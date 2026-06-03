@@ -1,4 +1,4 @@
-// ========== УПРАВЛЕНИЕ МЕНЮ И ЗАГРУЗКА СТРАНИЦ ==========
+// ========== УПРОЩЁННЫЙ, НО РАБОЧИЙ ADMIN.JS ==========
 (function() {
     const sidebar = document.getElementById('sidebarMenu');
     const collapseBtn = document.getElementById('collapseBtn');
@@ -6,7 +6,6 @@
     const pageTitle = document.getElementById('pageTitle');
     const contentArea = document.getElementById('contentArea');
     
-    // Состояние — свернуто или нет
     let isCollapsed = localStorage.getItem('menuCollapsed') === 'true';
     
     function updateMenuState() {
@@ -25,25 +24,15 @@
     }
     
     if (collapseBtn) collapseBtn.addEventListener('click', toggleCollapse);
-    
-    // Для мобильных — кнопка гамбургера
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
             if (sidebar) sidebar.classList.toggle('open');
-        });
-        
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768) {
-                if (sidebar && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
-                    sidebar.classList.remove('open');
-                }
-            }
         });
     }
     
     updateMenuState();
     
-    // ========== ЗАГРУЗКА СТРАНИЦ ==========
+    // ===== ЗАГРУЗКА СТРАНИЦ =====
     const titles = {
         dashboard: 'Главная',
         products: 'Товары',
@@ -55,8 +44,17 @@
         settings: 'Настройки'
     };
     
+    // Функция для загрузки любой страницы в iframe
+    function loadPageInIframe(url, title) {
+        if (contentArea) {
+            contentArea.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
+        }
+        if (pageTitle) pageTitle.textContent = title;
+    }
+    
     async function loadPage(page, saveToHistory = true) {
-        // Обновляем активный пункт меню
+        console.log(`Загрузка страницы: ${page}`);
+        
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.dataset.page === page) {
                 item.classList.add('active');
@@ -65,126 +63,51 @@
             }
         });
         
-        // Сохраняем последнюю страницу
         if (saveToHistory) localStorage.setItem('lastPage', page);
-        
-        // Обновляем заголовок
         if (pageTitle) pageTitle.textContent = titles[page] || 'Страница';
         
-        // Редактор виджетов
+        // Редактор сайта — загружаем менеджер сайтов
         if (page === 'widget-editor') {
-        if (contentArea) {
-        contentArea.innerHTML = `<iframe src="/murano-apparel/widget-editor.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-            }
-        return;
-        }
-
-        // Обработчик сообщений от iframe (для навигации внутри редактора)
-window.addEventListener('message', (event) => {
-    if (event.data.type === 'loadEditor' && event.data.url) {
-        // Загружаем редактор в iframe
-        const iframe = document.querySelector('#contentArea iframe');
-        if (iframe) {
-            iframe.src = event.data.url;
-        } else {
-            contentArea.innerHTML = `<iframe src="${event.data.url}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-        }
-        // Обновляем заголовок
-        if (pageTitle) pageTitle.textContent = 'Редактор сайта';
-            }
-    
-        if (event.data.type === 'backToManager') {
-        // Возврат к менеджеру сайтов
-        const iframe = document.querySelector('#contentArea iframe');
-        if (iframe) {
-            iframe.src = '/murano-apparel/widget-editor.html';
-        }
-        if (pageTitle) pageTitle.textContent = 'Управление сайтами';
-            }
-        });
-        
-        // Чат
-        if (page === 'chat') {
-            if (contentArea) {
-                contentArea.innerHTML = `<iframe src="/murano-apparel/pages/chat.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-            }
+            loadPageInIframe('/murano-apparel/widget-editor.html', titles[page]);
             return;
         }
         
-        // Товары
-        if (page === 'products') {
-            if (contentArea) {
-                contentArea.innerHTML = `<iframe src="/murano-apparel/pages/products.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-            }
-            return;
+        // Остальные страницы
+        let iframeSrc = '';
+        switch(page) {
+            case 'products': iframeSrc = '/murano-apparel/pages/products.html'; break;
+            case 'orders': iframeSrc = '/murano-apparel/pages/orders.html'; break;
+            case 'chat': iframeSrc = '/murano-apparel/pages/chat.html'; break;
+            case 'delivery': iframeSrc = '/murano-apparel/pages/delivery.html'; break;
+            default: iframeSrc = '';
         }
         
-        // Заказы
-        if (page === 'orders') {
-            if (contentArea) {
-                contentArea.innerHTML = `<iframe src="/murano-apparel/pages/orders.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-            }
-            return;
+        if (iframeSrc) {
+            loadPageInIframe(iframeSrc, titles[page]);
+        } else if (contentArea) {
+            contentArea.innerHTML = `<div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;"><div style="text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 16px;">🚧</div><div>Страница "${titles[page] || page}" в разработке</div></div></div>`;
         }
         
-        // Доставка
-        if (page === 'delivery') {
-            if (contentArea) {
-                contentArea.innerHTML = `<iframe src="/murano-apparel/pages/delivery.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-            }
-            return;
-        }
-        
-        // Оплата — временно заглушка
-        if (page === 'payment') {
-            if (contentArea) {
-                contentArea.innerHTML = `
-                    <div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;">
-                        <div style="text-align: center; color: #999;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">💳</div>
-                            <div>Страница "Оплата" в разработке</div>
-                            <div style="margin-top: 16px; font-size: 12px;">Настройка способов оплаты будет добавлена позже</div>
-                        </div>
-                    </div>
-                `;
-            }
-            return;
-        }
-        
-        // Настройки — временно заглушка
-        if (page === 'settings') {
-            if (contentArea) {
-                contentArea.innerHTML = `
-                    <div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;">
-                        <div style="text-align: center; color: #999;">
-                            <div style="font-size: 48px; margin-bottom: 16px;">⚙️</div>
-                            <div>Страница "Настройки" в разработке</div>
-                            <div style="margin-top: 16px; font-size: 12px;">Системные настройки будут добавлены позже</div>
-                        </div>
-                    </div>
-                `;
-            }
-            return;
-        }
-        
-        // Для остальных страниц — заглушка
-        if (contentArea) {
-            contentArea.innerHTML = `
-                <div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;">
-                    <div style="text-align: center; color: #999;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">🚧</div>
-                        <div>Страница "${titles[page] || page}" в разработке</div>
-                        <div style="margin-top: 16px; font-size: 12px;">Создайте файл: pages/${page}.html</div>
-                    </div>
-                </div>
-            `;
-        }
-        
-        // Закрываем меню на мобильных
         if (window.innerWidth <= 768 && sidebar) {
             sidebar.classList.remove('open');
         }
     }
+    
+    // ===== НОВЫЙ ОБРАБОТЧИК СООБЩЕНИЙ ОТ IFRAME =====
+    window.addEventListener('message', (event) => {
+        // Важно: проверяем origin для безопасности, но для GitHub Pages можно ослабить
+        // if (event.origin !== window.location.origin) return;
+        
+        if (event.data.type === 'loadEditor' && event.data.url) {
+            // Загружаем редактор сайта в тот же iframe
+            loadPageInIframe(event.data.url, 'Редактор сайта');
+        }
+        
+        if (event.data.type === 'backToManager') {
+            // Возвращаемся к менеджеру сайтов
+            loadPageInIframe('/murano-apparel/widget-editor.html', 'Управление сайтами');
+        }
+    });
     
     // Навешиваем обработчики на пункты меню
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -194,13 +117,6 @@ window.addEventListener('message', (event) => {
         });
     });
     
-    // Загружаем последнюю открытую страницу или товары по умолчанию
-    const lastPage = localStorage.getItem('lastPage');
-    const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery'];
-    
-    if (lastPage && validPages.includes(lastPage)) {
-        loadPage(lastPage, false);
-    } else {
-        loadPage('products', false);
-    }
+    // Загружаем стартовую страницу
+    loadPage('widget-editor', false);
 })();
