@@ -1,0 +1,18 @@
+<div class="promo-slider-block" data-autoplay="{{ autoplay }}" data-delay="{{ autoplay_delay }}">
+    <div class="slider-container">
+        {% for slide in slides %}
+        <div class="slide">
+            {% if slide.image %}
+            <img src="{{ slide.image }}" alt="{{ slide.title }}">
+            {% endif %}
+            <div class="slide-content">
+                <h2>{{ slide.title }}</h2>
+                <p>{{ slide.subtitle }}</p>
+                <a href="{{ slide.button_link }}" class="btn-primary">{{ slide.button_text }}</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <button class="slider-prev">◀</button>
+    <button class="slider-next">▶</button>
+</div>
