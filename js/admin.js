@@ -77,7 +77,7 @@
         contentArea.innerHTML = `<iframe src="/murano-apparel/widget-editor.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
             }
         return;
-         }
+        }
 
         // Чат
         if (page === 'chat') {
