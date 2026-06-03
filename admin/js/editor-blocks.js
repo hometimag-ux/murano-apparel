@@ -117,3 +117,23 @@ window.EditorBlocks = {
     addWidgetToZone: function(zoneId, widgetId) {
         const widgets = window.EditorCore.siteData.widgets;
         if (!widgets[zoneId]) widgets[zoneId] = [];
+        if (!widgets[zoneId].includes(widgetId)) {
+            widgets[zoneId].push(widgetId);
+            this.render(document.getElementById('sidebarContent'));
+            window.EditorCore.showToast(`✅ Блок добавлен в ${zoneId}`);
+        }
+    },
+    
+    removeWidgetFromZone: function(zoneId, widgetId) {
+        const widgets = window.EditorCore.siteData.widgets;
+        if (widgets[zoneId]) {
+            widgets[zoneId] = widgets[zoneId].filter(w => w !== widgetId);
+            this.render(document.getElementById('sidebarContent'));
+            window.EditorCore.showToast(`🗑️ Блок удалён`);
+        }
+    },
+    
+    saveBlocks: function() {
+        window.EditorCore.saveSite();
+    }
+};
