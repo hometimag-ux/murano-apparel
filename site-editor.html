@@ -33,7 +33,7 @@
         .btn-primary { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
         .btn-outline { background: white; border: 1px solid #ddd; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
 
-        /* Основная область */
+        /* Основная область — на всё окно */
         .editor-main { display: flex; height: calc(100vh - 56px); position: relative; }
         .preview-container { flex: 1; background: #e8eaed; padding: 20px; overflow: auto; display: flex; justify-content: center; }
         .preview-frame { width: 100%; max-width: 1200px; background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); overflow: auto; transition: all 0.3s; }
@@ -51,7 +51,6 @@
         .editor-block:hover { border-color: #0066cc; }
         .editor-block.selected { border-color: #0066cc; background: rgba(0,102,204,0.05); }
         
-        /* Кнопки добавления блока */
         .block-add-top, .block-add-bottom {
             position: relative;
             height: 20px;
@@ -77,7 +76,6 @@
         }
         .add-btn:hover { background: #0066cc; color: white; transform: translateX(-50%) scale(1.1); }
         
-        /* Меню блока (в правом верхнем углу) */
         .block-menu {
             position: absolute;
             top: -12px;
@@ -103,31 +101,41 @@
         }
         .block-menu-btn:hover { background: #f0f0f0; }
 
-        /* Панель настроек (справа) */
-        .settings-panel {
-            width: 380px;
-            background: white;
-            border-left: 1px solid #e0e0e0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: width 0.3s;
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
-        .settings-panel.collapsed { width: 50px; }
-        .settings-header { padding: 16px 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .settings-header h3 { font-size: 16px; font-weight: 600; }
-        .settings-content { flex: 1; overflow-y: auto; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-size: 18px; font-weight: 600; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
+        .modal-body { padding: 20px; }
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        /* Модальные окна */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 24px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
-        .modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; }
+        .block-item { display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: #f8f9fa; border-radius: 16px; cursor: pointer; transition: all 0.2s; }
+        .block-item:hover { background: #e3f2fd; transform: translateX(4px); }
+        .block-icon { font-size: 28px; width: 48px; text-align: center; }
         .toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 30px; z-index: 1100; animation: fadeInOut 2s ease; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); } }
     </style>
@@ -147,34 +155,20 @@
         </div>
         <div class="toolbar-group">
             <button class="toolbar-btn" id="settingsBtn"><i class="fas fa-cog"></i> Настройки</button>
-            <button class="toolbar-btn" id="collapseSettingsBtn"><i class="fas fa-chevron-right"></i></button>
         </div>
     </div>
 
     <div class="editor-main">
-        <!-- Область предпросмотра -->
         <div class="preview-container">
             <div class="preview-frame" id="previewFrame">
                 <div class="preview-content" id="previewContent">
-                    <!-- Блоки будут загружены сюда -->
                     <div style="text-align:center; padding:40px; color:#999;">Загрузка блоков...</div>
                 </div>
             </div>
         </div>
-
-        <!-- Панель настроек -->
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-header">
-                <h3 id="settingsTitle">Настройки сайта</h3>
-                <button class="toolbar-btn" id="collapseSettingsBtn2"><i class="fas fa-chevron-right"></i></button>
-            </div>
-            <div class="settings-content" id="settingsContent">
-                <div style="text-align:center; padding:40px;">Выберите блок или откройте настройки</div>
-            </div>
-        </div>
     </div>
 
-    <!-- Модалка выбора блока -->
+    <!-- Модальное окно выбора блока -->
     <div id="blockSelectModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -185,7 +179,7 @@
         </div>
     </div>
 
-    <!-- Модалка замены блока -->
+    <!-- Модальное окно замены блока -->
     <div id="blockReplaceModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -196,7 +190,7 @@
         </div>
     </div>
 
-    <!-- Модалка редактирования блока -->
+    <!-- Модальное окно редактирования блока -->
     <div id="blockEditModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -204,6 +198,17 @@
                 <button class="modal-close" onclick="closeModal('blockEditModal')">&times;</button>
             </div>
             <div class="modal-body" id="blockEditContent"></div>
+        </div>
+    </div>
+
+    <!-- Модальное окно настроек сайта -->
+    <div id="siteSettingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Настройки сайта</h3>
+                <button class="modal-close" onclick="closeModal('siteSettingsModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="siteSettingsContent"></div>
         </div>
     </div>
 
@@ -237,10 +242,10 @@
             
             if (currentSite.blocks.length === 0) {
                 currentSite.blocks = [
-                    { id: 'header-banner', type: 'header-banner', content: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
-                    { id: 'promo-slider', type: 'promo-slider', content: { slides: [{ image: '', title: 'Летняя распродажа', subtitle: 'Скидки до 50%', button_text: 'Смотреть', button_link: '#' }] } },
-                    { id: 'product-grid', type: 'product-grid', content: { title: 'Наши товары', limit: 6 } },
-                    { id: 'footer-subscribe', type: 'footer-subscribe', content: { title: 'Подпишитесь на новости' } }
+                    { id: 'header-banner_1', type: 'header-banner', content: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
+                    { id: 'promo-slider_1', type: 'promo-slider', content: { slides: [{ image: '', title: 'Летняя распродажа', subtitle: 'Скидки до 50%', button_text: 'Смотреть', button_link: '#' }] } },
+                    { id: 'product-grid_1', type: 'product-grid', content: { title: 'Наши товары', limit: 6 } },
+                    { id: 'footer-subscribe_1', type: 'footer-subscribe', content: { title: 'Подпишитесь на новости' } }
                 ];
             }
             
@@ -257,7 +262,6 @@
             const container = document.getElementById('previewContent');
             let html = '';
             
-            // Добавляем кнопку добавления блока в начало
             html += `<div class="block-add-top"><div class="add-btn" data-position="top"><i class="fas fa-plus"></i></div></div>`;
             
             currentSite.blocks.forEach((block, idx) => {
@@ -267,44 +271,39 @@
             
             container.innerHTML = html;
             
-            // Навешиваем обработчики
+            // Обработчики
             document.querySelectorAll('.add-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const position = btn.dataset.position;
-                    openBlockSelectModal(position);
+                    openBlockSelectModal(btn.dataset.position);
                 });
             });
             
             document.querySelectorAll('.editor-block').forEach(block => {
                 block.addEventListener('click', (e) => {
                     if (e.target.closest('.block-menu-btn')) return;
-                    const idx = parseInt(block.dataset.index);
-                    selectBlock(idx);
+                    selectBlock(parseInt(block.dataset.index));
                 });
             });
             
             document.querySelectorAll('.edit-block-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const idx = parseInt(btn.dataset.index);
-                    openBlockEditModal(idx);
+                    openBlockEditModal(parseInt(btn.dataset.index));
                 });
             });
             
             document.querySelectorAll('.replace-block-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const idx = parseInt(btn.dataset.index);
-                    openBlockReplaceModal(idx);
+                    openBlockReplaceModal(parseInt(btn.dataset.index));
                 });
             });
             
             document.querySelectorAll('.duplicate-block-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const idx = parseInt(btn.dataset.index);
-                    duplicateBlock(idx);
+                    duplicateBlock(parseInt(btn.dataset.index));
                 });
             });
             
@@ -358,86 +357,85 @@
                 if (i == idx) el.classList.add('selected');
                 else el.classList.remove('selected');
             });
-            // Показываем настройки блока
-            renderBlockSettings(idx);
+            openBlockEditModal(idx);
         }
 
-        function renderBlockSettings(idx) {
+        function openBlockEditModal(idx) {
             const block = currentSite.blocks[idx];
             const blockInfo = availableBlocks[block.type];
-            const container = document.getElementById('settingsContent');
-            document.getElementById('settingsTitle').innerText = `Настройки: ${blockInfo?.name || block.type}`;
+            const modal = document.getElementById('blockEditModal');
+            const container = document.getElementById('blockEditContent');
+            document.getElementById('blockEditTitle').innerText = `Редактирование: ${blockInfo?.name || block.type}`;
             
             if (block.type === 'header-banner') {
                 container.innerHTML = `
-                    <div class="form-group"><label>Текст баннера</label><input type="text" id="bannerText" value="${escapeHtml(block.content.text || '')}"></div>
-                    <div class="form-group"><label>Цвет фона</label><input type="color" id="bannerBg" value="${block.content.bg_color || '#f8f9fa'}"></div>
-                    <button class="btn-primary" onclick="saveBlockSettings(${idx})">Сохранить</button>
+                    <div class="form-group"><label>Текст баннера</label><input type="text" id="editBannerText" value="${escapeHtml(block.content.text || '')}"></div>
+                    <div class="form-group"><label>Цвет фона</label><input type="color" id="editBannerBg" value="${block.content.bg_color || '#f8f9fa'}"></div>
+                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
                 `;
             } else if (block.type === 'promo-slider') {
                 const slide = block.content.slides?.[0] || {};
                 container.innerHTML = `
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="slideTitle" value="${escapeHtml(slide.title || '')}"></div>
-                    <div class="form-group"><label>Подзаголовок</label><input type="text" id="slideSubtitle" value="${escapeHtml(slide.subtitle || '')}"></div>
-                    <div class="form-group"><label>Текст кнопки</label><input type="text" id="slideButton" value="${escapeHtml(slide.button_text || '')}"></div>
-                    <div class="form-group"><label>Ссылка кнопки</label><input type="text" id="slideLink" value="${escapeHtml(slide.button_link || '')}"></div>
-                    <button class="btn-primary" onclick="saveBlockSettings(${idx})">Сохранить</button>
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="editSlideTitle" value="${escapeHtml(slide.title || '')}"></div>
+                    <div class="form-group"><label>Подзаголовок</label><input type="text" id="editSlideSubtitle" value="${escapeHtml(slide.subtitle || '')}"></div>
+                    <div class="form-group"><label>Текст кнопки</label><input type="text" id="editSlideButton" value="${escapeHtml(slide.button_text || '')}"></div>
+                    <div class="form-group"><label>Ссылка кнопки</label><input type="text" id="editSlideLink" value="${escapeHtml(slide.button_link || '')}"></div>
+                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
                 `;
             } else if (block.type === 'product-grid') {
                 container.innerHTML = `
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="gridTitle" value="${escapeHtml(block.content.title || '')}"></div>
-                    <div class="form-group"><label>Количество товаров</label><input type="number" id="gridLimit" value="${block.content.limit || 6}"></div>
-                    <button class="btn-primary" onclick="saveBlockSettings(${idx})">Сохранить</button>
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="editGridTitle" value="${escapeHtml(block.content.title || '')}"></div>
+                    <div class="form-group"><label>Количество товаров</label><input type="number" id="editGridLimit" value="${block.content.limit || 6}"></div>
+                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
                 `;
             } else if (block.type === 'footer-subscribe') {
                 container.innerHTML = `
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="subscribeTitle" value="${escapeHtml(block.content.title || '')}"></div>
-                    <button class="btn-primary" onclick="saveBlockSettings(${idx})">Сохранить</button>
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="editSubscribeTitle" value="${escapeHtml(block.content.title || '')}"></div>
+                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
                 `;
             } else {
                 container.innerHTML = `<div style="text-align:center;padding:20px;">Настройки для этого блока будут добавлены позже</div>`;
             }
+            
+            modal.classList.add('active');
         }
 
-        function saveBlockSettings(idx) {
+        function saveBlockEdit(idx) {
             const block = currentSite.blocks[idx];
             if (block.type === 'header-banner') {
-                block.content.text = document.getElementById('bannerText')?.value || '';
-                block.content.bg_color = document.getElementById('bannerBg')?.value || '#f8f9fa';
+                block.content.text = document.getElementById('editBannerText')?.value || '';
+                block.content.bg_color = document.getElementById('editBannerBg')?.value || '#f8f9fa';
             } else if (block.type === 'promo-slider') {
                 if (!block.content.slides) block.content.slides = [{}];
                 block.content.slides[0] = {
-                    title: document.getElementById('slideTitle')?.value || '',
-                    subtitle: document.getElementById('slideSubtitle')?.value || '',
-                    button_text: document.getElementById('slideButton')?.value || '',
-                    button_link: document.getElementById('slideLink')?.value || ''
+                    title: document.getElementById('editSlideTitle')?.value || '',
+                    subtitle: document.getElementById('editSlideSubtitle')?.value || '',
+                    button_text: document.getElementById('editSlideButton')?.value || '',
+                    button_link: document.getElementById('editSlideLink')?.value || ''
                 };
             } else if (block.type === 'product-grid') {
-                block.content.title = document.getElementById('gridTitle')?.value || '';
-                block.content.limit = parseInt(document.getElementById('gridLimit')?.value) || 6;
+                block.content.title = document.getElementById('editGridTitle')?.value || '';
+                block.content.limit = parseInt(document.getElementById('editGridLimit')?.value) || 6;
             } else if (block.type === 'footer-subscribe') {
-                block.content.title = document.getElementById('subscribeTitle')?.value || '';
+                block.content.title = document.getElementById('editSubscribeTitle')?.value || '';
             }
             
             renderPreview();
             saveSite();
+            closeModal('blockEditModal');
             showToast('✅ Настройки сохранены');
-            
-            if (selectedBlockIndex === idx) selectBlock(idx);
         }
 
-        // ===== ДОБАВЛЕНИЕ/ЗАМЕНА/ДУБЛИРОВАНИЕ БЛОКОВ =====
+        // ===== ДОБАВЛЕНИЕ/ЗАМЕНА/ДУБЛИРОВАНИЕ =====
         function openBlockSelectModal(position) {
             const modal = document.getElementById('blockSelectModal');
-            const listContainer = document.getElementById('blockSelectList');
-            
-            listContainer.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
-                <div class="block-item" style="display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:8px; background:#f8f9fa; border-radius:16px; cursor:pointer;" onclick="addBlock('${id}', '${position}')">
-                    <div style="font-size:28px;">${block.icon}</div>
+            const container = document.getElementById('blockSelectList');
+            container.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
+                <div class="block-item" onclick="addBlock('${id}', '${position}')">
+                    <div class="block-icon">${block.icon}</div>
                     <div><div style="font-weight:600;">${block.name}</div><div style="font-size:12px; color:#999;">${block.desc}</div></div>
                 </div>
             `).join('');
-            
             modal.classList.add('active');
         }
 
@@ -463,15 +461,13 @@
 
         function openBlockReplaceModal(idx) {
             const modal = document.getElementById('blockReplaceModal');
-            const listContainer = document.getElementById('blockReplaceList');
-            
-            listContainer.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
-                <div class="block-item" style="display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:8px; background:#f8f9fa; border-radius:16px; cursor:pointer;" onclick="replaceBlock(${idx}, '${id}')">
-                    <div style="font-size:28px;">${block.icon}</div>
+            const container = document.getElementById('blockReplaceList');
+            container.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
+                <div class="block-item" onclick="replaceBlock(${idx}, '${id}')">
+                    <div class="block-icon">${block.icon}</div>
                     <div><div style="font-weight:600;">${block.name}</div><div style="font-size:12px; color:#999;">${block.desc}</div></div>
                 </div>
             `).join('');
-            
             modal.classList.add('active');
         }
 
@@ -488,31 +484,40 @@
         }
 
         function duplicateBlock(idx) {
-            const original = currentSite.blocks[idx];
-            const duplicate = JSON.parse(JSON.stringify(original));
-            duplicate.id = original.type + '_' + Date.now();
+            const duplicate = JSON.parse(JSON.stringify(currentSite.blocks[idx]));
+            duplicate.id = duplicate.type + '_' + Date.now();
             currentSite.blocks.splice(idx + 1, 0, duplicate);
             renderPreview();
             saveSite();
             showToast('📋 Блок дублирован');
         }
 
-        // ===== НАСТРОЙКИ САЙТА =====
+        // ===== НАСТРОЙКИ САЙТА (в модальном окне) =====
         function openSiteSettings() {
-            const container = document.getElementById('settingsContent');
-            document.getElementById('settingsTitle').innerText = 'Настройки сайта';
+            const modal = document.getElementById('siteSettingsModal');
+            const container = document.getElementById('siteSettingsContent');
             
             const savedData = localStorage.getItem(`site_data_${currentSite.id}`);
-            const siteData = savedData ? JSON.parse(savedData) : { site_name: currentSite.name, phone: '', email: '', address: '' };
+            const siteData = savedData ? JSON.parse(savedData) : { 
+                site_name: currentSite.name, 
+                phone: '', email: '', address: '', inn: '', ogrn: '',
+                social: { vk: '', tg: '', whatsapp: '' }
+            };
             
             container.innerHTML = `
                 <div class="form-group"><label>Название сайта</label><input type="text" id="siteName" value="${escapeHtml(siteData.site_name || currentSite.name)}"></div>
                 <div class="form-group"><label>Телефон</label><input type="tel" id="sitePhone" value="${escapeHtml(siteData.phone || '')}"></div>
                 <div class="form-group"><label>Email</label><input type="email" id="siteEmail" value="${escapeHtml(siteData.email || '')}"></div>
                 <div class="form-group"><label>Адрес</label><textarea id="siteAddress" rows="2">${escapeHtml(siteData.address || '')}</textarea></div>
-                <div class="form-group"><label>ИНН</label><input type="text" id="siteInn" value="${escapeHtml(siteData.inn || '')}"></div>
-                <button class="btn-primary" onclick="saveSiteSettings()">Сохранить настройки</button>
+                <div class="form-row"><div class="form-group"><label>ИНН</label><input type="text" id="siteInn" value="${escapeHtml(siteData.inn || '')}"></div><div class="form-group"><label>ОГРН</label><input type="text" id="siteOgrn" value="${escapeHtml(siteData.ogrn || '')}"></div></div>
+                <h3 style="margin: 20px 0 12px; font-size: 16px;">Социальные сети</h3>
+                <div class="form-group"><label><i class="fab fa-vk"></i> ВКонтакте</label><input type="url" id="socialVk" value="${escapeHtml(siteData.social?.vk || '')}" placeholder="https://vk.com/..."></div>
+                <div class="form-group"><label><i class="fab fa-telegram"></i> Telegram</label><input type="url" id="socialTg" value="${escapeHtml(siteData.social?.tg || '')}" placeholder="https://t.me/..."></div>
+                <div class="form-group"><label><i class="fab fa-whatsapp"></i> WhatsApp</label><input type="url" id="socialWhatsapp" value="${escapeHtml(siteData.social?.whatsapp || '')}" placeholder="https://wa.me/..."></div>
+                <button class="btn-primary" onclick="saveSiteSettings()" style="width:100%; margin-top:20px;">Сохранить настройки</button>
             `;
+            
+            modal.classList.add('active');
         }
 
         function saveSiteSettings() {
@@ -521,9 +526,16 @@
                 phone: document.getElementById('sitePhone')?.value || '',
                 email: document.getElementById('siteEmail')?.value || '',
                 address: document.getElementById('siteAddress')?.value || '',
-                inn: document.getElementById('siteInn')?.value || ''
+                inn: document.getElementById('siteInn')?.value || '',
+                ogrn: document.getElementById('siteOgrn')?.value || '',
+                social: {
+                    vk: document.getElementById('socialVk')?.value || '',
+                    tg: document.getElementById('socialTg')?.value || '',
+                    whatsapp: document.getElementById('socialWhatsapp')?.value || ''
+                }
             };
             localStorage.setItem(`site_data_${currentSite.id}`, JSON.stringify(siteData));
+            closeModal('siteSettingsModal');
             showToast('✅ Настройки сайта сохранены');
         }
 
@@ -533,30 +545,21 @@
             const frame = document.getElementById('previewFrame');
             if (view === 'mobile') frame.classList.add('mobile');
             else frame.classList.remove('mobile');
-            
-            document.getElementById('desktopViewBtn')?.classList.toggle('active', view === 'desktop');
-            document.getElementById('mobileViewBtn')?.classList.toggle('active', view === 'mobile');
-        }
-
-        function openBlockEditModal(idx) {
-            selectBlock(idx);
-            closeModal('blockEditModal');
-            document.getElementById('settingsContent').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('desktopViewBtn').classList.toggle('active', view === 'desktop');
+            document.getElementById('mobileViewBtn').classList.toggle('active', view === 'mobile');
         }
 
         function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
         function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        // Инициализация
         document.getElementById('backToManagerBtn').addEventListener('click', () => window.location.href = '/murano-apparel/widget-editor.html');
         document.getElementById('desktopViewBtn').addEventListener('click', () => setView('desktop'));
         document.getElementById('mobileViewBtn').addEventListener('click', () => setView('mobile'));
         document.getElementById('saveSiteBtn').addEventListener('click', saveSite);
         document.getElementById('publishSiteBtn').addEventListener('click', () => showToast('🚀 Публикация (демо)'));
         document.getElementById('settingsBtn').addEventListener('click', openSiteSettings);
-        document.getElementById('collapseSettingsBtn').addEventListener('click', () => document.getElementById('settingsPanel').classList.toggle('collapsed'));
-        document.getElementById('collapseSettingsBtn2').addEventListener('click', () => document.getElementById('settingsPanel').classList.toggle('collapsed'));
         
         loadSiteData();
     </script>
