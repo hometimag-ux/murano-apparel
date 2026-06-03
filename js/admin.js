@@ -58,9 +58,11 @@
         
         // ===== РЕДАКТОР САЙТА — ОТКРЫВАЕМ В НОВОЙ ВКЛАДКЕ =====
         if (page === 'widget-editor') {
-            window.open('/murano-apparel/widget-editor.html', '_blank');
-            return;
-        }
+        if (contentArea) {
+        contentArea.innerHTML = `<iframe src="/murano-apparel/widget-editor.html" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
+    }
+    return;
+}
         
         // ===== ОСТАЛЬНЫЕ СТРАНИЦЫ — ЗАГРУЖАЕМ В IFRAME =====
         let iframeSrc = '';
