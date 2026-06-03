@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Стили остаются такими же, как были */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; overflow: hidden; }
 
@@ -140,116 +139,26 @@
     <div class="editor-main">
         <div class="preview-container">
             <div class="preview-frame" id="previewFrame">
-                <div class="preview-content" id="previewContent">Загрузка...</div>
+                <div class="preview-content" id="previewContent">
+                    <div style="text-align:center; padding:40px;">Загрузка...</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Модальные окна -->
     <div id="blockSelectModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Выберите блок</h3><button class="modal-close" onclick="closeModal('blockSelectModal')">&times;</button></div><div class="modal-body" id="blockSelectList"></div></div></div>
     <div id="blockReplaceModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Заменить блок</h3><button class="modal-close" onclick="closeModal('blockReplaceModal')">&times;</button></div><div class="modal-body" id="blockReplaceList"></div></div></div>
     <div id="siteSettingsModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Настройки сайта</h3><button class="modal-close" onclick="closeModal('siteSettingsModal')">&times;</button></div><div class="modal-body" id="siteSettingsContent"></div></div></div>
 
     <script>
-        // ============================================================
-        // БЛОК 1: ЗАГРУЗКА БЛОКОВ ИЗ РЕЕСТРА
-        // ============================================================
-        let availableBlocks = {};
-        let blocksRegistry = [];
-        
-        // Загрузка списка блоков из index.json
-        async function loadBlocksFromRegistry() {
-    try {
-        const response = await fetch('/murano-apparel/site/blocks/index.json');
-        if (response.ok) {
-            const registry = await response.json();
-            blocksRegistry = registry.blocks;
-            blocksRegistry.forEach(block => {
-                availableBlocks[block.id] = {
-                    name: block.name,
-                    icon: block.icon,
-                    desc: block.description || '',
-                    category: block.category,
-                    path: block.path,
-                    defaultContent: {}
-                };
-            });
-            console.log('Блоки загружены:', blocksRegistry.length);
-            return true;
-        }
-    } catch(e) {
-        console.error('Ошибка загрузки реестра:', e);
-    }
-    return false;
-}
-            
-            // Fallback: стандартные блоки
-            blocksRegistry = [
-                { id: 'form-1', name: 'Форма обратной связи', icon: '📧', category: 'forms', path: 'contact-form/form-1', description: 'Стандартная форма' },
-                { id: 'banner-1', name: 'Баннер с кнопкой', icon: '🎯', category: 'hero', path: 'banners/banner-1', description: 'Баннер с изображением' },
-                { id: 'grid-1', name: 'Сетка товаров', icon: '📦', category: 'products', path: 'product-grids/grid-1', description: 'Вывод товаров' }
-            ];
-            blocksRegistry.forEach(block => {
-                availableBlocks[block.id] = {
-                    name: block.name,
-                    icon: block.icon,
-                    desc: block.description,
-                    category: block.category,
-                    path: block.path,
-                    defaultContent: {}
-                };
-            });
-            return false;
-        }
-        
-        // Загрузка настроек блока (settings.json)
-        async function loadBlockSettings(blockId, blockPath) {
-            try {
-                const response = await fetch(`/murano-apparel/site/blocks/${blockPath}/settings.json`);
-                if (response.ok) {
-                    const settings = await response.json();
-                    // Создаём defaultContent из полей
-                    const defaultContent = {};
-                    if (settings.fields) {
-                        settings.fields.forEach(field => {
-                            defaultContent[field.name] = field.default || '';
-                        });
-                    }
-                    if (availableBlocks[blockId]) {
-                        availableBlocks[blockId].defaultContent = defaultContent;
-                        availableBlocks[blockId].fields = settings.fields;
-                    }
-                    return defaultContent;
-                }
-            } catch(e) {}
-            return {};
-        }
-        
-        // Рендер HTML блока по пути
-        async function renderBlockByPath(blockPath, content) {
-            try {
-                const response = await fetch(`/murano-apparel/site/blocks/${blockPath}/block.html`);
-                if (response.ok) {
-                    let html = await response.text();
-                    // Заменяем переменные {{ variable }}
-                    for (const [key, value] of Object.entries(content)) {
-                        const regex = new RegExp(`{{ ${key} }}`, 'g');
-                        html = html.replace(regex, value || '');
-                        // С дефолтными значениями {{ variable|default('...') }}
-                        const regexWithDefault = new RegExp(`{{ ${key}\\|default\\(['"]([^'"]*)['"]\\) }}`, 'g');
-                        html = html.replace(regexWithDefault, (match, defaultValue) => value || defaultValue);
-                    }
-                    return html;
-                }
-            } catch(e) {
-                console.log(`Не удалось загрузить блок ${blockPath}`, e);
-            }
-            return null;
-        }
+        // ===== ДОСТУПНЫЕ БЛОКИ (ВСТРОЕННЫЕ) =====
+        const availableBlocks = {
+            'header-banner': { name: 'Баннер в шапке', icon: '🏷️', desc: 'Информационная строка', defaultContent: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
+            'promo-slider': { name: 'Промо-слайдер', icon: '🎠', desc: 'Карусель изображений', defaultContent: { slides: [{ title: 'Летняя распродажа', subtitle: 'Скидки до 50%', button_text: 'Смотреть', button_link: '#' }] } },
+            'product-grid': { name: 'Каталог товаров', icon: '📦', desc: 'Сетка товаров из CRM', defaultContent: { title: 'Наши товары', columns: 3, show_filters: true, show_search: true, primary_color: '#6366f1' } },
+            'footer-subscribe': { name: 'Подписка', icon: '✉️', desc: 'Форма подписки', defaultContent: { title: 'Подпишитесь на новости' } }
+        };
 
-        // ============================================================
-        // БЛОК 2: ДАННЫЕ САЙТА
-        // ============================================================
         let currentSite = { id: null, name: '', blocks: [] };
         let selectedBlockIndex = null;
         let currentView = 'desktop';
@@ -266,287 +175,186 @@
             
             if (currentSite.blocks.length === 0) {
                 currentSite.blocks = [
-                    { id: 'banner-1_' + Date.now(), type: 'banner-1', content: { title: 'Добро пожаловать', button_text: 'Подробнее' } },
-                    { id: 'form-1_' + Date.now(), type: 'form-1', content: { title: 'Свяжитесь с нами' } }
+                    { id: 'header-banner_1', type: 'header-banner', content: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
+                    { id: 'product-grid_1', type: 'product-grid', content: { title: 'Наши товары', columns: 3, show_filters: true, show_search: true, primary_color: '#6366f1' } }
                 ];
-            }
-            
-            // Загружаем недостающие настройки для блоков
-            loadAllBlockSettings();
-        }
-        
-        async function loadAllBlockSettings() {
-            for (const block of blocksRegistry) {
-                await loadBlockSettings(block.id, block.path);
             }
             renderPreview();
         }
 
         function saveSite() {
             localStorage.setItem(`site_blocks_${currentSite.id}`, JSON.stringify(currentSite.blocks));
-            showToast('✅ Сайт сохранён');
+            showToast('Сайт сохранён');
         }
 
-        // ============================================================
-        // БЛОК 3: ОТРИСОВКА ПРЕВЬЮ
-        // ============================================================
-        async function renderPreview() {
+        function renderPreview() {
             const container = document.getElementById('previewContent');
-            let html = '';
+            let html = `<div class="block-add-top"><div class="add-btn" data-position="top"><i class="fas fa-plus"></i></div></div>`;
             
-            html += `<div class="block-add-top"><div class="add-btn" data-position="top"><i class="fas fa-plus"></i></div></div>`;
-            
-            for (let idx = 0; idx < currentSite.blocks.length; idx++) {
-                const block = currentSite.blocks[idx];
-                const blockInfo = availableBlocks[block.type];
-                if (blockInfo) {
-                    const blockHtml = await renderBlockByPath(blockInfo.path, block.content);
-                    if (blockHtml) {
-                        html += `<div class="editor-block" data-index="${idx}">
-                                    <div class="block-menu">
-                                        <button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button>
-                                        <button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button>
-                                        <button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button>
-                                        <button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                    ${blockHtml}
-                                </div>`;
-                    } else {
-                        // Fallback отрисовка
-                        html += `<div class="editor-block" data-index="${idx}">
-                                    <div class="block-menu">
-                                        <button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button>
-                                        <button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button>
-                                        <button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button>
-                                        <button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button>
-                                    </div>
-                                    <div style="padding:40px; text-align:center; border:1px solid #ddd; border-radius:16px;">
-                                        <div style="font-size:32px;">${blockInfo.icon}</div>
-                                        <div>${blockInfo.name}</div>
-                                        <div style="font-size:12px; color:#999;">${blockInfo.desc}</div>
-                                    </div>
-                                </div>`;
-                    }
-                }
+            currentSite.blocks.forEach((block, idx) => {
+                html += renderBlock(block, idx);
                 html += `<div class="block-add-bottom"><div class="add-btn" data-position="after-${idx}"><i class="fas fa-plus"></i></div></div>`;
-            }
+            });
             
             container.innerHTML = html;
             attachBlockEvents();
         }
 
+        function renderBlock(block, idx) {
+            const info = availableBlocks[block.type] || { name: block.type, icon: '📦', defaultContent: {} };
+            let contentHtml = '';
+            
+            if (block.type === 'header-banner') {
+                contentHtml = `<div style="background:${block.content.bg_color}; padding:12px; text-align:center; border-radius:8px;">🏷️ ${block.content.text || 'Баннер'}</div>`;
+            }
+            else if (block.type === 'promo-slider') {
+                const slide = block.content.slides?.[0] || {};
+                contentHtml = `<div style="background:#0066cc; color:white; padding:40px; text-align:center; border-radius:16px;"><div style="font-size:48px;">🎠</div><h3>${slide.title}</h3><p>${slide.subtitle}</p><button style="background:white; color:#0066cc; border:none; padding:8px 16px; border-radius:30px;">${slide.button_text}</button></div>`;
+            }
+            else if (block.type === 'product-grid') {
+                // Загружаем товары из localStorage для предпросмотра
+                let productsHtml = '<div style="color:#999;">Загрузка товаров...</div>';
+                try {
+                    const saved = localStorage.getItem('crm_data');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        const products = data.products || [];
+                        if (products.length > 0) {
+                            productsHtml = `<div style="display:grid; grid-template-columns:repeat(${block.content.columns || 3}, 1fr); gap:16px;">`;
+                            products.slice(0, 6).forEach(p => {
+                                productsHtml += `<div style="border:1px solid #eee; border-radius:16px; padding:12px; text-align:center;"><div style="font-size:32px;">👕</div><div><strong>${p.title}</strong></div><div>${p.price} ₽</div></div>`;
+                            });
+                            productsHtml += `</div>`;
+                        }
+                    }
+                } catch(e) {}
+                contentHtml = `<div style="padding:20px;"><h3 style="margin-bottom:16px;">📦 ${block.content.title || 'Каталог товаров'}</h3>${productsHtml}</div>`;
+            }
+            else if (block.type === 'footer-subscribe') {
+                contentHtml = `<div style="background:#f8f9fa; padding:30px; text-align:center; border-radius:16px;"><h3>✉️ ${block.content.title}</h3><input type="email" placeholder="Ваш email" style="margin-top:12px; padding:10px; width:80%; border:1px solid #ddd; border-radius:30px;"></div>`;
+            }
+            else {
+                contentHtml = `<div style="padding:20px; text-align:center; border:1px solid #eee; border-radius:16px;"><div style="font-size:32px;">${info.icon}</div><div>${info.name}</div></div>`;
+            }
+            
+            return `<div class="editor-block" data-index="${idx}"><div class="block-menu"><button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button><button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button><button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button></div>${contentHtml}</div>`;
+        }
+
         function attachBlockEvents() {
             document.querySelectorAll('.add-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openBlockSelectModal(btn.dataset.position);
-                });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); openBlockSelectModal(btn.dataset.position); });
             });
-            
             document.querySelectorAll('.editor-block').forEach(block => {
-                block.addEventListener('click', (e) => {
-                    if (!e.target.closest('.block-menu-btn')) {
-                        selectBlock(parseInt(block.dataset.index));
-                    }
-                });
+                block.addEventListener('click', (e) => { if (!e.target.closest('.block-menu-btn')) selectBlock(parseInt(block.dataset.index)); });
             });
-            
             document.querySelectorAll('.edit-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openBlockEditModal(parseInt(btn.dataset.index));
-                });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); openBlockEditModal(parseInt(btn.dataset.index)); });
             });
-            
             document.querySelectorAll('.replace-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openBlockReplaceModal(parseInt(btn.dataset.index));
-                });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); openBlockReplaceModal(parseInt(btn.dataset.index)); });
             });
-            
             document.querySelectorAll('.duplicate-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    duplicateBlock(parseInt(btn.dataset.index));
-                });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); duplicateBlock(parseInt(btn.dataset.index)); });
             });
-            
             document.querySelectorAll('.delete-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const idx = parseInt(btn.dataset.index);
-                    if (confirm('Удалить этот блок?')) {
-                        currentSite.blocks.splice(idx, 1);
-                        renderPreview();
-                        saveSite();
-                        showToast('🗑️ Блок удалён');
-                    }
-                });
+                btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); if (confirm('Удалить блок?')) { currentSite.blocks.splice(idx, 1); renderPreview(); saveSite(); showToast('Блок удалён'); } });
             });
         }
 
-        // ============================================================
-        // БЛОК 4: УПРАВЛЕНИЕ БЛОКАМИ
-        // ============================================================
         function selectBlock(idx) {
             selectedBlockIndex = idx;
-            document.querySelectorAll('.editor-block').forEach((el, i) => {
-                if (i == idx) el.classList.add('selected');
-                else el.classList.remove('selected');
-            });
+            document.querySelectorAll('.editor-block').forEach((el, i) => { if (i == idx) el.classList.add('selected'); else el.classList.remove('selected'); });
             openBlockEditModal(idx);
         }
 
         function openBlockSelectModal(position) {
             const list = document.getElementById('blockSelectList');
-            // Группируем блоки по категориям
-            const categories = {};
-            blocksRegistry.forEach(block => {
-                if (!categories[block.category]) categories[block.category] = [];
-                categories[block.category].push(block);
-            });
-            
-            let html = '';
-            for (const [cat, blocks] of Object.entries(categories)) {
-                const catName = cat === 'forms' ? '📝 Формы' : cat === 'hero' ? '🎯 Баннеры' : cat === 'products' ? '📦 Товары' : cat;
-                html += `<div style="margin-bottom: 16px;"><strong style="font-size:13px; color:#666;">${catName}</strong>`;
-                blocks.forEach(block => {
-                    html += `<div class="block-item" onclick="addBlock('${block.id}', '${position}')">
-                                <div class="block-icon">${block.icon}</div>
-                                <div><strong>${block.name}</strong><div style="font-size:12px; color:#999;">${block.description || ''}</div></div>
-                            </div>`;
-                });
-                html += `</div>`;
-            }
-            list.innerHTML = html;
+            list.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
+                <div class="block-item" onclick="addBlock('${id}', '${position}')">
+                    <div class="block-icon">${block.icon}</div>
+                    <div><strong>${block.name}</strong><div style="font-size:12px;">${block.desc}</div></div>
+                </div>
+            `).join('');
             document.getElementById('blockSelectModal').classList.add('active');
         }
 
-        async function addBlock(blockType, position) {
-            const blockInfo = availableBlocks[blockType];
-            if (!blockInfo) return;
-            
-            // Загружаем настройки для нового блока
-            await loadBlockSettings(blockType, blockInfo.path);
-            
-            const newBlock = {
-                id: blockType + '_' + Date.now(),
-                type: blockType,
-                content: JSON.parse(JSON.stringify(availableBlocks[blockType].defaultContent))
-            };
-            
-            if (position === 'top') {
-                currentSite.blocks.unshift(newBlock);
-            } else if (position.startsWith('after-')) {
-                const afterIdx = parseInt(position.split('-')[1]);
-                currentSite.blocks.splice(afterIdx + 1, 0, newBlock);
-            }
-            
-            renderPreview();
-            saveSite();
-            closeModal('blockSelectModal');
-            showToast(`✅ Блок "${availableBlocks[blockType].name}" добавлен`);
+        function addBlock(blockType, position) {
+            const newBlock = { id: blockType + '_' + Date.now(), type: blockType, content: JSON.parse(JSON.stringify(availableBlocks[blockType].defaultContent)) };
+            if (position === 'top') currentSite.blocks.unshift(newBlock);
+            else if (position.startsWith('after-')) currentSite.blocks.splice(parseInt(position.split('-')[1]) + 1, 0, newBlock);
+            renderPreview(); saveSite(); closeModal('blockSelectModal'); showToast(`Блок добавлен`);
         }
 
         function openBlockReplaceModal(idx) {
             const list = document.getElementById('blockReplaceList');
-            let html = '';
-            blocksRegistry.forEach(block => {
-                html += `<div class="block-item" onclick="replaceBlock(${idx}, '${block.id}')">
-                            <div class="block-icon">${block.icon}</div>
-                            <div><strong>${block.name}</strong><div style="font-size:12px; color:#999;">${block.description || ''}</div></div>
-                        </div>`;
-            });
-            list.innerHTML = html;
+            list.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
+                <div class="block-item" onclick="replaceBlock(${idx}, '${id}')">
+                    <div class="block-icon">${block.icon}</div>
+                    <div><strong>${block.name}</strong><div style="font-size:12px;">${block.desc}</div></div>
+                </div>
+            `).join('');
             document.getElementById('blockReplaceModal').classList.add('active');
         }
 
-        async function replaceBlock(idx, newType) {
-            const blockInfo = availableBlocks[newType];
-            if (!blockInfo) return;
-            
-            await loadBlockSettings(newType, blockInfo.path);
-            
-            currentSite.blocks[idx] = {
-                id: newType + '_' + Date.now(),
-                type: newType,
-                content: JSON.parse(JSON.stringify(availableBlocks[newType].defaultContent))
-            };
-            renderPreview();
-            saveSite();
-            closeModal('blockReplaceModal');
-            showToast(`✅ Блок заменён на "${availableBlocks[newType].name}"`);
+        function replaceBlock(idx, newType) {
+            currentSite.blocks[idx] = { id: newType + '_' + Date.now(), type: newType, content: JSON.parse(JSON.stringify(availableBlocks[newType].defaultContent)) };
+            renderPreview(); saveSite(); closeModal('blockReplaceModal'); showToast(`Блок заменён`);
         }
 
         function duplicateBlock(idx) {
             const copy = JSON.parse(JSON.stringify(currentSite.blocks[idx]));
             copy.id = copy.type + '_' + Date.now();
             currentSite.blocks.splice(idx + 1, 0, copy);
-            renderPreview();
-            saveSite();
-            showToast('📋 Блок дублирован');
+            renderPreview(); saveSite(); showToast('Блок дублирован');
         }
 
         function openBlockEditModal(idx) {
             const block = currentSite.blocks[idx];
-            const blockInfo = availableBlocks[block.type];
-            if (!blockInfo) return;
-            
-            // Создаём форму редактирования на основе fields из settings.json
-            const fields = blockInfo.fields || [];
-            let formHtml = '';
-            fields.forEach(field => {
-                const value = block.content[field.name] || '';
-                if (field.type === 'text' || field.type === 'url') {
-                    formHtml += `<div class="form-group"><label>${field.label}</label><input type="text" id="edit_${field.name}" value="${escapeHtml(value)}" placeholder="${field.default || ''}"></div>`;
-                } else if (field.type === 'color') {
-                    formHtml += `<div class="form-group"><label>${field.label}</label><input type="color" id="edit_${field.name}" value="${value || field.default || '#0066cc'}"></div>`;
-                } else if (field.type === 'textarea') {
-                    formHtml += `<div class="form-group"><label>${field.label}</label><textarea id="edit_${field.name}" rows="3">${escapeHtml(value)}</textarea></div>`;
-                } else {
-                    formHtml += `<div class="form-group"><label>${field.label}</label><input type="text" id="edit_${field.name}" value="${escapeHtml(value)}"></div>`;
-                }
-            });
-            
-            const modal = document.getElementById('blockEditModal');
+            const info = availableBlocks[block.type];
             const container = document.getElementById('blockEditContent');
-            document.getElementById('blockEditTitle').innerText = `Редактирование: ${blockInfo.name}`;
+            document.getElementById('blockEditTitle').innerText = `Редактирование: ${info.name}`;
             
-            container.innerHTML = `
-                ${formHtml}
-                <button class="btn-primary" onclick="saveBlockEdit(${idx})" style="width:100%; margin-top:20px;">Сохранить изменения</button>
-            `;
-            modal.classList.add('active');
-        }
-        
-        function saveBlockEdit(idx) {
-            const block = currentSite.blocks[idx];
-            const blockInfo = availableBlocks[block.type];
-            if (!blockInfo) return;
+            if (block.type === 'header-banner') {
+                container.innerHTML = `
+                    <div class="form-group"><label>Текст баннера</label><input type="text" id="editText" value="${escapeHtml(block.content.text || '')}"></div>
+                    <div class="form-group"><label>Цвет фона</label><input type="color" id="editBg" value="${block.content.bg_color || '#f8f9fa'}"></div>
+                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
+                `;
+            } else if (block.type === 'product-grid') {
+                container.innerHTML = `
+                    <div class="form-group"><label>Заголовок</label><input type="text" id="editTitle" value="${escapeHtml(block.content.title || '')}"></div>
+                    <div class="form-group"><label>Колонок в строке</label><select id="editColumns"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
+                    <div class="form-group"><label><input type="checkbox" id="editFilters" ${block.content.show_filters !== false ? 'checked' : ''}> Показывать фильтры</label></div>
+                    <div class="form-group"><label><input type="checkbox" id="editSearch" ${block.content.show_search !== false ? 'checked' : ''}> Показывать поиск</label></div>
+                    <div class="form-group"><label>Основной цвет</label><input type="color" id="editColor" value="${block.content.primary_color || '#6366f1'}"></div>
+                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
+                `;
+            } else {
+                container.innerHTML = `<div style="padding:20px; text-align:center;">Настройки для этого блока в разработке</div>`;
+            }
             
-            const fields = blockInfo.fields || [];
-            fields.forEach(field => {
-                const input = document.getElementById(`edit_${field.name}`);
-                if (input) {
-                    block.content[field.name] = input.value;
-                }
-            });
-            
-            renderPreview();
-            saveSite();
-            closeModal('blockEditModal');
-            showToast('✅ Настройки блока сохранены');
+            document.getElementById('blockEditModal').classList.add('active');
         }
 
-        // ============================================================
-        // БЛОК 5: НАСТРОЙКИ САЙТА
-        // ============================================================
+        function saveBlockEdit(idx) {
+            const block = currentSite.blocks[idx];
+            if (block.type === 'header-banner') {
+                block.content.text = document.getElementById('editText')?.value || '';
+                block.content.bg_color = document.getElementById('editBg')?.value || '#f8f9fa';
+            } else if (block.type === 'product-grid') {
+                block.content.title = document.getElementById('editTitle')?.value || '';
+                block.content.columns = parseInt(document.getElementById('editColumns')?.value) || 3;
+                block.content.show_filters = document.getElementById('editFilters')?.checked || false;
+                block.content.show_search = document.getElementById('editSearch')?.checked || false;
+                block.content.primary_color = document.getElementById('editColor')?.value || '#6366f1';
+            }
+            renderPreview(); saveSite(); closeModal('blockEditModal'); showToast('Настройки сохранены');
+        }
+
         function openSiteSettings() {
             const container = document.getElementById('siteSettingsContent');
             const saved = localStorage.getItem(`site_data_${currentSite.id}`);
             const data = saved ? JSON.parse(saved) : { site_name: currentSite.name, phone: '', email: '', address: '', inn: '' };
-            
             container.innerHTML = `
                 <div class="form-group"><label>Название сайта</label><input type="text" id="siteName" value="${escapeHtml(data.site_name)}"></div>
                 <div class="form-group"><label>Телефон</label><input type="tel" id="sitePhone" value="${escapeHtml(data.phone)}"></div>
@@ -567,71 +375,23 @@
                 inn: document.getElementById('siteInn')?.value || ''
             };
             localStorage.setItem(`site_data_${currentSite.id}`, JSON.stringify(siteData));
-            closeModal('siteSettingsModal');
-            showToast('✅ Настройки сайта сохранены');
+            closeModal('siteSettingsModal'); showToast('Настройки сохранены');
         }
 
-        // ============================================================
-        // БЛОК 6: ПРЕДПРОСМОТР
-        // ============================================================
-        async function openPreview() {
-            saveSite();
-            let blocksHtml = '';
-            for (const block of currentSite.blocks) {
-                const blockInfo = availableBlocks[block.type];
-                if (blockInfo) {
-                    const html = await renderBlockByPath(blockInfo.path, block.content);
-                    if (html) blocksHtml += html;
-                }
-            }
-            
-            const previewWindow = window.open();
-            previewWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head><meta charset="UTF-8"><title>Предпросмотр — ${escapeHtml(currentSite.name)}</title>
-                <style>body { margin: 0; font-family: 'Inter', sans-serif; } .preview-toolbar { position: fixed; top:0; left:0; right:0; background:#1a1a2e; color:white; padding:10px; text-align:center; z-index:1000; } .preview-content { padding-top: 60px; }</style>
-                </head>
-                <body>
-                    <div class="preview-toolbar">Режим предпросмотра — ${escapeHtml(currentSite.name)} <button onclick="window.close()">Закрыть</button></div>
-                    <div class="preview-content">${blocksHtml}</div>
-                </body>
-                </html>
-            `);
-            previewWindow.document.close();
-        }
-
-        // ============================================================
-        // БЛОК 7: ВСПОМОГАТЕЛЬНЫЕ
-        // ============================================================
-        function setView(view) {
-            currentView = view;
-            const previewFrame = document.getElementById('previewFrame');
-            if (view === 'mobile') previewFrame.classList.add('mobile');
-            else previewFrame.classList.remove('mobile');
-            document.getElementById('desktopViewBtn').classList.toggle('active', view === 'desktop');
-            document.getElementById('mobileViewBtn').classList.toggle('active', view === 'mobile');
-        }
-
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+        function openPreview() { saveSite(); window.open('/murano-apparel/site-preview.html', '_blank'); }
+        function setView(view) { currentView = view; document.getElementById('previewFrame').classList.toggle('mobile', view === 'mobile'); document.getElementById('desktopViewBtn').classList.toggle('active', view === 'desktop'); document.getElementById('mobileViewBtn').classList.toggle('active', view === 'mobile'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `✅ ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
         function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-        // ============================================================
-        // БЛОК 8: ИНИЦИАЛИЗАЦИЯ
-        // ============================================================
         document.getElementById('backToAdminBtn').onclick = () => window.location.href = '/murano-apparel/editor.html?open=widget-editor';
         document.getElementById('desktopViewBtn').onclick = () => setView('desktop');
         document.getElementById('mobileViewBtn').onclick = () => setView('mobile');
         document.getElementById('saveSiteBtn').onclick = saveSite;
         document.getElementById('previewBtn').onclick = openPreview;
         document.getElementById('settingsBtn').onclick = openSiteSettings;
-        
-        // Старт
-        (async function() {
-            await loadBlocksFromRegistry();
-            loadSiteData();
-        })();
+
+        loadSiteData();
     </script>
 </body>
 </html>
