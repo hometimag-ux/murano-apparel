@@ -1,0 +1,100 @@
+{
+    "blocks": [
+        {
+            "id": "form-1",
+            "type": "contact-form",
+            "name": "Классическая форма",
+            "icon": "📧",
+            "category": "forms",
+            "path": "contact-form/form-1",
+            "description": "Стандартная форма с именем, email и сообщением",
+            "preview": "contact-form/form-1/preview.png",
+            "tags": ["форма", "лид", "обратная связь"]
+        },
+        {
+            "id": "form-2",
+            "type": "contact-form",
+            "name": "Компактная форма",
+            "icon": "📝",
+            "category": "forms",
+            "path": "contact-form/form-2",
+            "description": "Упрощённая форма — только email и кнопка",
+            "preview": "contact-form/form-2/preview.png",
+            "tags": ["форма", "подписка", "email"]
+        },
+        {
+            "id": "form-3",
+            "type": "contact-form",
+            "name": "Расширенная форма",
+            "icon": "📋",
+            "category": "forms",
+            "path": "contact-form/form-3",
+            "description": "Форма с телефоном, городом и комментарием",
+            "preview": "contact-form/form-3/preview.png",
+            "tags": ["форма", "заявка", "лид"]
+        },
+        {
+            "id": "banner-1",
+            "type": "banner",
+            "name": "Баннер с кнопкой",
+            "icon": "🎯",
+            "category": "hero",
+            "path": "banners/banner-1",
+            "description": "Изображение, заголовок, подзаголовок, кнопка",
+            "preview": "banners/banner-1/preview.png",
+            "tags": ["баннер", "hero", "акция"]
+        },
+        {
+            "id": "banner-2",
+            "type": "banner",
+            "name": "Центральный баннер",
+            "icon": "🖼️",
+            "category": "hero",
+            "path": "banners/banner-2",
+            "description": "Крупный баннер по центру с текстом",
+            "preview": "banners/banner-2/preview.png",
+            "tags": ["баннер", "акция", "распродажа"]
+        },
+        {
+            "id": "banner-3",
+            "type": "banner",
+            "name": "Баннер с фоном",
+            "icon": "🌈",
+            "category": "hero",
+            "path": "banners/banner-3",
+            "description": "Фоновый баннер с текстом и кнопкой",
+            "preview": "banners/banner-3/preview.png",
+            "tags": ["баннер", "фон", "call to action"]
+        },
+        {
+            "id": "grid-1",
+            "type": "product-grid",
+            "name": "Сетка 4 товара",
+            "icon": "📦",
+            "category": "products",
+            "path": "product-grids/grid-1",
+            "description": "Выводит 4 товара в строку",
+            "preview": "product-grids/grid-1/preview.png",
+            "tags": ["товары", "каталог", "сетка"]
+        },
+        {
+            "id": "grid-2",
+            "type": "product-grid",
+            "name": "Сетка 3 товара",
+            "icon": "📦",
+            "category": "products",
+            "path": "product-grids/grid-2",
+            "description": "Выводит 3 товара в строку (адаптивно)",
+            "preview": "product-grids/grid-2/preview.png",
+            "tags": ["товары", "каталог", "сетка"]
+        }
+    ],
+    "categories": {
+        "forms": "Формы",
+        "hero": "Баннеры",
+        "products": "Товары",
+        "sliders": "Слайдеры",
+        "headers": "Шапки",
+        "footers": "Подвалы"
+    }
+}
