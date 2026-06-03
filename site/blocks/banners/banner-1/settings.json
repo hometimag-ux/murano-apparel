@@ -1,0 +1,56 @@
+{
+    "name": "Баннер с кнопкой",
+    "icon": "🎯",
+    "description": "Изображение, заголовок, подзаголовок, кнопка",
+    "category": "hero",
+    "fields": [
+        {
+            "name": "badge",
+            "label": "Бейдж (акция/новинка)",
+            "type": "text",
+            "default": "Акция"
+        },
+        {
+            "name": "title",
+            "label": "Заголовок",
+            "type": "text",
+            "default": "Специальное предложение"
+        },
+        {
+            "name": "subtitle",
+            "label": "Подзаголовок",
+            "type": "text",
+            "default": "Успейте купить со скидкой до 50%"
+        },
+        {
+            "name": "button_text",
+            "label": "Текст кнопки",
+            "type": "text",
+            "default": "Подробнее"
+        },
+        {
+            "name": "button_link",
+            "label": "Ссылка кнопки",
+            "type": "url",
+            "default": "#"
+        },
+        {
+            "name": "image",
+            "label": "Изображение",
+            "type": "image",
+            "default": ""
+        },
+        {
+            "name": "bg_color",
+            "label": "Цвет фона",
+            "type": "color",
+            "default": "#0066cc"
+        },
+        {
+            "name": "accent_color",
+            "label": "Акцентный цвет (бейдж)",
+            "type": "color",
+            "default": "#ffcc00"
+        }
+    ]
+}
