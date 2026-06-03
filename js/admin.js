@@ -32,6 +32,12 @@
     
     updateMenuState();
     
+    // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПАРАМЕТРОВ URL =====
+    function getUrlParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+    
     // ===== ЗАГРУЗКА СТРАНИЦ =====
     const titles = {
         dashboard: 'Главная',
@@ -93,23 +99,18 @@
         }
     }
     
-    // ===== НОВЫЙ ОБРАБОТЧИК СООБЩЕНИЙ ОТ IFRAME =====
+    // ===== ОБРАБОТЧИК СООБЩЕНИЙ ОТ IFRAME =====
     window.addEventListener('message', (event) => {
-        // Важно: проверяем origin для безопасности, но для GitHub Pages можно ослабить
-        // if (event.origin !== window.location.origin) return;
-        
         if (event.data.type === 'loadEditor' && event.data.url) {
-            // Загружаем редактор сайта в тот же iframe
             loadPageInIframe(event.data.url, 'Редактор сайта');
         }
         
         if (event.data.type === 'backToManager') {
-            // Возвращаемся к менеджеру сайтов
             loadPageInIframe('/murano-apparel/widget-editor.html', 'Управление сайтами');
         }
     });
     
-    // Навешиваем обработчики на пункты меню
+    // ===== ОБРАБОТЧИКИ ПУНКТОВ МЕНЮ =====
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const page = item.dataset.page;
@@ -117,6 +118,22 @@
         });
     });
     
-    // Загружаем стартовую страницу
-    loadPage('widget-editor', false);
+    // ===== ОПРЕДЕЛЕНИЕ СТАРТОВОЙ СТРАНИЦЫ =====
+    // Проверяем параметр open в URL (например, ?open=widget-editor)
+    const openPage = getUrlParameter('open');
+    
+    if (openPage === 'widget-editor') {
+        // Если пришли из редактора — сразу показываем менеджер сайтов
+        loadPage('widget-editor', false);
+    } else {
+        // Иначе загружаем последнюю открытую страницу или товары по умолчанию
+        const lastPage = localStorage.getItem('lastPage');
+        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery'];
+        
+        if (lastPage && validPages.includes(lastPage)) {
+            loadPage(lastPage, false);
+        } else {
+            loadPage('widget-editor', false);
+        }
+    }
 })();
