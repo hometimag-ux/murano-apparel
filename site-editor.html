@@ -148,10 +148,11 @@
 
     <div id="blockSelectModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Выберите блок</h3><button class="modal-close" onclick="closeModal('blockSelectModal')">&times;</button></div><div class="modal-body" id="blockSelectList"></div></div></div>
     <div id="blockReplaceModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Заменить блок</h3><button class="modal-close" onclick="closeModal('blockReplaceModal')">&times;</button></div><div class="modal-body" id="blockReplaceList"></div></div></div>
+    <div id="blockEditModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="blockEditTitle">Редактирование</h3><button class="modal-close" onclick="closeModal('blockEditModal')">&times;</button></div><div class="modal-body" id="blockEditContent"></div></div></div>
     <div id="siteSettingsModal" class="modal"><div class="modal-content"><div class="modal-header"><h3>Настройки сайта</h3><button class="modal-close" onclick="closeModal('siteSettingsModal')">&times;</button></div><div class="modal-body" id="siteSettingsContent"></div></div></div>
 
     <script>
-        // ===== ДОСТУПНЫЕ БЛОКИ (ВСТРОЕННЫЕ) =====
+        // ===== ДОСТУПНЫЕ БЛОКИ =====
         const availableBlocks = {
             'header-banner': { name: 'Баннер в шапке', icon: '🏷️', desc: 'Информационная строка', defaultContent: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
             'promo-slider': { name: 'Промо-слайдер', icon: '🎠', desc: 'Карусель изображений', defaultContent: { slides: [{ title: 'Летняя распродажа', subtitle: 'Скидки до 50%', button_text: 'Смотреть', button_link: '#' }] } },
@@ -162,6 +163,33 @@
         let currentSite = { id: null, name: '', blocks: [] };
         let selectedBlockIndex = null;
         let currentView = 'desktop';
+        
+        // Функция для загрузки товаров из CRM
+        function getProductsFromCRM() {
+            try {
+                const saved = localStorage.getItem('crm_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    return data.products || [];
+                }
+            } catch(e) {
+                console.error('Ошибка загрузки товаров', e);
+            }
+            return [];
+        }
+        
+        function getCategoriesFromCRM() {
+            try {
+                const saved = localStorage.getItem('crm_data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    return data.categories || [];
+                }
+            } catch(e) {
+                console.error('Ошибка загрузки категорий', e);
+            }
+            return [];
+        }
 
         function loadSiteData() {
             const siteId = localStorage.getItem('current_site_id');
@@ -187,6 +215,80 @@
             showToast('Сайт сохранён');
         }
 
+        // Рендер блока с реальными товарами из CRM
+        function renderProductGridBlock(block, idx) {
+            const products = getProductsFromCRM();
+            const categories = getCategoriesFromCRM();
+            const cols = block.content.columns || 3;
+            const primaryColor = block.content.primary_color || '#6366f1';
+            
+            let productsHtml = '';
+            if (products.length === 0) {
+                productsHtml = '<div style="text-align:center; padding:40px; color:#999;">Нет товаров. Добавьте товары в разделе "Товары" админ-панели</div>';
+            } else {
+                productsHtml = `<div style="display:grid; grid-template-columns:repeat(${cols}, 1fr); gap:20px;">`;
+                products.slice(0, 12).forEach(product => {
+                    const category = categories.find(c => c.id == product.category_id);
+                    const hasDiscount = product.discount_price && product.discount_price < product.price;
+                    productsHtml += `
+                        <div style="background:white; border-radius:16px; overflow:hidden; border:1px solid #eee; transition:0.2s;">
+                            <div style="height:180px; background:linear-gradient(135deg, #f5f7fa, #e9ecef); display:flex; align-items:center; justify-content:center; font-size:48px;">
+                                ${product.images && product.images[0] ? `<img src="${product.images[0]}" style="width:100%; height:100%; object-fit:cover;">` : '👕'}
+                            </div>
+                            <div style="padding:12px;">
+                                <div style="font-weight:600; font-size:16px;">${escapeHtml(product.title)}</div>
+                                <div style="font-size:12px; color:#999; margin:4px 0;">${category ? escapeHtml(category.title) : ''}</div>
+                                <div style="margin:8px 0;">
+                                    ${hasDiscount ? 
+                                        `<span style="text-decoration:line-through; color:#999; font-size:12px;">${product.price} ₽</span>
+                                         <span style="color:${primaryColor}; font-size:18px; font-weight:700; margin-left:8px;">${product.discount_price} ₽</span>` :
+                                        `<span style="color:${primaryColor}; font-size:18px; font-weight:700;">${product.price} ₽</span>`
+                                    }
+                                </div>
+                                <button class="add-to-cart-btn" data-id="${product.id}" style="width:100%; background:${primaryColor}; color:white; border:none; padding:8px; border-radius:30px; cursor:pointer; margin-top:8px;">В корзину</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                productsHtml += `</div>`;
+            }
+            
+            return `
+                <div class="editor-block" data-index="${idx}">
+                    <div class="block-menu">
+                        <button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button>
+                        <button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button>
+                        <button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button>
+                        <button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div style="padding:20px;">
+                        <h3 style="margin-bottom:16px;">📦 ${escapeHtml(block.content.title || 'Каталог товаров')}</h3>
+                        ${productsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderBlock(block, idx) {
+            const info = availableBlocks[block.type] || { name: block.type, icon: '📦', defaultContent: {} };
+            
+            if (block.type === 'header-banner') {
+                return `<div class="editor-block" data-index="${idx}"><div class="block-menu"><button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button><button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button><button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button></div><div style="background:${block.content.bg_color || '#f8f9fa'}; padding:12px; text-align:center; border-radius:8px;">🏷️ ${escapeHtml(block.content.text || 'Баннер')}</div></div>`;
+            }
+            else if (block.type === 'promo-slider') {
+                const slide = block.content.slides?.[0] || {};
+                return `<div class="editor-block" data-index="${idx}"><div class="block-menu"><button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button><button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button><button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button></div><div style="background:#0066cc; color:white; padding:40px; text-align:center; border-radius:16px;"><div style="font-size:48px;">🎠</div><h3>${escapeHtml(slide.title)}</h3><p>${escapeHtml(slide.subtitle)}</p><button style="background:white; color:#0066cc; border:none; padding:8px 16px; border-radius:30px;">${escapeHtml(slide.button_text)}</button></div></div>`;
+            }
+            else if (block.type === 'product-grid') {
+                return renderProductGridBlock(block, idx);
+            }
+            else if (block.type === 'footer-subscribe') {
+                return `<div class="editor-block" data-index="${idx}"><div class="block-menu"><button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button><button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button><button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button></div><div style="background:#f8f9fa; padding:30px; text-align:center; border-radius:16px;"><h3>✉️ ${escapeHtml(block.content.title)}</h3><input type="email" placeholder="Ваш email" style="margin-top:12px; padding:10px; width:80%; border:1px solid #ddd; border-radius:30px;"></div></div>`;
+            }
+            
+            return `<div class="editor-block" data-index="${idx}"><div class="block-menu"><button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button><button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button><button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button></div><div style="padding:20px; text-align:center; border:1px solid #eee; border-radius:16px;"><div style="font-size:32px;">${info.icon}</div><div>${info.name}</div></div></div>`;
+        }
+
         function renderPreview() {
             const container = document.getElementById('previewContent');
             let html = `<div class="block-add-top"><div class="add-btn" data-position="top"><i class="fas fa-plus"></i></div></div>`;
@@ -198,46 +300,6 @@
             
             container.innerHTML = html;
             attachBlockEvents();
-        }
-
-        function renderBlock(block, idx) {
-            const info = availableBlocks[block.type] || { name: block.type, icon: '📦', defaultContent: {} };
-            let contentHtml = '';
-            
-            if (block.type === 'header-banner') {
-                contentHtml = `<div style="background:${block.content.bg_color}; padding:12px; text-align:center; border-radius:8px;">🏷️ ${block.content.text || 'Баннер'}</div>`;
-            }
-            else if (block.type === 'promo-slider') {
-                const slide = block.content.slides?.[0] || {};
-                contentHtml = `<div style="background:#0066cc; color:white; padding:40px; text-align:center; border-radius:16px;"><div style="font-size:48px;">🎠</div><h3>${slide.title}</h3><p>${slide.subtitle}</p><button style="background:white; color:#0066cc; border:none; padding:8px 16px; border-radius:30px;">${slide.button_text}</button></div>`;
-            }
-            else if (block.type === 'product-grid') {
-                // Загружаем товары из localStorage для предпросмотра
-                let productsHtml = '<div style="color:#999;">Загрузка товаров...</div>';
-                try {
-                    const saved = localStorage.getItem('crm_data');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        const products = data.products || [];
-                        if (products.length > 0) {
-                            productsHtml = `<div style="display:grid; grid-template-columns:repeat(${block.content.columns || 3}, 1fr); gap:16px;">`;
-                            products.slice(0, 6).forEach(p => {
-                                productsHtml += `<div style="border:1px solid #eee; border-radius:16px; padding:12px; text-align:center;"><div style="font-size:32px;">👕</div><div><strong>${p.title}</strong></div><div>${p.price} ₽</div></div>`;
-                            });
-                            productsHtml += `</div>`;
-                        }
-                    }
-                } catch(e) {}
-                contentHtml = `<div style="padding:20px;"><h3 style="margin-bottom:16px;">📦 ${block.content.title || 'Каталог товаров'}</h3>${productsHtml}</div>`;
-            }
-            else if (block.type === 'footer-subscribe') {
-                contentHtml = `<div style="background:#f8f9fa; padding:30px; text-align:center; border-radius:16px;"><h3>✉️ ${block.content.title}</h3><input type="email" placeholder="Ваш email" style="margin-top:12px; padding:10px; width:80%; border:1px solid #ddd; border-radius:30px;"></div>`;
-            }
-            else {
-                contentHtml = `<div style="padding:20px; text-align:center; border:1px solid #eee; border-radius:16px;"><div style="font-size:32px;">${info.icon}</div><div>${info.name}</div></div>`;
-            }
-            
-            return `<div class="editor-block" data-index="${idx}"><div class="block-menu"><button class="block-menu-btn edit-block-btn" data-index="${idx}"><i class="fas fa-edit"></i></button><button class="block-menu-btn replace-block-btn" data-index="${idx}"><i class="fas fa-exchange-alt"></i></button><button class="block-menu-btn duplicate-block-btn" data-index="${idx}"><i class="fas fa-copy"></i></button><button class="block-menu-btn delete-block-btn" data-index="${idx}"><i class="fas fa-trash"></i></button></div>${contentHtml}</div>`;
         }
 
         function attachBlockEvents() {
@@ -324,15 +386,12 @@
                 container.innerHTML = `
                     <div class="form-group"><label>Заголовок</label><input type="text" id="editTitle" value="${escapeHtml(block.content.title || '')}"></div>
                     <div class="form-group"><label>Колонок в строке</label><select id="editColumns"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div>
-                    <div class="form-group"><label><input type="checkbox" id="editFilters" ${block.content.show_filters !== false ? 'checked' : ''}> Показывать фильтры</label></div>
-                    <div class="form-group"><label><input type="checkbox" id="editSearch" ${block.content.show_search !== false ? 'checked' : ''}> Показывать поиск</label></div>
                     <div class="form-group"><label>Основной цвет</label><input type="color" id="editColor" value="${block.content.primary_color || '#6366f1'}"></div>
                     <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
                 `;
             } else {
-                container.innerHTML = `<div style="padding:20px; text-align:center;">Настройки для этого блока в разработке</div>`;
+                container.innerHTML = `<div style="padding:20px;">Настройки для этого блока в разработке</div>`;
             }
-            
             document.getElementById('blockEditModal').classList.add('active');
         }
 
@@ -344,8 +403,6 @@
             } else if (block.type === 'product-grid') {
                 block.content.title = document.getElementById('editTitle')?.value || '';
                 block.content.columns = parseInt(document.getElementById('editColumns')?.value) || 3;
-                block.content.show_filters = document.getElementById('editFilters')?.checked || false;
-                block.content.show_search = document.getElementById('editSearch')?.checked || false;
                 block.content.primary_color = document.getElementById('editColor')?.value || '#6366f1';
             }
             renderPreview(); saveSite(); closeModal('blockEditModal'); showToast('Настройки сохранены');
