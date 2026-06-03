@@ -1,4 +1,3 @@
-// ========== УПРОЩЁННЫЙ, НО РАБОЧИЙ ADMIN.JS ==========
 (function() {
     const sidebar = document.getElementById('sidebarMenu');
     const collapseBtn = document.getElementById('collapseBtn');
@@ -24,6 +23,7 @@
     }
     
     if (collapseBtn) collapseBtn.addEventListener('click', toggleCollapse);
+    
     if (menuToggle) {
         menuToggle.addEventListener('click', () => {
             if (sidebar) sidebar.classList.toggle('open');
@@ -32,35 +32,19 @@
     
     updateMenuState();
     
-    // ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ПАРАМЕТРОВ URL =====
-    function getUrlParameter(name) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(name);
-    }
-    
     // ===== ЗАГРУЗКА СТРАНИЦ =====
     const titles = {
-        dashboard: 'Главная',
         products: 'Товары',
         orders: 'Заказы',
+        chat: 'Диалоги',
         delivery: 'Доставка',
         payment: 'Оплата',
-        chat: 'Диалоги',
         'widget-editor': 'Редактор сайта',
         settings: 'Настройки'
     };
     
-    // Функция для загрузки любой страницы в iframe
-    function loadPageInIframe(url, title) {
-        if (contentArea) {
-            contentArea.innerHTML = `<iframe src="${url}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
-        }
-        if (pageTitle) pageTitle.textContent = title;
-    }
-    
     async function loadPage(page, saveToHistory = true) {
-        console.log(`Загрузка страницы: ${page}`);
-        
+        // Обновляем активный пункт меню
         document.querySelectorAll('.nav-item').forEach(item => {
             if (item.dataset.page === page) {
                 item.classList.add('active');
@@ -72,13 +56,13 @@
         if (saveToHistory) localStorage.setItem('lastPage', page);
         if (pageTitle) pageTitle.textContent = titles[page] || 'Страница';
         
-        // Редактор сайта — загружаем менеджер сайтов
+        // ===== РЕДАКТОР САЙТА — ОТКРЫВАЕМ В НОВОЙ ВКЛАДКЕ =====
         if (page === 'widget-editor') {
-            loadPageInIframe('/murano-apparel/widget-editor.html', titles[page]);
+            window.open('/murano-apparel/widget-editor.html', '_blank');
             return;
         }
         
-        // Остальные страницы
+        // ===== ОСТАЛЬНЫЕ СТРАНИЦЫ — ЗАГРУЖАЕМ В IFRAME =====
         let iframeSrc = '';
         switch(page) {
             case 'products': iframeSrc = '/murano-apparel/pages/products.html'; break;
@@ -88,10 +72,10 @@
             default: iframeSrc = '';
         }
         
-        if (iframeSrc) {
-            loadPageInIframe(iframeSrc, titles[page]);
+        if (iframeSrc && contentArea) {
+            contentArea.innerHTML = `<iframe src="${iframeSrc}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
         } else if (contentArea) {
-            contentArea.innerHTML = `<div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;"><div style="text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 16px;">🚧</div><div>Страница "${titles[page] || page}" в разработке</div></div></div>`;
+            contentArea.innerHTML = `<div class="content-card" style="display: flex; align-items: center; justify-content: center; min-height: 400px; background: white; border-radius: 20px;"><div style="text-align: center; color: #999;"><div style="font-size: 48px; margin-bottom: 16px;">🚧</div><div>Страница в разработке</div></div></div>`;
         }
         
         if (window.innerWidth <= 768 && sidebar) {
@@ -99,18 +83,6 @@
         }
     }
     
-    // ===== ОБРАБОТЧИК СООБЩЕНИЙ ОТ IFRAME =====
-    window.addEventListener('message', (event) => {
-        if (event.data.type === 'loadEditor' && event.data.url) {
-            loadPageInIframe(event.data.url, 'Редактор сайта');
-        }
-        
-        if (event.data.type === 'backToManager') {
-            loadPageInIframe('/murano-apparel/widget-editor.html', 'Управление сайтами');
-        }
-    });
-    
-    // ===== ОБРАБОТЧИКИ ПУНКТОВ МЕНЮ =====
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
             const page = item.dataset.page;
@@ -118,22 +90,6 @@
         });
     });
     
-    // ===== ОПРЕДЕЛЕНИЕ СТАРТОВОЙ СТРАНИЦЫ =====
-    // Проверяем параметр open в URL (например, ?open=widget-editor)
-    const openPage = getUrlParameter('open');
-    
-    if (openPage === 'widget-editor') {
-        // Если пришли из редактора — сразу показываем менеджер сайтов
-        loadPage('widget-editor', false);
-    } else {
-        // Иначе загружаем последнюю открытую страницу или товары по умолчанию
-        const lastPage = localStorage.getItem('lastPage');
-        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery'];
-        
-        if (lastPage && validPages.includes(lastPage)) {
-            loadPage(lastPage, false);
-        } else {
-            loadPage('widget-editor', false);
-        }
-    }
+    // Загружаем товары по умолчанию
+    loadPage('products', false);
 })();
