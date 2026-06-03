@@ -102,10 +102,14 @@
     }
     // ===== ГЛАВНОЕ ИЗМЕНЕНИЕ ЗДЕСЬ =====
     function openEditor(siteId) {
-        localStorage.setItem('current_site_id', siteId);
-        localStorage.setItem('current_site_name', sites.find(s => s.id === siteId)?.name || '');
-        // Переходим на страницу редактора в ТОЙ ЖЕ ВКЛАДКЕ
-        window.location.href = '/murano-apparel/site-editor.html';
+    localStorage.setItem('current_site_id', siteId);
+    localStorage.setItem('current_site_name', sites.find(s => s.id === siteId)?.name || '');
+    // Отправляем сообщение родительскому окну (editor.html), чтобы загрузить редактор в iframe
+    window.parent.postMessage({
+        type: 'loadEditor',
+        url: '/murano-apparel/site-editor.html'
+    }, '*');
+}
     }
     function viewSite(siteId) { const site = sites.find(s => s.id === siteId); if (site && site.url) window.open(site.url, '_blank'); else showToast('Сайт ещё не опубликован'); }
     function showActions(siteId) {
