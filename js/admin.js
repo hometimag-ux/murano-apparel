@@ -79,6 +79,30 @@
         return;
         }
 
+        // Обработчик сообщений от iframe (для навигации внутри редактора)
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'loadEditor' && event.data.url) {
+        // Загружаем редактор в iframe
+        const iframe = document.querySelector('#contentArea iframe');
+        if (iframe) {
+            iframe.src = event.data.url;
+        } else {
+            contentArea.innerHTML = `<iframe src="${event.data.url}" style="width:100%; height:100%; border:none; background: #f8f9fa; border-radius: 0;"></iframe>`;
+        }
+        // Обновляем заголовок
+        if (pageTitle) pageTitle.textContent = 'Редактор сайта';
+            }
+    
+        if (event.data.type === 'backToManager') {
+        // Возврат к менеджеру сайтов
+        const iframe = document.querySelector('#contentArea iframe');
+        if (iframe) {
+            iframe.src = '/murano-apparel/widget-editor.html';
+        }
+        if (pageTitle) pageTitle.textContent = 'Управление сайтами';
+            }
+        });
+        
         // Чат
         if (page === 'chat') {
             if (contentArea) {
