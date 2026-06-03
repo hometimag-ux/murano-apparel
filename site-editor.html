@@ -159,28 +159,29 @@
         
         // Загрузка списка блоков из index.json
         async function loadBlocksFromRegistry() {
-            try {
-                const response = await fetch('/murano-apparel/site/blocks/index.json');
-                if (response.ok) {
-                    const registry = await response.json();
-                    blocksRegistry = registry.blocks;
-                    // Преобразуем в удобный формат
-                    blocksRegistry.forEach(block => {
-                        availableBlocks[block.id] = {
-                            name: block.name,
-                            icon: block.icon,
-                            desc: block.description || '',
-                            category: block.category,
-                            path: block.path,
-                            defaultContent: {} // Будет загружено из settings.json
-                        };
-                    });
-                    console.log('✅ Блоки загружены из реестра:', blocksRegistry.length);
-                    return true;
-                }
-            } catch(e) {
-                console.log('Не удалось загрузить реестр блоков', e);
-            }
+    try {
+        const response = await fetch('/murano-apparel/site/blocks/index.json');
+        if (response.ok) {
+            const registry = await response.json();
+            blocksRegistry = registry.blocks;
+            blocksRegistry.forEach(block => {
+                availableBlocks[block.id] = {
+                    name: block.name,
+                    icon: block.icon,
+                    desc: block.description || '',
+                    category: block.category,
+                    path: block.path,
+                    defaultContent: {}
+                };
+            });
+            console.log('Блоки загружены:', blocksRegistry.length);
+            return true;
+        }
+    } catch(e) {
+        console.error('Ошибка загрузки реестра:', e);
+    }
+    return false;
+}
             
             // Fallback: стандартные блоки
             blocksRegistry = [
