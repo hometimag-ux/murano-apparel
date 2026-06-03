@@ -104,11 +104,7 @@
    function openEditor(siteId) {
     localStorage.setItem('current_site_id', siteId);
     localStorage.setItem('current_site_name', sites.find(s => s.id === siteId)?.name || '');
-    // Отправляем сообщение родительскому окну (админ-панели)
-    window.parent.postMessage({
-        type: 'loadEditor',
-        url: '/murano-apparel/site-editor.html'
-    }, '*');
+    window.location.href = '/murano-apparel/site-editor.html';
 }
     function viewSite(siteId) { const site = sites.find(s => s.id === siteId); if (site && site.url) window.open(site.url, '_blank'); else showToast('Сайт ещё не опубликован'); }
     function showActions(siteId) {
