@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление сайтами — Murano Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .site-manager {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .manager-header {
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .manager-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,102,204,0.3);
+        }
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .site-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .site-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        .site-preview {
+            height: 180px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #0066cc;
+        }
+
+        .site-info {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .site-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .site-url {
+            font-size: 12px;
+            color: #0066cc;
+            word-break: break-all;
+            margin-bottom: 8px;
+        }
+
+        .site-date {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .site-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .status-published {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .status-draft {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .site-actions {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            border: none;
+        }
+
+        .action-btn.edit {
+            background: #0066cc;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #0052a3;
+        }
+
+        .action-btn.view {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .action-btn.view:hover {
+            background: #e0e0e0;
+        }
+
+        .action-btn.more {
+            background: none;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+
+        .action-btn.more:hover {
+            background: #f8f9fa;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 400px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-list li {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .action-list li:hover {
+            background: #f8f9fa;
+        }
+
+        .action-list li.danger {
+            color: #f44336;
+        }
+
+        .action-list li.danger:hover {
+            background: #ffebee;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            z-index: 1100;
+            animation: fadeInOut 2s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+            grid-column: 1/-1;
+        }
+    </style>
+</head>
+<body>
+<div class="site-manager">
+    <div class="manager-header">
+        <h1><i class="fas fa-globe"></i> Управление сайтами</h1>
+        <button class="btn-primary" id="createNewSiteBtn">
+            <i class="fas fa-plus"></i> Создать новый сайт
+        </button>
+    </div>
+
+    <div class="sites-grid" id="sitesGrid">
+        <div class="empty-state">
+            <i class="fas fa-spinner fa-pulse"></i> Загрузка...
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно действий -->
+<div id="actionModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Действия с сайтом</h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <ul class="action-list" id="actionList"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    let sites = [];
+    let currentSiteId = null;
+
+    function loadSites() {
+        const saved = localStorage.getItem('sites_list');
+        if (saved) {
+            try {
+                sites = JSON.parse(saved);
+            } catch(e) {}
+        }
+
+        if (sites.length === 0) {
+            sites = [
+                { id: 1, name: 'Основной сайт', url: null, status: 'published', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), theme_data: null },
+                { id: 2, name: 'Черновик: Новая коллекция', url: null, status: 'draft', created_at: new Date(Date.now() - 86400000).toISOString(), updated_at: new Date(Date.now() - 86400000).toISOString(), theme_data: null },
+                { id: 3, name: 'Архив: Зимняя распродажа', url: null, status: 'draft', created_at: new Date(Date.now() - 604800000).toISOString(), updated_at: new Date(Date.now() - 604800000).toISOString(), theme_data: null }
+            ];
+            saveSites();
+        }
+        renderSitesGrid();
+    }
+
+    function saveSites() {
+        localStorage.setItem('sites_list', JSON.stringify(sites));
+    }
+
+    function renderSitesGrid() {
+        const container = document.getElementById('sitesGrid');
+        if (sites.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open" style="font-size:48px;margin-bottom:16px;"></i><p>У вас пока нет сайтов</p><button class="btn-primary" onclick="createNewSite()" style="margin-top:16px;"><i class="fas fa-plus"></i> Создать первый сайт</button></div>`;
+            return;
+        }
+        container.innerHTML = sites.map(site => `
+            <div class="site-card" data-id="${site.id}">
+                <div class="site-preview"><i class="fas fa-globe"></i></div>
+                <div class="site-info">
+                    <div class="site-name">${escapeHtml(site.name)}<span class="site-status status-${site.status}">${site.status === 'published' ? 'Опубликован' : 'Черновик'}</span></div>
+                    <div class="site-url">${site.url || 'Не опубликован'}</div>
+                    <div class="site-date"><i class="far fa-calendar-alt"></i> Изменён: ${formatDate(site.updated_at)}</div>
+                </div>
+                <div class="site-actions">
+                    <button class="action-btn edit" onclick="event.stopPropagation(); openEditor(${site.id})"><i class="fas fa-edit"></i> Редактировать</button>
+                    <button class="action-btn view" onclick="event.stopPropagation(); viewSite(${site.id})"><i class="fas fa-eye"></i> Смотреть</button>
+                    <button class="action-btn more" onclick="event.stopPropagation(); showActions(${site.id})"><i class="fas fa-ellipsis-v"></i> Действия</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openEditor(siteId) {
+        localStorage.setItem('current_site_id', siteId);
+        localStorage.setItem('current_site_name', sites.find(s => s.id === siteId)?.name || '');
+        window.open('/murano-apparel/site-editor.html', '_blank');
+    }
+
+    function viewSite(siteId) {
+        const site = sites.find(s => s.id === siteId);
+        if (site && site.url) window.open(site.url, '_blank');
+        else showToast('Сайт ещё не опубликован');
+    }
+
+    function showActions(siteId) {
+        currentSiteId = siteId;
+        const site = sites.find(s => s.id === siteId);
+        document.getElementById('actionList').innerHTML = `
+            <li onclick="actionDuplicate(${siteId})"><i class="fas fa-copy"></i> Сделать копию</li>
+            <li onclick="actionRename(${siteId})"><i class="fas fa-pen"></i> Переименовать</li>
+            <li onclick="actionDownload(${siteId})"><i class="fas fa-download"></i> Скачать (JSON)</li>
+            ${site.status === 'draft' ? `<li onclick="actionPublish(${siteId})"><i class="fas fa-globe"></i> Опубликовать</li>` : `<li onclick="actionUnpublish(${siteId})"><i class="fas fa-eye-slash"></i> Снять с публикации</li>`}
+            <li class="danger" onclick="actionDelete(${siteId})"><i class="fas fa-trash-alt"></i> Удалить</li>
+        `;
+        document.getElementById('actionModal').classList.add('active');
+    }
+
+    function actionDuplicate(id) {
+        const original = sites.find(s => s.id === id);
+        if (original) {
+            const newId = Math.max(...sites.map(s => s.id)) + 1;
+            sites.push({ ...original, id: newId, name: `${original.name} (копия)`, status: 'draft', url: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+            saveSites(); renderSitesGrid(); showToast('✅ Сайт скопирован');
+        }
+        closeModal();
+    }
+
+    function actionRename(id) {
+        const site = sites.find(s => s.id === id);
+        if (site) {
+            const newName = prompt('Введите новое название:', site.name);
+            if (newName?.trim()) { site.name = newName.trim(); site.updated_at = new Date().toISOString(); saveSites(); renderSitesGrid(); showToast('✅ Название изменено'); }
+        }
+        closeModal();
+    }
+
+    function actionDownload(id) {
+        const site = sites.find(s => s.id === id);
+        if (site) {
+            const blob = new Blob([JSON.stringify({ id: site.id, name: site.name, created_at: site.created_at, updated_at: site.updated_at, theme_data: site.theme_data || {} }, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `site_${site.id}_${Date.now()}.json`; a.click();
+            URL.revokeObjectURL(url);
+            showToast('📥 Скачивание начато');
+        }
+        closeModal();
+    }
+
+    function actionPublish(id) {
+        const site = sites.find(s => s.id === id);
+        if (site) {
+            const domain = prompt('Введите домен (например, https://murano-apparel.ru):');
+            if (domain) { site.status = 'published'; site.url = domain; site.updated_at = new Date().toISOString(); saveSites(); renderSitesGrid(); showToast(`🌍 Сайт опубликован`); }
+        }
+        closeModal();
+    }
+
+    function actionUnpublish(id) {
+        if (confirm('Снять с публикации?')) {
+            const site = sites.find(s => s.id === id);
+            if (site) { site.status = 'draft'; site.url = null; site.updated_at = new Date().toISOString(); saveSites(); renderSitesGrid(); showToast('🔒 Сайт снят с публикации'); }
+        }
+        closeModal();
+    }
+
+    function actionDelete(id) {
+        if (confirm('Удалить сайт?')) { sites = sites.filter(s => s.id !== id); saveSites(); renderSitesGrid(); showToast('🗑️ Сайт удалён'); }
+        closeModal();
+    }
+
+    function createNewSite() {
+        const name = prompt('Введите название сайта:', 'Мой сайт');
+        if (name?.trim()) {
+            const newId = sites.length > 0 ? Math.max(...sites.map(s => s.id)) + 1 : 1;
+            sites.push({ id: newId, name: name.trim(), url: null, status: 'draft', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), theme_data: {} });
+            saveSites(); renderSitesGrid(); showToast('✅ Новый сайт создан');
+            if (confirm('Перейти к редактированию?')) openEditor(newId);
+        }
+    }
+
+    function closeModal() { document.getElementById('actionModal').classList.remove('active'); }
+    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
+    function formatDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString(); }
+    function escapeHtml(s) { if (!s) return ''; return s.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+
+    document.getElementById('actionModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('actionModal')) closeModal(); });
+    document.getElementById('createNewSiteBtn')?.addEventListener('click', createNewSite);
+    loadSites();
+</script>
+</body>
+</html>
