@@ -1,0 +1,32 @@
+{
+    "name": "Промо-слайдер",
+    "icon": "🎠",
+    "description": "Карусель изображений с текстом и кнопкой",
+    "category": "hero",
+    "fields": [
+        {
+            "name": "slides",
+            "label": "Слайды",
+            "type": "repeater",
+            "fields": [
+                { "name": "image", "label": "Изображение", "type": "image" },
+                { "name": "title", "label": "Заголовок", "type": "text", "default": "Заголовок" },
+                { "name": "subtitle", "label": "Подзаголовок", "type": "text", "default": "Подзаголовок" },
+                { "name": "button_text", "label": "Текст кнопки", "type": "text", "default": "Подробнее" },
+                { "name": "button_link", "label": "Ссылка", "type": "url", "default": "#" }
+            ]
+        },
+        {
+            "name": "autoplay",
+            "label": "Автовоспроизведение",
+            "type": "checkbox",
+            "default": true
+        },
+        {
+            "name": "autoplay_delay",
+            "label": "Задержка (сек)",
+            "type": "number",
+            "default": 5
+        }
+    ]
+}
