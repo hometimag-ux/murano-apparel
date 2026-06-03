@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактор сайта — Murano Apparel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            overflow: hidden;
+        }
+
+        /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+        .editor-toolbar {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
+            z-index: 100;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .toolbar-btn.active {
+            background: #0066cc;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+
+        /* ===== ОСНОВНАЯ ОБЛАСТЬ ===== */
+        .editor-main {
+            display: flex;
+            height: calc(100vh - 56px);
+            position: relative;
+        }
+
+        /* ===== ПАНЕЛЬ ПРЕДПРОСМОТРА ===== */
+        .preview-container {
+            flex: 1;
+            background: #e8eaed;
+            padding: 20px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .preview-frame {
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .preview-frame.mobile {
+            max-width: 375px;
+            margin: 0 auto;
+        }
+
+        .preview-frame iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border: none;
+            background: white;
+        }
+
+        /* ===== ПАНЕЛЬ НАСТРОЕК (ПРАВАЯ) ===== */
+        .settings-panel {
+            width: 360px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: width 0.3s;
+        }
+
+        .settings-panel.collapsed {
+            width: 50px;
+        }
+
+        .settings-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* ===== КНОПКА ДОБАВЛЕНИЯ БЛОКА ===== */
+        .add-block-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px dashed #ccc;
+            border-radius: 16px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .add-block-btn:hover {
+            background: #e3f2fd;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+
+        /* ===== СПИСОК БЛОКОВ В НАСТРОЙКАХ ===== */
+        .blocks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .block-item {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #eee;
+        }
+
+        .block-item:hover {
+            background: #e3f2fd;
+            border-color: #0066cc;
+            transform: translateX(4px);
+        }
+
+        .block-icon {
+            font-size: 28px;
+            width: 48px;
+            text-align: center;
+        }
+
+        .block-info {
+            flex: 1;
+        }
+
+        .block-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .block-desc {
+            font-size: 11px;
+            color: #999;
+        }
+
+        /* ===== ФОРМЫ НАСТРОЕК ===== */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        /* ===== МОДАЛЬНОЕ ОКНО ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            z-index: 1100;
+            animation: fadeInOut 2s ease;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(20px); }
+        }
+
+        /* ===== НАВИГАЦИЯ ПО СТРАНИЦАМ РЕДАКТОРА ===== */
+        .editor-tabs {
+            display: flex;
+            gap: 4px;
+            background: #f0f2f5;
+            padding: 4px;
+            border-radius: 40px;
+        }
+
+        .editor-tab {
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: none;
+            border: none;
+        }
+
+        .editor-tab.active {
+            background: white;
+            color: #0066cc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Верхняя панель -->
+    <div class="editor-toolbar">
+        <div class="toolbar-group">
+            <button class="toolbar-btn" id="backToAdminBtn">
+                <i class="fas fa-arrow-left"></i> Назад в админку
+            </button>
+            <div class="editor-tabs" id="editorTabs">
+                <button class="editor-tab active" data-page="blocks">📦 Блоки</button>
+                <button class="editor-tab" data-page="design">🎨 Дизайн</button>
+                <button class="editor-tab" data-page="settings">⚙️ Настройки</button>
+            </div>
+        </div>
+        <div class="toolbar-group">
+            <button class="toolbar-btn" id="desktopViewBtn" data-view="desktop">
+                <i class="fas fa-desktop"></i> Десктоп
+            </button>
+            <button class="toolbar-btn" id="mobileViewBtn" data-view="mobile">
+                <i class="fas fa-mobile-alt"></i> Мобильный
+            </button>
+            <button class="btn-primary" id="saveSiteBtn">
+                <i class="fas fa-save"></i> Сохранить
+            </button>
+            <button class="btn-outline" id="publishSiteBtn">
+                <i class="fas fa-globe"></i> Опубликовать
+            </button>
+        </div>
+    </div>
+
+    <!-- Основная область -->
+    <div class="editor-main">
+        <!-- Панель предпросмотра -->
+        <div class="preview-container">
+            <div class="preview-frame" id="previewFrame">
+                <iframe id="sitePreview" src="/murano-apparel/site/templates/preview/desktop.html" title="Предпросмотр сайта"></iframe>
+            </div>
+        </div>
+
+        <!-- Панель настроек (справа) -->
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-header">
+                <h3 id="settingsTitle">Доступные блоки</h3>
+                <button class="toolbar-btn" id="collapseSettingsBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="settings-content" id="settingsContent">
+                <div style="text-align: center; color: #999; padding: 40px;">
+                    <i class="fas fa-spinner fa-pulse"></i> Загрузка...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== ЯДРО РЕДАКТОРА САЙТА =====
+        const SiteEditor = {
+            currentPage: 'blocks',
+            currentView: 'desktop',
+            isSettingsCollapsed: false,
+            siteData: null,
+            
+            init: function() {
+                console.log('🟢 Редактор сайта инициализирован');
+                this.loadSiteData();
+                this.setupEventListeners();
+                this.loadPage('blocks');
+            },
+            
+            setupEventListeners: function() {
+                // Переключение вкладок
+                document.querySelectorAll('.editor-tab').forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const page = tab.dataset.page;
+                        this.loadPage(page);
+                    });
+                });
+                
+                // Переключение вида
+                document.getElementById('desktopViewBtn')?.addEventListener('click', () => this.setView('desktop'));
+                document.getElementById('mobileViewBtn')?.addEventListener('click', () => this.setView('mobile'));
+                
+                // Сворачивание панели настроек
+                document.getElementById('collapseSettingsBtn')?.addEventListener('click', () => this.toggleSettings());
+                
+                // Сохранение и публикация
+                document.getElementById('saveSiteBtn')?.addEventListener('click', () => this.saveSite());
+                document.getElementById('publishSiteBtn')?.addEventListener('click', () => this.publishSite());
+                
+                // Возврат в админку
+                document.getElementById('backToAdminBtn')?.addEventListener('click', () => {
+                    window.location.href = '/murano-apparel/editor.html';
+                });
+            },
+            
+            loadSiteData: function() {
+                const saved = localStorage.getItem('site_data');
+                if (saved) {
+                    try {
+                        this.siteData = JSON.parse(saved);
+                    } catch(e) {}
+                }
+                if (!this.siteData) {
+                    this.siteData = {
+                        settings: {
+                            site_name: 'Murano Apparel',
+                            phone: '+7 (999) 123-45-67',
+                            email: 'info@murano.ru'
+                        },
+                        widgets: {
+                            header: ['header-banner'],
+                            main: ['promo-slider', 'product-grid'],
+                            footer: ['footer-subscribe']
+                        },
+                        design: {
+                            template: 'default',
+                            colors: {
+                                primary: '#0066cc',
+                                secondary: '#1a1a2e'
+                            }
+                        }
+                    };
+                }
+            },
+            
+            loadPage: function(page) {
+                this.currentPage = page;
+                
+                document.querySelectorAll('.editor-tab').forEach(tab => {
+                    if (tab.dataset.page === page) {
+                        tab.classList.add('active');
+                    } else {
+                        tab.classList.remove('active');
+                    }
+                });
+                
+                const titleMap = {
+                    blocks: 'Доступные блоки',
+                    design: 'Настройка дизайна',
+                    settings: 'Настройки сайта'
+                };
+                document.getElementById('settingsTitle').innerText = titleMap[page] || 'Настройки';
+                
+                if (page === 'blocks') {
+                    this.renderBlocksPanel();
+                } else if (page === 'design') {
+                    this.renderDesignPanel();
+                } else if (page === 'settings') {
+                    this.renderSettingsPanel();
+                }
+            },
+            
+            renderBlocksPanel: function() {
+                const container = document.getElementById('settingsContent');
+                
+                const availableBlocks = [
+                    { id: 'promo-slider', name: 'Промо-слайдер', icon: '🎠', desc: 'Карусель изображений' },
+                    { id: 'product-grid', name: 'Сетка товаров', icon: '📦', desc: 'Вывод товаров' },
+                    { id: 'header-banner', name: 'Баннер в шапке', icon: '🏷️', desc: 'Информационная строка' },
+                    { id: 'category-list', name: 'Категории', icon: '📁', desc: 'Список категорий' },
+                    { id: 'blog-posts', name: 'Блог', icon: '📝', desc: 'Последние статьи' },
+                    { id: 'contact-form', name: 'Форма связи', icon: '📧', desc: 'Обратная связь' },
+                    { id: 'social-links', name: 'Соцсети', icon: '🔗', desc: 'Ссылки на соцсети' },
+                    { id: 'footer-subscribe', name: 'Подписка', icon: '✉️', desc: 'Форма подписки' }
+                ];
+                
+                container.innerHTML = `
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-size: 13px; color: #666; margin-bottom: 12px;">
+                            <i class="fas fa-info-circle"></i> Нажмите на блок, чтобы добавить его на страницу
+                        </p>
+                        <div class="blocks-list">
+                            ${availableBlocks.map(block => `
+                                <div class="block-item" data-block-id="${block.id}">
+                                    <div class="block-icon">${block.icon}</div>
+                                    <div class="block-info">
+                                        <div class="block-name">${block.name}</div>
+                                        <div class="block-desc">${block.desc}</div>
+                                    </div>
+                                    <i class="fas fa-plus-circle" style="color: #0066cc;"></i>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 20px 0 12px; font-size: 16px;">Структура сайта</h3>
+                    
+                    <div id="siteStructure">
+                        ${this.renderSiteStructure()}
+                    </div>
+                `;
+                
+                document.querySelectorAll('.block-item').forEach(block => {
+                    block.addEventListener('click', () => {
+                        const blockId = block.dataset.blockId;
+                        this.showZoneSelectionModal(blockId);
+                    });
+                });
+            },
+            
+            renderSiteStructure: function() {
+                const zones = [
+                    { id: 'header', name: 'Шапка сайта', icon: 'fa-arrow-up' },
+                    { id: 'main', name: 'Основная область', icon: 'fa-home' },
+                    { id: 'footer', name: 'Подвал', icon: 'fa-arrow-down' }
+                ];
+                
+                const widgets = this.siteData.widgets;
+                const availableBlocks = {
+                    'promo-slider': { name: 'Промо-слайдер', icon: '🎠' },
+                    'product-grid': { name: 'Сетка товаров', icon: '📦' },
+                    'header-banner': { name: 'Баннер в шапке', icon: '🏷️' },
+                    'category-list': { name: 'Категории', icon: '📁' },
+                    'blog-posts': { name: 'Блог', icon: '📝' },
+                    'contact-form': { name: 'Форма связи', icon: '📧' },
+                    'social-links': { name: 'Соцсети', icon: '🔗' },
+                    'footer-subscribe': { name: 'Подписка', icon: '✉️' }
+                };
+                
+                return zones.map(zone => `
+                    <div style="margin-bottom: 16px; border: 1px solid #eee; border-radius: 16px; overflow: hidden;">
+                        <div style="background: #f8f9fa; padding: 10px 12px; font-weight: 500; font-size: 13px; border-bottom: 1px solid #eee;">
+                            <i class="fas ${zone.icon}"></i> ${zone.name}
+                        </div>
+                        <div data-zone="${zone.id}" style="padding: 8px;">
+                            ${(widgets[zone.id] || []).map(widgetId => {
+                                const block = availableBlocks[widgetId] || { name: widgetId, icon: '📦' };
+                                return `
+                                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-radius: 12px; padding: 8px 12px; margin-bottom: 6px;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span>${block.icon}</span>
+                                            <span style="font-size: 13px;">${block.name}</span>
+                                        </div>
+                                        <button class="remove-block-btn" data-zone="${zone.id}" data-widget="${widgetId}" style="background: none; border: none; color: #f44336; cursor: pointer;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                            <button class="add-block-btn" data-zone="${zone.id}" style="width: 100%; padding: 10px; background: none; border: 2px dashed #ccc; border-radius: 12px; margin-top: 4px; cursor: pointer;">
+                                <i class="fas fa-plus"></i> Добавить блок
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+            
+            showZoneSelectionModal: function(blockId) {
+                const zones = [
+                    { id: 'header', name: 'Шапка сайта', icon: '⬆️' },
+                    { id: 'main', name: 'Основная область', icon: '🏠' },
+                    { id: 'footer', name: 'Подвал', icon: '⬇️' }
+                ];
+                
+                const modalHtml = `
+                    <div class="modal active" id="zoneModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Выберите зону для блока</h3>
+                                <button class="modal-close" onclick="SiteEditor.closeModal()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                ${zones.map(zone => `
+                                    <button class="select-zone-btn" data-zone="${zone.id}" style="width: 100%; padding: 14px; margin-bottom: 8px; background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                                        <span style="font-size: 20px;">${zone.icon}</span>
+                                        <span>${zone.name}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const oldModal = document.getElementById('zoneModal');
+                if (oldModal) oldModal.remove();
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                document.querySelectorAll('.select-zone-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const zone = btn.dataset.zone;
+                        this.addWidgetToZone(zone, blockId);
+                        this.closeModal();
+                    });
+                });
+            },
+            
+            showZoneSelectionModalForZone: function(zone) {
+                const blocks = [
+                    { id: 'promo-slider', name: 'Промо-слайдер', icon: '🎠' },
+                    { id: 'product-grid', name: 'Сетка товаров', icon: '📦' },
+                    { id: 'header-banner', name: 'Баннер в шапке', icon: '🏷️' },
+                    { id: 'category-list', name: 'Категории', icon: '📁' },
+                    { id: 'blog-posts', name: 'Блог', icon: '📝' },
+                    { id: 'contact-form', name: 'Форма связи', icon: '📧' },
+                    { id: 'social-links', name: 'Соцсети', icon: '🔗' },
+                    { id: 'footer-subscribe', name: 'Подписка', icon: '✉️' }
+                ];
+                
+                const modalHtml = `
+                    <div class="modal active" id="blockModal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Выберите блок для зоны "${zone}"</h3>
+                                <button class="modal-close" onclick="SiteEditor.closeModal()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                ${blocks.map(block => `
+                                    <button class="select-block-btn" data-block-id="${block.id}" style="width: 100%; padding: 12px; margin-bottom: 8px; background: #f8f9fa; border: 1px solid #eee; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                                        <span style="font-size: 24px;">${block.icon}</span>
+                                        <span>${block.name}</span>
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const oldModal = document.getElementById('blockModal');
+                if (oldModal) oldModal.remove();
+                
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+                
+                document.querySelectorAll('.select-block-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const blockId = btn.dataset.blockId;
+                        this.addWidgetToZone(zone, blockId);
+                        this.closeModal();
+                    });
+                });
+            },
+            
+            addWidgetToZone: function(zone, widgetId) {
+                if (!this.siteData.widgets[zone]) this.siteData.widgets[zone] = [];
+                if (!this.siteData.widgets[zone].includes(widgetId)) {
+                    this.siteData.widgets[zone].push(widgetId);
+                    this.renderBlocksPanel();
+                    this.showToast(`✅ Блок добавлен в зону "${zone}"`);
+                    this.updatePreview();
+                }
+            },
+            
+            removeWidgetFromZone: function(zone, widgetId) {
+                if (this.siteData.widgets[zone]) {
+                    this.siteData.widgets[zone] = this.siteData.widgets[zone].filter(w => w !== widgetId);
+                    this.renderBlocksPanel();
+                    this.showToast(`🗑️ Блок удалён`);
+                    this.updatePreview();
+                }
+            },
+            
+            renderDesignPanel: function() {
+                const container = document.getElementById('settingsContent');
+                const design = this.siteData.design || { template: 'default', colors: { primary: '#0066cc', secondary: '#1a1a2e' } };
+                
+                container.innerHTML = `
+                    <div class="form-group">
+                        <label><i class="fas fa-palette"></i> Цветовая схема</label>
+                        <div style="display: flex; gap: 12px;">
+                            <div style="flex:1;">
+                                <label style="font-size: 12px;">Основной цвет</label>
+                                <input type="color" id="primaryColor" value="${design.colors?.primary || '#0066cc'}">
+                            </div>
+                            <div style="flex:1;">
+                                <label style="font-size: 12px;">Вторичный цвет</label>
+                                <input type="color" id="secondaryColor" value="${design.colors?.secondary || '#1a1a2e'}">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-font"></i> Шрифт</label>
+                        <select id="siteFont">
+                            <option value="Inter">Inter</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="System">Системный</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-border-all"></i> Стиль карточек товаров</label>
+                        <select id="cardStyle">
+                            <option value="rounded">Скруглённые</option>
+                            <option value="sharp">Прямые углы</option>
+                            <option value="shadow">С тенью</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn-primary" id="saveDesignBtn" style="width:100%; margin-top:20px;">
+                        <i class="fas fa-save"></i> Сохранить дизайн
+                    </button>
+                `;
+                
+                document.getElementById('saveDesignBtn')?.addEventListener('click', () => {
+                    this.siteData.design = {
+                        template: 'default',
+                        colors: {
+                            primary: document.getElementById('primaryColor')?.value || '#0066cc',
+                            secondary: document.getElementById('secondaryColor')?.value || '#1a1a2e'
+                        },
+                        font: document.getElementById('siteFont')?.value,
+                        cardStyle: document.getElementById('cardStyle')?.value
+                    };
+                    this.saveSite();
+                    this.updatePreview();
+                });
+            },
+            
+            renderSettingsPanel: function() {
+                const container = document.getElementById('settingsContent');
+                const settings = this.siteData.settings;
+                
+                container.innerHTML = `
+                    <div class="form-group">
+                        <label><i class="fas fa-store"></i> Название магазина</label>
+                        <input type="text" id="siteName" value="${escapeHtml(settings.site_name || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Телефон</label>
+                        <input type="tel" id="sitePhone" value="${escapeHtml(settings.phone || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email</label>
+                        <input type="email" id="siteEmail" value="${escapeHtml(settings.email || '')}">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Адрес</label>
+                        <textarea id="siteAddress" rows="2">${escapeHtml(settings.address || '')}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-building"></i> ИНН</label>
+                        <input type="text" id="siteInn" value="${escapeHtml(settings.inn || '')}">
+                    </div>
+                    <button class="btn-primary" id="saveSettingsBtn" style="width:100%; margin-top:20px;">
+                        <i class="fas fa-save"></i> Сохранить настройки
+                    </button>
+                `;
+                
+                document.getElementById('saveSettingsBtn')?.addEventListener('click', () => {
+                    this.siteData.settings = {
+                        ...this.siteData.settings,
+                        site_name: document.getElementById('siteName')?.value || '',
+                        phone: document.getElementById('sitePhone')?.value || '',
+                        email: document.getElementById('siteEmail')?.value || '',
+                        address: document.getElementById('siteAddress')?.value || '',
+                        inn: document.getElementById('siteInn')?.value || ''
+                    };
+                    this.saveSite();
+                    this.updatePreview();
+                });
+            },
+            
+            setView: function(view) {
+                this.currentView = view;
+                const previewFrame = document.getElementById('previewFrame');
+                const iframe = document.getElementById('sitePreview');
+                
+                if (view === 'mobile') {
+                    previewFrame.classList.add('mobile');
+                    iframe.src = '/murano-apparel/site/templates/preview/mobile.html';
+                } else {
+                    previewFrame.classList.remove('mobile');
+                    iframe.src = '/murano-apparel/site/templates/preview/desktop.html';
+                }
+                
+                document.getElementById('desktopViewBtn')?.classList.toggle('active', view === 'desktop');
+                document.getElementById('mobileViewBtn')?.classList.toggle('active', view === 'mobile');
+            },
+            
+            toggleSettings: function() {
+                this.isSettingsCollapsed = !this.isSettingsCollapsed;
+                const panel = document.getElementById('settingsPanel');
+                const btn = document.getElementById('collapseSettingsBtn');
+                
+                if (this.isSettingsCollapsed) {
+                    panel.classList.add('collapsed');
+                    btn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                } else {
+                    panel.classList.remove('collapsed');
+                    btn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                }
+            },
+            
+            saveSite: function() {
+                localStorage.setItem('site_data', JSON.stringify(this.siteData));
+                this.showToast('✅ Сайт сохранён');
+            },
+            
+            publishSite: function() {
+                this.showToast('🚀 Сайт опубликован!');
+            },
+            
+            updatePreview: function() {
+                const iframe = document.getElementById('sitePreview');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage({
+                        type: 'updateSiteData',
+                        data: this.siteData
+                    }, '*');
+                }
+            },
+            
+            showToast: function(message) {
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            },
+            
+            closeModal: function() {
+                const modal = document.getElementById('zoneModal');
+                if (modal) modal.remove();
+                const blockModal = document.getElementById('blockModal');
+                if (blockModal) blockModal.remove();
+            }
+        };
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        }
+        
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-block-btn')) {
+                const btn = e.target.closest('.remove-block-btn');
+                const zone = btn.dataset.zone;
+                const widget = btn.dataset.widget;
+                SiteEditor.removeWidgetFromZone(zone, widget);
+            }
+            
+            if (e.target.closest('.add-block-btn')) {
+                const btn = e.target.closest('.add-block-btn');
+                const zone = btn.dataset.zone;
+                SiteEditor.showZoneSelectionModalForZone(zone);
+            }
+        });
+        
+        SiteEditor.init();
+        window.SiteEditor = SiteEditor;
+    </script>
+</body>
+</html>
