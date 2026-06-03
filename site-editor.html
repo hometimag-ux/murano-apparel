@@ -652,11 +652,7 @@
         // ============================================================
         // БЛОК 8: ИНИЦИАЛИЗАЦИЯ
         // ============================================================
-        document.getElementById('backToAdminBtn').onclick = () => {
-    window.parent.postMessage({
-        type: 'backToManager'
-    }, '*');
-};
+        document.getElementById('backToAdminBtn').onclick = () => {window.location.href = '/murano-apparel/editor.html?open=widget-editor';};
         document.getElementById('desktopViewBtn').onclick = () => setView('desktop');
         document.getElementById('mobileViewBtn').onclick = () => setView('mobile');
         document.getElementById('saveSiteBtn').onclick = saveSite;
