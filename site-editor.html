@@ -1,567 +1,114 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор сайта — Murano Apparel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f0f2f5; overflow: hidden; }
-
-        /* Верхняя панель */
-        .editor-toolbar {
-            background: white;
-            border-bottom: 1px solid #e0e0e0;
-            padding: 8px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            z-index: 100;
-        }
-        .toolbar-group { display: flex; gap: 8px; align-items: center; }
-        .toolbar-btn {
-            background: none; border: none; padding: 8px 14px; border-radius: 30px;
-            font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s;
-            display: inline-flex; align-items: center; gap: 6px;
-        }
-        .toolbar-btn:hover { background: #f0f0f0; }
-        .toolbar-btn.active { background: #0066cc; color: white; }
-        .btn-primary { background: #0066cc; color: white; border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
-        .btn-outline { background: white; border: 1px solid #ddd; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
-
-        /* Основная область — на всё окно */
-        .editor-main { display: flex; height: calc(100vh - 56px); position: relative; }
-        .preview-container { flex: 1; background: #e8eaed; padding: 20px; overflow: auto; display: flex; justify-content: center; }
-        .preview-frame { width: 100%; max-width: 1200px; background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); overflow: auto; transition: all 0.3s; }
-        .preview-frame.mobile { max-width: 375px; margin: 0 auto; }
-        .preview-content { padding: 20px; }
-
-        /* Блоки в редакторе */
-        .editor-block {
-            position: relative;
-            margin: 16px 0;
-            border: 2px solid transparent;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-        .editor-block:hover { border-color: #0066cc; }
-        .editor-block.selected { border-color: #0066cc; background: rgba(0,102,204,0.05); }
-        
-        .block-add-top, .block-add-bottom {
-            position: relative;
-            height: 20px;
-            margin: 4px 0;
-        }
-        .add-btn {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 30px;
-            height: 30px;
-            background: white;
-            border: 2px solid #0066cc;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #0066cc;
-            font-size: 14px;
-            transition: all 0.2s;
-            z-index: 10;
-        }
-        .add-btn:hover { background: #0066cc; color: white; transform: translateX(-50%) scale(1.1); }
-        
-        .block-menu {
-            position: absolute;
-            top: -12px;
-            right: -12px;
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: none;
-            gap: 4px;
-            padding: 4px;
-            z-index: 20;
-        }
-        .editor-block:hover .block-menu { display: flex; }
-        .block-menu-btn {
-            background: none;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-        }
-        .block-menu-btn:hover { background: #f0f0f0; }
-
-        /* Модальные окна */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: white;
-            border-radius: 24px;
-            width: 90%;
-            max-width: 550px;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-        .modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-size: 18px; font-weight: 600; }
-        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
-        .modal-body { padding: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 14px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-        .block-item { display: flex; align-items: center; gap: 12px; padding: 12px; margin-bottom: 8px; background: #f8f9fa; border-radius: 16px; cursor: pointer; transition: all 0.2s; }
-        .block-item:hover { background: #e3f2fd; transform: translateX(4px); }
-        .block-icon { font-size: 28px; width: 48px; text-align: center; }
-        .toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 30px; z-index: 1100; animation: fadeInOut 2s ease; }
-        @keyframes fadeInOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); } }
-    </style>
-</head>
-<body>
-    <!-- Верхняя панель -->
-    <div class="editor-toolbar">
-        <div class="toolbar-group">
-            <button class="toolbar-btn" id="backToManagerBtn"><i class="fas fa-arrow-left"></i> Назад к сайтам</button>
-            <div style="width:1px; height:24px; background:#ddd;"></div>
-            <button class="toolbar-btn" id="desktopViewBtn" data-view="desktop"><i class="fas fa-desktop"></i> Десктоп</button>
-            <button class="toolbar-btn" id="mobileViewBtn" data-view="mobile"><i class="fas fa-mobile-alt"></i> Мобильный</button>
-        </div>
-        <div class="toolbar-group">
-            <button class="btn-primary" id="saveSiteBtn"><i class="fas fa-save"></i> Сохранить</button>
-            <button class="btn-outline" id="publishSiteBtn"><i class="fas fa-globe"></i> Опубликовать</button>
-        </div>
-        <div class="toolbar-group">
-            <button class="toolbar-btn" id="settingsBtn"><i class="fas fa-cog"></i> Настройки</button>
-        </div>
-    </div>
-
-    <div class="editor-main">
-        <div class="preview-container">
-            <div class="preview-frame" id="previewFrame">
-                <div class="preview-content" id="previewContent">
-                    <div style="text-align:center; padding:40px; color:#999;">Загрузка блоков...</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно выбора блока -->
-    <div id="blockSelectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Выберите блок для добавления</h3>
-                <button class="modal-close" onclick="closeModal('blockSelectModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="blockSelectList"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно замены блока -->
-    <div id="blockReplaceModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Заменить блок</h3>
-                <button class="modal-close" onclick="closeModal('blockReplaceModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="blockReplaceList"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно редактирования блока -->
-    <div id="blockEditModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="blockEditTitle">Редактирование блока</h3>
-                <button class="modal-close" onclick="closeModal('blockEditModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="blockEditContent"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно настроек сайта -->
-    <div id="siteSettingsModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-cog"></i> Настройки сайта</h3>
-                <button class="modal-close" onclick="closeModal('siteSettingsModal')">&times;</button>
-            </div>
-            <div class="modal-body" id="siteSettingsContent"></div>
-        </div>
-    </div>
-
-    <script>
-        // ===== БАЗОВЫЕ БЛОКИ =====
-        const availableBlocks = {
-            'promo-slider': { name: 'Промо-слайдер', icon: '🎠', desc: 'Карусель изображений', defaultContent: { slides: [{ image: '', title: 'Заголовок', subtitle: 'Подзаголовок', button_text: 'Подробнее', button_link: '#' }] } },
-            'product-grid': { name: 'Сетка товаров', icon: '📦', desc: 'Вывод товаров', defaultContent: { title: 'Наши товары', limit: 6 } },
-            'header-banner': { name: 'Баннер в шапке', icon: '🏷️', desc: 'Информационная строка', defaultContent: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
-            'category-list': { name: 'Категории', icon: '📁', desc: 'Список категорий', defaultContent: { title: 'Категории' } },
-            'blog-posts': { name: 'Блог', icon: '📝', desc: 'Последние статьи', defaultContent: { title: 'Новости', limit: 3 } },
-            'contact-form': { name: 'Форма связи', icon: '📧', desc: 'Обратная связь', defaultContent: { title: 'Связаться с нами' } },
-            'social-links': { name: 'Соцсети', icon: '🔗', desc: 'Ссылки на соцсети', defaultContent: { vk: '', tg: '', whatsapp: '' } },
-            'footer-subscribe': { name: 'Подписка', icon: '✉️', desc: 'Форма подписки', defaultContent: { title: 'Подпишитесь на новости' } }
-        };
-
-        let currentSite = { id: null, name: '', blocks: [] };
-        let selectedBlockIndex = null;
-        let currentView = 'desktop';
-
-        // ===== ЗАГРУЗКА ДАННЫХ =====
-        function loadSiteData() {
-            const siteId = localStorage.getItem('current_site_id');
-            if (siteId) currentSite.id = parseInt(siteId);
-            currentSite.name = localStorage.getItem('current_site_name') || 'Мой сайт';
+// ===== ДИНАМИЧЕСКАЯ ЗАГРУЗКА БЛОКОВ =====
+const BlocksManager = {
+    blocksCache: {},
+    
+    // Загрузка списка доступных блоков из папки site/blocks/
+    async loadBlocksList() {
+        try {
+            // В реальном проекте здесь будет запрос к серверу
+            // Сейчас используем статический список, но с возможностью расширения
+            const blocksList = [
+                { id: 'promo-slider', name: 'Промо-слайдер', icon: '🎠', category: 'hero' },
+                { id: 'product-grid', name: 'Сетка товаров', icon: '📦', category: 'products' },
+                { id: 'header-banner', name: 'Баннер в шапке', icon: '🏷️', category: 'header' },
+                { id: 'category-list', name: 'Категории', icon: '📁', category: 'catalog' },
+                { id: 'blog-posts', name: 'Блог', icon: '📝', category: 'content' },
+                { id: 'contact-form', name: 'Форма связи', icon: '📧', category: 'forms' },
+                { id: 'social-links', name: 'Соцсети', icon: '🔗', category: 'footer' },
+                { id: 'footer-subscribe', name: 'Подписка', icon: '✉️', category: 'footer' }
+            ];
             
-            const saved = localStorage.getItem(`site_blocks_${currentSite.id}`);
-            if (saved) {
-                try { currentSite.blocks = JSON.parse(saved); } catch(e) {}
-            }
-            
-            if (currentSite.blocks.length === 0) {
-                currentSite.blocks = [
-                    { id: 'header-banner_1', type: 'header-banner', content: { text: 'Бесплатная доставка от 3000 ₽', bg_color: '#f8f9fa' } },
-                    { id: 'promo-slider_1', type: 'promo-slider', content: { slides: [{ image: '', title: 'Летняя распродажа', subtitle: 'Скидки до 50%', button_text: 'Смотреть', button_link: '#' }] } },
-                    { id: 'product-grid_1', type: 'product-grid', content: { title: 'Наши товары', limit: 6 } },
-                    { id: 'footer-subscribe_1', type: 'footer-subscribe', content: { title: 'Подпишитесь на новости' } }
-                ];
-            }
-            
-            renderPreview();
-        }
-
-        function saveSite() {
-            localStorage.setItem(`site_blocks_${currentSite.id}`, JSON.stringify(currentSite.blocks));
-            showToast('✅ Сайт сохранён');
-        }
-
-        // ===== ОТРИСОВКА ПРЕВЬЮ =====
-        function renderPreview() {
-            const container = document.getElementById('previewContent');
-            let html = '';
-            
-            html += `<div class="block-add-top"><div class="add-btn" data-position="top"><i class="fas fa-plus"></i></div></div>`;
-            
-            currentSite.blocks.forEach((block, idx) => {
-                html += renderBlock(block, idx);
-                html += `<div class="block-add-bottom"><div class="add-btn" data-position="after-${idx}"><i class="fas fa-plus"></i></div></div>`;
-            });
-            
-            container.innerHTML = html;
-            
-            // Обработчики
-            document.querySelectorAll('.add-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openBlockSelectModal(btn.dataset.position);
-                });
-            });
-            
-            document.querySelectorAll('.editor-block').forEach(block => {
-                block.addEventListener('click', (e) => {
-                    if (e.target.closest('.block-menu-btn')) return;
-                    selectBlock(parseInt(block.dataset.index));
-                });
-            });
-            
-            document.querySelectorAll('.edit-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openBlockEditModal(parseInt(btn.dataset.index));
-                });
-            });
-            
-            document.querySelectorAll('.replace-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openBlockReplaceModal(parseInt(btn.dataset.index));
-                });
-            });
-            
-            document.querySelectorAll('.duplicate-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    duplicateBlock(parseInt(btn.dataset.index));
-                });
-            });
-            
-            document.querySelectorAll('.delete-block-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const idx = parseInt(btn.dataset.index);
-                    if (confirm('Удалить блок?')) {
-                        currentSite.blocks.splice(idx, 1);
-                        renderPreview();
-                        saveSite();
-                        showToast('🗑️ Блок удалён');
+            // Загружаем метаданные каждого блока
+            for (const block of blocksList) {
+                try {
+                    const settingsPath = `/murano-apparel/site/blocks/${block.id}/settings.json`;
+                    const response = await fetch(settingsPath);
+                    if (response.ok) {
+                        const settings = await response.json();
+                        block.name = settings.name || block.name;
+                        block.icon = settings.icon || block.icon;
+                        block.description = settings.description || '';
+                        block.fields = settings.fields || [];
+                        block.category = settings.category || block.category;
                     }
-                });
-            });
-        }
-
-        function renderBlock(block, idx) {
-            const blockInfo = availableBlocks[block.type] || { name: block.type, icon: '📦' };
-            let contentHtml = '';
-            
-            if (block.type === 'header-banner') {
-                contentHtml = `<div style="background:${block.content.bg_color || '#f8f9fa'}; padding:12px; text-align:center; border-radius:8px;">🏷️ ${block.content.text || 'Баннер'}</div>`;
-            } else if (block.type === 'promo-slider') {
-                const slide = block.content.slides?.[0] || {};
-                contentHtml = `<div style="background:#0066cc; color:white; padding:40px; text-align:center; border-radius:16px;"><div style="font-size:48px;">🎠</div><h3>${slide.title || 'Слайдер'}</h3><p>${slide.subtitle || ''}</p></div>`;
-            } else if (block.type === 'product-grid') {
-                contentHtml = `<div style="border:1px solid #eee; padding:20px; border-radius:16px;"><h3>📦 ${block.content.title || 'Сетка товаров'}</h3><div style="color:#999; margin-top:8px;">Товары будут загружены из каталога</div></div>`;
-            } else if (block.type === 'footer-subscribe') {
-                contentHtml = `<div style="background:#f8f9fa; padding:30px; text-align:center; border-radius:16px;"><h3>✉️ ${block.content.title || 'Подписка'}</h3><input type="email" placeholder="Ваш email" style="margin-top:12px; padding:10px; width:80%; border:1px solid #ddd; border-radius:30px;"></div>`;
-            } else {
-                contentHtml = `<div style="padding:20px; text-align:center; border:1px solid #eee; border-radius:16px;"><div style="font-size:32px;">${blockInfo.icon}</div><div>${blockInfo.name}</div></div>`;
+                } catch(e) { console.log(`Блок ${block.id} загружен без кастомных настроек`); }
             }
             
-            return `
-                <div class="editor-block" data-index="${idx}">
-                    <div class="block-menu">
-                        <button class="block-menu-btn edit-block-btn" data-index="${idx}" title="Редактировать"><i class="fas fa-edit"></i></button>
-                        <button class="block-menu-btn replace-block-btn" data-index="${idx}" title="Заменить"><i class="fas fa-exchange-alt"></i></button>
-                        <button class="block-menu-btn duplicate-block-btn" data-index="${idx}" title="Дублировать"><i class="fas fa-copy"></i></button>
-                        <button class="block-menu-btn delete-block-btn" data-index="${idx}" title="Удалить"><i class="fas fa-trash"></i></button>
-                    </div>
-                    ${contentHtml}
-                </div>
-            `;
+            return blocksList;
+        } catch(e) {
+            console.error('Ошибка загрузки блоков:', e);
+            return this.getDefaultBlocks();
         }
-
-        function selectBlock(idx) {
-            selectedBlockIndex = idx;
-            document.querySelectorAll('.editor-block').forEach((el, i) => {
-                if (i == idx) el.classList.add('selected');
-                else el.classList.remove('selected');
-            });
-            openBlockEditModal(idx);
-        }
-
-        function openBlockEditModal(idx) {
-            const block = currentSite.blocks[idx];
-            const blockInfo = availableBlocks[block.type];
-            const modal = document.getElementById('blockEditModal');
-            const container = document.getElementById('blockEditContent');
-            document.getElementById('blockEditTitle').innerText = `Редактирование: ${blockInfo?.name || block.type}`;
-            
-            if (block.type === 'header-banner') {
-                container.innerHTML = `
-                    <div class="form-group"><label>Текст баннера</label><input type="text" id="editBannerText" value="${escapeHtml(block.content.text || '')}"></div>
-                    <div class="form-group"><label>Цвет фона</label><input type="color" id="editBannerBg" value="${block.content.bg_color || '#f8f9fa'}"></div>
-                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
-                `;
-            } else if (block.type === 'promo-slider') {
-                const slide = block.content.slides?.[0] || {};
-                container.innerHTML = `
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="editSlideTitle" value="${escapeHtml(slide.title || '')}"></div>
-                    <div class="form-group"><label>Подзаголовок</label><input type="text" id="editSlideSubtitle" value="${escapeHtml(slide.subtitle || '')}"></div>
-                    <div class="form-group"><label>Текст кнопки</label><input type="text" id="editSlideButton" value="${escapeHtml(slide.button_text || '')}"></div>
-                    <div class="form-group"><label>Ссылка кнопки</label><input type="text" id="editSlideLink" value="${escapeHtml(slide.button_link || '')}"></div>
-                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
-                `;
-            } else if (block.type === 'product-grid') {
-                container.innerHTML = `
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="editGridTitle" value="${escapeHtml(block.content.title || '')}"></div>
-                    <div class="form-group"><label>Количество товаров</label><input type="number" id="editGridLimit" value="${block.content.limit || 6}"></div>
-                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
-                `;
-            } else if (block.type === 'footer-subscribe') {
-                container.innerHTML = `
-                    <div class="form-group"><label>Заголовок</label><input type="text" id="editSubscribeTitle" value="${escapeHtml(block.content.title || '')}"></div>
-                    <button class="btn-primary" onclick="saveBlockEdit(${idx})">Сохранить</button>
-                `;
-            } else {
-                container.innerHTML = `<div style="text-align:center;padding:20px;">Настройки для этого блока будут добавлены позже</div>`;
-            }
-            
-            modal.classList.add('active');
-        }
-
-        function saveBlockEdit(idx) {
-            const block = currentSite.blocks[idx];
-            if (block.type === 'header-banner') {
-                block.content.text = document.getElementById('editBannerText')?.value || '';
-                block.content.bg_color = document.getElementById('editBannerBg')?.value || '#f8f9fa';
-            } else if (block.type === 'promo-slider') {
-                if (!block.content.slides) block.content.slides = [{}];
-                block.content.slides[0] = {
-                    title: document.getElementById('editSlideTitle')?.value || '',
-                    subtitle: document.getElementById('editSlideSubtitle')?.value || '',
-                    button_text: document.getElementById('editSlideButton')?.value || '',
-                    button_link: document.getElementById('editSlideLink')?.value || ''
-                };
-            } else if (block.type === 'product-grid') {
-                block.content.title = document.getElementById('editGridTitle')?.value || '';
-                block.content.limit = parseInt(document.getElementById('editGridLimit')?.value) || 6;
-            } else if (block.type === 'footer-subscribe') {
-                block.content.title = document.getElementById('editSubscribeTitle')?.value || '';
-            }
-            
-            renderPreview();
-            saveSite();
-            closeModal('blockEditModal');
-            showToast('✅ Настройки сохранены');
-        }
-
-        // ===== ДОБАВЛЕНИЕ/ЗАМЕНА/ДУБЛИРОВАНИЕ =====
-        function openBlockSelectModal(position) {
-            const modal = document.getElementById('blockSelectModal');
-            const container = document.getElementById('blockSelectList');
-            container.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
-                <div class="block-item" onclick="addBlock('${id}', '${position}')">
-                    <div class="block-icon">${block.icon}</div>
-                    <div><div style="font-weight:600;">${block.name}</div><div style="font-size:12px; color:#999;">${block.desc}</div></div>
-                </div>
-            `).join('');
-            modal.classList.add('active');
-        }
-
-        function addBlock(blockType, position) {
-            const newBlock = {
-                id: blockType + '_' + Date.now(),
-                type: blockType,
-                content: JSON.parse(JSON.stringify(availableBlocks[blockType].defaultContent))
-            };
-            
-            if (position === 'top') {
-                currentSite.blocks.unshift(newBlock);
-            } else if (position.startsWith('after-')) {
-                const afterIdx = parseInt(position.split('-')[1]);
-                currentSite.blocks.splice(afterIdx + 1, 0, newBlock);
-            }
-            
-            renderPreview();
-            saveSite();
-            closeModal('blockSelectModal');
-            showToast(`✅ Блок "${availableBlocks[blockType].name}" добавлен`);
-        }
-
-        function openBlockReplaceModal(idx) {
-            const modal = document.getElementById('blockReplaceModal');
-            const container = document.getElementById('blockReplaceList');
-            container.innerHTML = Object.entries(availableBlocks).map(([id, block]) => `
-                <div class="block-item" onclick="replaceBlock(${idx}, '${id}')">
-                    <div class="block-icon">${block.icon}</div>
-                    <div><div style="font-weight:600;">${block.name}</div><div style="font-size:12px; color:#999;">${block.desc}</div></div>
-                </div>
-            `).join('');
-            modal.classList.add('active');
-        }
-
-        function replaceBlock(idx, newType) {
-            currentSite.blocks[idx] = {
-                id: newType + '_' + Date.now(),
-                type: newType,
-                content: JSON.parse(JSON.stringify(availableBlocks[newType].defaultContent))
-            };
-            renderPreview();
-            saveSite();
-            closeModal('blockReplaceModal');
-            showToast(`✅ Блок заменён на "${availableBlocks[newType].name}"`);
-        }
-
-        function duplicateBlock(idx) {
-            const duplicate = JSON.parse(JSON.stringify(currentSite.blocks[idx]));
-            duplicate.id = duplicate.type + '_' + Date.now();
-            currentSite.blocks.splice(idx + 1, 0, duplicate);
-            renderPreview();
-            saveSite();
-            showToast('📋 Блок дублирован');
-        }
-
-        // ===== НАСТРОЙКИ САЙТА (в модальном окне) =====
-        function openSiteSettings() {
-            const modal = document.getElementById('siteSettingsModal');
-            const container = document.getElementById('siteSettingsContent');
-            
-            const savedData = localStorage.getItem(`site_data_${currentSite.id}`);
-            const siteData = savedData ? JSON.parse(savedData) : { 
-                site_name: currentSite.name, 
-                phone: '', email: '', address: '', inn: '', ogrn: '',
-                social: { vk: '', tg: '', whatsapp: '' }
-            };
-            
-            container.innerHTML = `
-                <div class="form-group"><label>Название сайта</label><input type="text" id="siteName" value="${escapeHtml(siteData.site_name || currentSite.name)}"></div>
-                <div class="form-group"><label>Телефон</label><input type="tel" id="sitePhone" value="${escapeHtml(siteData.phone || '')}"></div>
-                <div class="form-group"><label>Email</label><input type="email" id="siteEmail" value="${escapeHtml(siteData.email || '')}"></div>
-                <div class="form-group"><label>Адрес</label><textarea id="siteAddress" rows="2">${escapeHtml(siteData.address || '')}</textarea></div>
-                <div class="form-row"><div class="form-group"><label>ИНН</label><input type="text" id="siteInn" value="${escapeHtml(siteData.inn || '')}"></div><div class="form-group"><label>ОГРН</label><input type="text" id="siteOgrn" value="${escapeHtml(siteData.ogrn || '')}"></div></div>
-                <h3 style="margin: 20px 0 12px; font-size: 16px;">Социальные сети</h3>
-                <div class="form-group"><label><i class="fab fa-vk"></i> ВКонтакте</label><input type="url" id="socialVk" value="${escapeHtml(siteData.social?.vk || '')}" placeholder="https://vk.com/..."></div>
-                <div class="form-group"><label><i class="fab fa-telegram"></i> Telegram</label><input type="url" id="socialTg" value="${escapeHtml(siteData.social?.tg || '')}" placeholder="https://t.me/..."></div>
-                <div class="form-group"><label><i class="fab fa-whatsapp"></i> WhatsApp</label><input type="url" id="socialWhatsapp" value="${escapeHtml(siteData.social?.whatsapp || '')}" placeholder="https://wa.me/..."></div>
-                <button class="btn-primary" onclick="saveSiteSettings()" style="width:100%; margin-top:20px;">Сохранить настройки</button>
-            `;
-            
-            modal.classList.add('active');
-        }
-
-        function saveSiteSettings() {
-            const siteData = {
-                site_name: document.getElementById('siteName')?.value || '',
-                phone: document.getElementById('sitePhone')?.value || '',
-                email: document.getElementById('siteEmail')?.value || '',
-                address: document.getElementById('siteAddress')?.value || '',
-                inn: document.getElementById('siteInn')?.value || '',
-                ogrn: document.getElementById('siteOgrn')?.value || '',
-                social: {
-                    vk: document.getElementById('socialVk')?.value || '',
-                    tg: document.getElementById('socialTg')?.value || '',
-                    whatsapp: document.getElementById('socialWhatsapp')?.value || ''
+    },
+    
+    getDefaultBlocks() {
+        return [
+            { id: 'promo-slider', name: 'Промо-слайдер', icon: '🎠', category: 'hero', fields: [] },
+            { id: 'product-grid', name: 'Сетка товаров', icon: '📦', category: 'products', fields: [] },
+            { id: 'header-banner', name: 'Баннер в шапке', icon: '🏷️', category: 'header', fields: [] },
+            { id: 'category-list', name: 'Категории', icon: '📁', category: 'catalog', fields: [] },
+            { id: 'blog-posts', name: 'Блог', icon: '📝', category: 'content', fields: [] },
+            { id: 'contact-form', name: 'Форма связи', icon: '📧', category: 'forms', fields: [] },
+            { id: 'social-links', name: 'Соцсети', icon: '🔗', category: 'footer', fields: [] },
+            { id: 'footer-subscribe', name: 'Подписка', icon: '✉️', category: 'footer', fields: [] }
+        ];
+    },
+    
+    // Рендер HTML блока по данным
+    async renderBlock(blockType, content) {
+        try {
+            const htmlPath = `/murano-apparel/site/blocks/${blockType}/block.html`;
+            const response = await fetch(htmlPath);
+            if (response.ok) {
+                let html = await response.text();
+                // Простая замена переменных {{ variable }}
+                for (const [key, value] of Object.entries(content)) {
+                    const regex = new RegExp(`{{ ${key} }}`, 'g');
+                    html = html.replace(regex, value);
                 }
-            };
-            localStorage.setItem(`site_data_${currentSite.id}`, JSON.stringify(siteData));
-            closeModal('siteSettingsModal');
-            showToast('✅ Настройки сайта сохранены');
-        }
-
-        // ===== ВСПОМОГАТЕЛЬНЫЕ =====
-        function setView(view) {
-            currentView = view;
-            const frame = document.getElementById('previewFrame');
-            if (view === 'mobile') frame.classList.add('mobile');
-            else frame.classList.remove('mobile');
-            document.getElementById('desktopViewBtn').classList.toggle('active', view === 'desktop');
-            document.getElementById('mobileViewBtn').classList.toggle('active', view === 'mobile');
-        }
-
-        function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
-        function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 3000); }
-        function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
-
-        // Инициализация
-        document.getElementById('backToManagerBtn').addEventListener('click', () => window.location.href = '/murano-apparel/widget-editor.html');
-        document.getElementById('desktopViewBtn').addEventListener('click', () => setView('desktop'));
-        document.getElementById('mobileViewBtn').addEventListener('click', () => setView('mobile'));
-        document.getElementById('saveSiteBtn').addEventListener('click', saveSite);
-        document.getElementById('publishSiteBtn').addEventListener('click', () => showToast('🚀 Публикация (демо)'));
-        document.getElementById('settingsBtn').addEventListener('click', openSiteSettings);
+                return html;
+            }
+        } catch(e) {}
         
-        loadSiteData();
-    </script>
-</body>
-</html>
+        // Fallback: встроенная отрисовка
+        return this.renderBlockFallback(blockType, content);
+    },
+    
+    renderBlockFallback(blockType, content) {
+        if (blockType === 'header-banner') {
+            return `<div style="background:${content.bg_color || '#f8f9fa'}; padding:12px; text-align:center;">🏷️ ${content.text || 'Баннер'}</div>`;
+        }
+        if (blockType === 'promo-slider') {
+            const slide = content.slides?.[0] || {};
+            return `<div style="background:#0066cc; color:white; padding:40px; text-align:center;"><div style="font-size:48px;">🎠</div><h3>${slide.title || 'Слайдер'}</h3><p>${slide.subtitle || ''}</p></div>`;
+        }
+        if (blockType === 'product-grid') {
+            return `<div style="border:1px solid #eee; padding:20px;"><h3>📦 ${content.title || 'Сетка товаров'}</h3><div style="color:#999;">Товары из каталога</div></div>`;
+        }
+        if (blockType === 'footer-subscribe') {
+            return `<div style="background:#f8f9fa; padding:30px; text-align:center;"><h3>✉️ ${content.title || 'Подписка'}</h3><input type="email" placeholder="Ваш email"></div>`;
+        }
+        return `<div style="padding:20px; text-align:center; border:1px solid #eee;"><div style="font-size:32px;">${this.getBlockIcon(blockType)}</div><div>${blockType}</div></div>`;
+    },
+    
+    getBlockIcon(blockType) {
+        const icons = {
+            'promo-slider': '🎠', 'product-grid': '📦', 'header-banner': '🏷️',
+            'category-list': '📁', 'blog-posts': '📝', 'contact-form': '📧',
+            'social-links': '🔗', 'footer-subscribe': '✉️'
+        };
+        return icons[blockType] || '📦';
+    },
+    
+    // Получение настроек блока (поля для редактирования)
+    async getBlockSettings(blockType) {
+        try {
+            const settingsPath = `/murano-apparel/site/blocks/${blockType}/settings.json`;
+            const response = await fetch(settingsPath);
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch(e) {}
+        return { fields: [] };
+    }
+};
