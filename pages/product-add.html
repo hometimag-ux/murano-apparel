@@ -95,7 +95,7 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
-        /* Таблица размеров со штрих-кодами */
+        /* Таблица размеров */
         .sizes-table-container { overflow-x: auto; margin-top: 16px; }
         .sizes-table {
             width: 100%;
@@ -174,19 +174,6 @@
             cursor: pointer;
             font-size: 12px;
         }
-        .add-photo-btn {
-            width: 100px;
-            height: 100px;
-            border-radius: 16px;
-            background: #f0f0f0;
-            border: 2px dashed #ccc;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #999;
-        }
         
         .btn-submit {
             background: linear-gradient(135deg, #0066cc, #0052a3);
@@ -223,6 +210,35 @@
             cursor: pointer;
             font-size: 13px;
         }
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            min-height: 50px;
+        }
+        .tag {
+            background: linear-gradient(135deg, #0066cc, #0052a3);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tag-remove { cursor: pointer; opacity: 0.8; }
+        .tag-remove:hover { opacity: 1; }
+        .tag-input {
+            border: none;
+            padding: 6px;
+            flex: 1;
+            min-width: 80px;
+        }
+        .tag-input:focus { outline: none; }
+        
         .toast {
             position: fixed;
             bottom: 20px;
@@ -289,30 +305,19 @@
                     <button type="button" class="btn-secondary" id="generateBarcodesBtn"><i class="fas fa-qrcode"></i> Сгенерировать штрих-коды</button>
                 </div>
                 
-                <!-- ===== ФОТОГРАФИИ (с возможностью сделать главным) ===== -->
+                <!-- ===== ФОТОГРАФИИ ===== -->
                 <div class="form-section">
-                    <div class="form-section">
-    <div class="section-title"><i class="fas fa-images"></i><span>Фотографии</span></div>
-    
-    <!-- Кнопки для добавления фото -->
-    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-        <button type="button" class="btn-secondary" id="addPhotoUrlBtn">
-            <i class="fas fa-link"></i> Добавить по URL
-        </button>
-        <button type="button" class="btn-secondary" id="addPhotoFileBtn">
-            <i class="fas fa-upload"></i> Загрузить с компьютера
-        </button>
-        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
-    </div>
-    
-    <div class="image-gallery" id="imageGallery"></div>
-    <div style="font-size: 12px; color: #999; margin-top: 8px;">
-        <i class="fas fa-info-circle"></i> Первое фото будет главным. Нажмите на звездочку, чтобы сделать любое фото главным.
-    </div>
-</div>
                     <div class="section-title"><i class="fas fa-images"></i><span>Фотографии</span></div>
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                        <button type="button" class="btn-secondary" id="addPhotoUrlBtn">
+                            <i class="fas fa-link"></i> Добавить по URL
+                        </button>
+                        <button type="button" class="btn-secondary" id="addPhotoFileBtn">
+                            <i class="fas fa-upload"></i> Загрузить с компьютера
+                        </button>
+                        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+                    </div>
                     <div class="image-gallery" id="imageGallery"></div>
-                    <button type="button" class="btn-secondary" id="addPhotoBtn" style="margin-top: 12px;"><i class="fas fa-plus"></i> Добавить фото</button>
                     <div style="font-size: 12px; color: #999; margin-top: 8px;">
                         <i class="fas fa-info-circle"></i> Первое фото будет главным. Нажмите на звездочку, чтобы сделать любое фото главным.
                     </div>
@@ -384,16 +389,16 @@
     const urlParams = new URLSearchParams(window.location.search);
     const editId = urlParams.get('id');
     let products = [], categories = [], editingId = null;
-    let images = [];           // массив URL фотографий
-    let tags = [];             // массив ярлыков
-    let sizeRows = [];         // массив { size, barcode }
+    let images = [];
+    let tags = [];
+    let sizeRows = [];
     
-    // ===== ФУНКЦИИ ДЛЯ ТАБЛИЦЫ РАЗМЕРОВ =====
+    // ===== ТАБЛИЦА РАЗМЕРОВ =====
     function renderSizesTable() {
         const tbody = document.getElementById('sizesTableBody');
         tbody.innerHTML = sizeRows.map((row, index) => `
             <tr>
-                <td><input type="text" class="size-input" data-index="${index}" value="${escapeHtml(row.size)}" placeholder="S, M, L..."></td>
+                <td><input type="text" class="size-input" data-index="${index}" value="${escapeHtml(row.size)}" placeholder="Размер"></td>
                 <td><input type="text" class="barcode-input" data-index="${index}" value="${escapeHtml(row.barcode || '')}" placeholder="Штрих-код"></td>
                 <td><button type="button" class="btn-secondary remove-row" data-index="${index}" style="background:#ffebee; color:#f44336;"><i class="fas fa-trash"></i></button></td>
             </tr>
@@ -411,10 +416,10 @@
             }
         });
         renderSizesTable();
-        showToast('✅ Штрих-коды сгенерированы');
+        showToast('Штрих-коды сгенерированы');
     }
     
-    // ===== ФУНКЦИИ ДЛЯ ГАЛЕРЕИ ФОТО =====
+    // ===== ГАЛЕРЕЯ ФОТО =====
     function renderGallery() {
         const gallery = document.getElementById('imageGallery');
         gallery.innerHTML = '';
@@ -432,12 +437,10 @@
             gallery.appendChild(item);
         });
         
-        const addBtn = document.createElement('div');
-        addBtn.className = 'add-photo-btn';
-        addBtn.innerHTML = '<i class="fas fa-plus" style="font-size: 24px;"></i><span>Добавить</span>';
-        addBtn.onclick = () => addPhoto();
-        gallery.appendChild(addBtn);
-        
+        attachGalleryEvents();
+    }
+    
+    function attachGalleryEvents() {
         document.querySelectorAll('.remove-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -460,18 +463,51 @@
         });
     }
     
-    function addPhoto() {
+    function addPhotoByUrl() {
         const url = prompt('Введите URL фотографии:', 'https://');
         if (url && url.startsWith('http')) {
             images.push(url);
             renderGallery();
             showToast('Фото добавлено');
         } else if (url) {
-            alert('Введите корректный URL (начинается с http:// или https://)');
+            alert('Введите корректный URL');
         }
     }
     
-    // ===== ФУНКЦИИ ДЛЯ ТЕГОВ (ЯРЛЫКОВ) =====
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+        
+        const maxFiles = 10;
+        const filesToProcess = Math.min(files.length, maxFiles);
+        
+        for (let i = 0; i < filesToProcess; i++) {
+            const file = files[i];
+            if (!file.type.match('image.*')) {
+                showToast(`Файл "${file.name}" не является изображением`);
+                continue;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                showToast(`Файл "${file.name}" превышает 5MB`);
+                continue;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (function(f) {
+                return function(e) {
+                    images.push(e.target.result);
+                    renderGallery();
+                    showToast(`Фото "${f.name}" добавлено`);
+                };
+            })(file);
+            reader.readAsDataURL(file);
+        }
+        
+        document.getElementById('fileInput').value = '';
+        showToast(`Добавлено ${filesToProcess} фото`);
+    }
+    
+    // ===== ЯРЛЫКИ =====
     function renderTags() {
         const container = document.getElementById('tagsContainer');
         container.innerHTML = tags.map((tag, idx) => `<span class="tag">${escapeHtml(tag)} <span class="tag-remove" data-index="${idx}" data-type="tag">×</span></span>`).join('');
@@ -486,6 +522,7 @@
         const saved = localStorage.getItem('crm_data');
         if(saved) { try { const data = JSON.parse(saved); products = data.products || []; categories = data.categories || []; } catch(e) {} }
         if(categories.length === 0) categories = [{ id:1, title:'Одежда'},{ id:2, title:'Обувь'},{ id:3, title:'Аксессуары'}];
+        
         const catSelect = document.getElementById('productCategory');
         catSelect.innerHTML = '<option value="">Без категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
         
@@ -507,7 +544,6 @@
                 images = product.images || [];
                 tags = product.tags || [];
                 
-                // Загружаем размеры со штрих-кодами
                 if (product.sizes_data && product.sizes_data.length) {
                     sizeRows = product.sizes_data;
                 } else if (product.sizes && product.sizes.length) {
@@ -559,7 +595,13 @@
         else { localStorage.setItem('crm_data', JSON.stringify({ products, categories, leads: [], messages: {}, settings: {} })); }
     }
     
-    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `✅ ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+    function showToast(msg) { 
+        const t = document.createElement('div'); 
+        t.className = 'toast'; 
+        t.innerHTML = `✅ ${msg}`; 
+        document.body.appendChild(t); 
+        setTimeout(() => t.remove(), 2000); 
+    }
     
     function saveProduct(e) {
         e.preventDefault();
@@ -606,24 +648,46 @@
             }
         };
         
-        if(editingId) { const index = products.findIndex(p => p.id === editingId); if(index !== -1) products[index] = { ...products[index], ...productData }; showToast('✏️ Товар обновлён'); }
-        else { const newId = products.length > 0 ? Math.max(...products.map(p=>p.id)) + 1 : 1; products.push({ id: newId, ...productData, created_at: new Date().toISOString() }); showToast('✅ Товар добавлен'); }
+        if(editingId) { 
+            const index = products.findIndex(p => p.id === editingId); 
+            if(index !== -1) products[index] = { ...products[index], ...productData }; 
+            showToast('Товар обновлён'); 
+        } else { 
+            const newId = products.length > 0 ? Math.max(...products.map(p=>p.id)) + 1 : 1; 
+            products.push({ id: newId, ...productData, created_at: new Date().toISOString() }); 
+            showToast('Товар добавлен'); 
+        }
         saveToCRM();
         setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500);
     }
     
-    function deleteProduct() { if(confirm('Удалить товар?')) { products = products.filter(p => p.id !== editingId); saveToCRM(); showToast('🗑️ Товар удалён'); setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); } }
+    function deleteProduct() { 
+        if(confirm('Удалить товар?')) { 
+            products = products.filter(p => p.id !== editingId); 
+            saveToCRM(); 
+            showToast('Товар удалён'); 
+            setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); 
+        } 
+    }
     
-    function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    function escapeHtml(str) { 
+        if(!str) return ''; 
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); 
+    }
     
     // ===== СОБЫТИЯ =====
     document.getElementById('productForm').addEventListener('submit', saveProduct);
     document.getElementById('deleteBtn').addEventListener('click', deleteProduct);
     document.getElementById('addSizeRowBtn').addEventListener('click', () => { sizeRows.push({ size: '', barcode: '' }); renderSizesTable(); });
     document.getElementById('generateBarcodesBtn').addEventListener('click', generateBarcodes);
-    document.getElementById('addPhotoBtn').addEventListener('click', addPhoto);
+    document.getElementById('addPhotoUrlBtn').addEventListener('click', addPhotoByUrl);
+    document.getElementById('addPhotoFileBtn').addEventListener('click', () => { document.getElementById('fileInput').click(); });
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
     
-    renderGallery(); renderTags(); renderSizesTable(); loadData();
+    renderGallery(); 
+    renderTags(); 
+    renderSizesTable(); 
+    loadData();
 </script>
 </body>
 </html>
