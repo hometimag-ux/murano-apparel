@@ -85,7 +85,6 @@
             border-radius: 16px;
             font-size: 14px;
             font-family: inherit;
-            transition: all 0.2s;
             background: white;
         }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
@@ -95,7 +94,6 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         
-        /* Таблица размеров */
         .sizes-table-container { overflow-x: auto; margin-top: 16px; }
         .sizes-table {
             width: 100%;
@@ -110,7 +108,6 @@
         .sizes-table th { background: #f8f9fa; font-weight: 600; }
         .sizes-table input { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 6px; }
         
-        /* Галерея фото */
         .image-gallery {
             display: flex;
             flex-wrap: wrap;
@@ -126,7 +123,6 @@
             background: #f0f0f0;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             cursor: pointer;
-            transition: all 0.2s;
         }
         .gallery-item:hover { transform: scale(1.05); }
         .gallery-item.main { border: 3px solid #0066cc; }
@@ -186,7 +182,6 @@
             cursor: pointer;
             width: 100%;
             margin-top: 16px;
-            transition: all 0.3s;
         }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,102,204,0.4); }
         .btn-delete {
@@ -290,14 +285,12 @@
                     </div>
                 </div>
                 
-                <!-- ===== РАЗМЕРЫ СО ШТРИХ-КОДАМИ ===== -->
+                <!-- ===== РАЗМЕРЫ ===== -->
                 <div class="form-section">
-                    <div class="section-title"><i class="fas fa-table"></i><span>Размерная таблица (размер + штрих-код)</span></div>
+                    <div class="section-title"><i class="fas fa-table"></i><span>Размерная таблица</span></div>
                     <div class="sizes-table-container">
                         <table class="sizes-table" id="sizesTable">
-                            <thead>
-                                <tr><th>Размер</th><th>Штрих-код</th><th style="width:40px;"></th></tr>
-                            </thead>
+                            <thead><tr><th>Размер</th><th>Штрих-код</th><th></th></tr></thead>
                             <tbody id="sizesTableBody"></tbody>
                         </table>
                     </div>
@@ -309,12 +302,8 @@
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-images"></i><span>Фотографии</span></div>
                     <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
-                        <button type="button" class="btn-secondary" id="addPhotoUrlBtn">
-                            <i class="fas fa-link"></i> Добавить по URL
-                        </button>
-                        <button type="button" class="btn-secondary" id="addPhotoFileBtn">
-                            <i class="fas fa-upload"></i> Загрузить с компьютера
-                        </button>
+                        <button type="button" class="btn-secondary" id="addPhotoUrlBtn"><i class="fas fa-link"></i> Добавить по URL</button>
+                        <button type="button" class="btn-secondary" id="addPhotoFileBtn"><i class="fas fa-upload"></i> Загрузить с компьютера</button>
                         <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
                     </div>
                     <div class="image-gallery" id="imageGallery"></div>
@@ -351,7 +340,7 @@
                     </div>
                 </div>
                 
-                <!-- ===== ГАБАРИТЫ УПАКОВКИ ===== -->
+                <!-- ===== ГАБАРИТЫ ===== -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-box"></i><span>Габариты упаковки</span></div>
                     <div class="form-row">
@@ -365,7 +354,7 @@
                 <!-- ===== ЯРЛЫКИ ===== -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-tags"></i><span>Ярлыки</span></div>
-                    <div class="tag-input-container" id="tagsContainer"><input type="text" class="tag-input" id="tagInput" placeholder="Введите ярлык и нажмите Enter (хит, новинка, распродажа...)"></div>
+                    <div class="tag-input-container" id="tagsContainer"><input type="text" class="tag-input" id="tagInput" placeholder="Введите ярлык и нажмите Enter"></div>
                 </div>
                 
                 <!-- ===== РЕЙТИНГ ===== -->
@@ -385,15 +374,12 @@
 </div>
 
 <script>
-    // ===== ПЕРЕМЕННЫЕ =====
     const urlParams = new URLSearchParams(window.location.search);
     const editId = urlParams.get('id');
     let products = [], categories = [], editingId = null;
-    let images = [];
-    let tags = [];
-    let sizeRows = [];
+    let images = [], tags = [], sizeRows = [];
     
-    // ===== ТАБЛИЦА РАЗМЕРОВ =====
+    // ===== РАЗМЕРЫ =====
     function renderSizesTable() {
         const tbody = document.getElementById('sizesTableBody');
         tbody.innerHTML = sizeRows.map((row, index) => `
@@ -410,20 +396,15 @@
     }
     
     function generateBarcodes() {
-        sizeRows.forEach(row => {
-            if (!row.barcode) {
-                row.barcode = '46' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
-            }
-        });
+        sizeRows.forEach(row => { if (!row.barcode) row.barcode = '46' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0'); });
         renderSizesTable();
         showToast('Штрих-коды сгенерированы');
     }
     
-    // ===== ГАЛЕРЕЯ ФОТО =====
+    // ===== ФОТОГРАФИИ =====
     function renderGallery() {
         const gallery = document.getElementById('imageGallery');
         gallery.innerHTML = '';
-        
         images.forEach((url, idx) => {
             const isMain = idx === 0;
             const item = document.createElement('div');
@@ -431,80 +412,38 @@
             item.innerHTML = `
                 <img src="${escapeHtml(url)}" alt="Фото ${idx+1}">
                 ${isMain ? '<div class="main-badge"><i class="fas fa-crown"></i> Главное</div>' : ''}
-                <button class="remove-btn" data-index="${idx}" title="Удалить"><i class="fas fa-times"></i></button>
-                ${!isMain ? `<button class="make-main" data-index="${idx}" title="Сделать главным"><i class="fas fa-star"></i></button>` : ''}
+                <button class="remove-btn" data-index="${idx}">✕</button>
+                ${!isMain ? `<button class="make-main" data-index="${idx}">⭐</button>` : ''}
             `;
             gallery.appendChild(item);
         });
         
-        attachGalleryEvents();
-    }
-    
-    function attachGalleryEvents() {
         document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const idx = parseInt(btn.dataset.index);
-                images.splice(idx, 1);
-                renderGallery();
-                showToast('Фото удалено');
-            });
+            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); images.splice(idx, 1); renderGallery(); showToast('Фото удалено'); });
         });
-        
         document.querySelectorAll('.make-main').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const idx = parseInt(btn.dataset.index);
-                const [moved] = images.splice(idx, 1);
-                images.unshift(moved);
-                renderGallery();
-                showToast('Главное фото обновлено');
-            });
+            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); const [moved] = images.splice(idx, 1); images.unshift(moved); renderGallery(); showToast('Главное фото обновлено'); });
         });
     }
     
     function addPhotoByUrl() {
         const url = prompt('Введите URL фотографии:', 'https://');
-        if (url && url.startsWith('http')) {
-            images.push(url);
-            renderGallery();
-            showToast('Фото добавлено');
-        } else if (url) {
-            alert('Введите корректный URL');
-        }
+        if (url && url.startsWith('http')) { images.push(url); renderGallery(); showToast('Фото добавлено'); }
+        else if (url) alert('Введите корректный URL');
     }
     
     function handleFileSelect(event) {
         const files = event.target.files;
         if (!files || files.length === 0) return;
-        
-        const maxFiles = 10;
-        const filesToProcess = Math.min(files.length, maxFiles);
-        
-        for (let i = 0; i < filesToProcess; i++) {
+        for (let i = 0; i < Math.min(files.length, 10); i++) {
             const file = files[i];
-            if (!file.type.match('image.*')) {
-                showToast(`Файл "${file.name}" не является изображением`);
-                continue;
-            }
-            if (file.size > 5 * 1024 * 1024) {
-                showToast(`Файл "${file.name}" превышает 5MB`);
-                continue;
-            }
-            
+            if (!file.type.match('image.*')) { showToast(`Файл "${file.name}" не является изображением`); continue; }
+            if (file.size > 5 * 1024 * 1024) { showToast(`Файл "${file.name}" превышает 5MB`); continue; }
             const reader = new FileReader();
-            reader.onload = (function(f) {
-                return function(e) {
-                    images.push(e.target.result);
-                    renderGallery();
-                    showToast(`Фото "${f.name}" добавлено`);
-                };
-            })(file);
+            reader.onload = (function(f) { return function(e) { images.push(e.target.result); renderGallery(); showToast(`Фото "${f.name}" добавлено`); }; })(file);
             reader.readAsDataURL(file);
         }
-        
         document.getElementById('fileInput').value = '';
-        showToast(`Добавлено ${filesToProcess} фото`);
     }
     
     // ===== ЯРЛЫКИ =====
@@ -517,14 +456,13 @@
         document.querySelectorAll('.tag-remove[data-type="tag"]').forEach(btn => btn.addEventListener('click', () => { tags.splice(parseInt(btn.dataset.index),1); renderTags(); }));
     }
     
-    // ===== ЗАГРУЗКА ДАННЫХ =====
+    // ===== ЗАГРУЗКА И СОХРАНЕНИЕ =====
     function loadData() {
         const saved = localStorage.getItem('crm_data');
         if(saved) { try { const data = JSON.parse(saved); products = data.products || []; categories = data.categories || []; } catch(e) {} }
         if(categories.length === 0) categories = [{ id:1, title:'Одежда'},{ id:2, title:'Обувь'},{ id:3, title:'Аксессуары'}];
         
-        const catSelect = document.getElementById('productCategory');
-        catSelect.innerHTML = '<option value="">Без категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
+        document.getElementById('productCategory').innerHTML = '<option value="">Без категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
         
         if(editId) {
             editingId = parseInt(editId);
@@ -540,17 +478,9 @@
                 document.getElementById('productDiscount').value = product.discount_price || '';
                 document.getElementById('productRating').value = product.rating || '';
                 document.getElementById('productReviewsCount').value = product.reviews_count || 0;
-                
                 images = product.images || [];
                 tags = product.tags || [];
-                
-                if (product.sizes_data && product.sizes_data.length) {
-                    sizeRows = product.sizes_data;
-                } else if (product.sizes && product.sizes.length) {
-                    sizeRows = product.sizes.map(s => ({ size: s, barcode: '' }));
-                } else {
-                    sizeRows = [];
-                }
+                sizeRows = (product.sizes_data && product.sizes_data.length) ? product.sizes_data : (product.sizes ? product.sizes.map(s => ({ size: s, barcode: '' })) : []);
                 
                 const chars = product.characteristics || {};
                 document.getElementById('charBrand').value = chars.brand || '';
@@ -577,16 +507,10 @@
                 document.getElementById('packHeight').value = pack.height || '';
                 document.getElementById('packWeight').value = pack.weight || '';
                 
-                renderGallery();
-                renderTags();
-                renderSizesTable();
+                renderGallery(); renderTags(); renderSizesTable();
                 document.getElementById('deleteBtn').style.display = 'block';
             }
-        } else {
-            renderGallery();
-            renderTags();
-            renderSizesTable();
-        }
+        } else { renderGallery(); renderTags(); renderSizesTable(); }
     }
     
     function saveToCRM() {
@@ -595,13 +519,7 @@
         else { localStorage.setItem('crm_data', JSON.stringify({ products, categories, leads: [], messages: {}, settings: {} })); }
     }
     
-    function showToast(msg) { 
-        const t = document.createElement('div'); 
-        t.className = 'toast'; 
-        t.innerHTML = `✅ ${msg}`; 
-        document.body.appendChild(t); 
-        setTimeout(() => t.remove(), 2000); 
-    }
+    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `✅ ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
     
     function saveProduct(e) {
         e.preventDefault();
@@ -648,32 +566,15 @@
             }
         };
         
-        if(editingId) { 
-            const index = products.findIndex(p => p.id === editingId); 
-            if(index !== -1) products[index] = { ...products[index], ...productData }; 
-            showToast('Товар обновлён'); 
-        } else { 
-            const newId = products.length > 0 ? Math.max(...products.map(p=>p.id)) + 1 : 1; 
-            products.push({ id: newId, ...productData, created_at: new Date().toISOString() }); 
-            showToast('Товар добавлен'); 
-        }
+        if(editingId) { const index = products.findIndex(p => p.id === editingId); if(index !== -1) products[index] = { ...products[index], ...productData }; showToast('Товар обновлён'); }
+        else { const newId = products.length > 0 ? Math.max(...products.map(p=>p.id)) + 1 : 1; products.push({ id: newId, ...productData, created_at: new Date().toISOString() }); showToast('Товар добавлен'); }
         saveToCRM();
         setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500);
     }
     
-    function deleteProduct() { 
-        if(confirm('Удалить товар?')) { 
-            products = products.filter(p => p.id !== editingId); 
-            saveToCRM(); 
-            showToast('Товар удалён'); 
-            setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); 
-        } 
-    }
+    function deleteProduct() { if(confirm('Удалить товар?')) { products = products.filter(p => p.id !== editingId); saveToCRM(); showToast('Товар удалён'); setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); } }
     
-    function escapeHtml(str) { 
-        if(!str) return ''; 
-        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); 
-    }
+    function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     
     // ===== СОБЫТИЯ =====
     document.getElementById('productForm').addEventListener('submit', saveProduct);
@@ -684,10 +585,7 @@
     document.getElementById('addPhotoFileBtn').addEventListener('click', () => { document.getElementById('fileInput').click(); });
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
     
-    renderGallery(); 
-    renderTags(); 
-    renderSizesTable(); 
-    loadData();
+    renderGallery(); renderTags(); renderSizesTable(); loadData();
 </script>
 </body>
 </html>
