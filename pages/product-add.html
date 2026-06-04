@@ -291,6 +291,25 @@
                 
                 <!-- ===== ФОТОГРАФИИ (с возможностью сделать главным) ===== -->
                 <div class="form-section">
+                    <div class="form-section">
+    <div class="section-title"><i class="fas fa-images"></i><span>Фотографии</span></div>
+    
+    <!-- Кнопки для добавления фото -->
+    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+        <button type="button" class="btn-secondary" id="addPhotoUrlBtn">
+            <i class="fas fa-link"></i> Добавить по URL
+        </button>
+        <button type="button" class="btn-secondary" id="addPhotoFileBtn">
+            <i class="fas fa-upload"></i> Загрузить с компьютера
+        </button>
+        <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+    </div>
+    
+    <div class="image-gallery" id="imageGallery"></div>
+    <div style="font-size: 12px; color: #999; margin-top: 8px;">
+        <i class="fas fa-info-circle"></i> Первое фото будет главным. Нажмите на звездочку, чтобы сделать любое фото главным.
+    </div>
+</div>
                     <div class="section-title"><i class="fas fa-images"></i><span>Фотографии</span></div>
                     <div class="image-gallery" id="imageGallery"></div>
                     <button type="button" class="btn-secondary" id="addPhotoBtn" style="margin-top: 12px;"><i class="fas fa-plus"></i> Добавить фото</button>
