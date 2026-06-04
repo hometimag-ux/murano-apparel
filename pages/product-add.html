@@ -8,263 +8,58 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            padding: 40px 20px;
-        }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); padding: 40px 20px; }
         .container { max-width: 1200px; margin: 0 auto; }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 24px;
-            color: #0066cc;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 10px 20px;
-            background: white;
-            border-radius: 40px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .form-card {
-            background: white;
-            border-radius: 32px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        .form-header {
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 28px 32px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        .form-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: white;
-            margin: 0;
-        }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 24px; color: #0066cc; text-decoration: none; font-weight: 500; padding: 10px 20px; background: white; border-radius: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .form-card { background: white; border-radius: 32px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .form-header { background: linear-gradient(135deg, #1a1a2e, #16213e); padding: 28px 32px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .form-title { font-size: 28px; font-weight: 700; color: white; margin: 0; }
         .form-body { padding: 32px; }
-        .form-section {
-            background: #f8f9fa;
-            border-radius: 24px;
-            padding: 24px;
-            margin-bottom: 28px;
-            transition: all 0.3s;
-        }
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #1a1a2e;
-            margin-bottom: 24px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #e0e0e0;
-        }
+        .form-section { background: #f8f9fa; border-radius: 24px; padding: 24px; margin-bottom: 28px; }
+        .section-title { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0; }
         .section-title i { color: #0066cc; font-size: 22px; }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
         .form-group { margin-bottom: 0; }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #333; }
         .form-group label i { margin-right: 6px; color: #0066cc; width: 20px; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 16px;
-            font-size: 14px;
-            font-family: inherit;
-            background: white;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-            outline: none;
-            border-color: #0066cc;
-            box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
-        }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; border: 1px solid #e0e0e0; border-radius: 16px; font-size: 14px; font-family: inherit; background: white; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
         .sizes-table-container { overflow-x: auto; margin-top: 16px; }
-        .sizes-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .sizes-table th, .sizes-table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
+        .sizes-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .sizes-table th, .sizes-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         .sizes-table th { background: #f8f9fa; font-weight: 600; }
         .sizes-table input { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 6px; }
-        
-        .image-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .gallery-item {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: 16px;
-            overflow: hidden;
-            background: #f0f0f0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            cursor: pointer;
-        }
+        .image-gallery { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; }
+        .gallery-item { position: relative; width: 100px; height: 100px; border-radius: 16px; overflow: hidden; background: #f0f0f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.2s; }
         .gallery-item:hover { transform: scale(1.05); }
         .gallery-item.main { border: 3px solid #0066cc; }
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
-        .gallery-item .main-badge {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,102,204,0.9);
-            color: white;
-            font-size: 10px;
-            text-align: center;
-            padding: 2px;
-        }
-        .gallery-item .remove-btn {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        .gallery-item .make-main {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            background: rgba(0,0,0,0.6);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, #0066cc, #0052a3);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 60px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 16px;
-        }
+        .gallery-item .main-badge { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,102,204,0.9); color: white; font-size: 10px; text-align: center; padding: 2px; }
+        .gallery-item .remove-btn { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 20px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; }
+        .gallery-item .make-main { position: absolute; top: 4px; left: 4px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 20px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; }
+        .btn-submit { background: linear-gradient(135deg, #0066cc, #0052a3); color: white; border: none; padding: 16px 32px; border-radius: 60px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 16px; transition: all 0.3s; }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,102,204,0.4); }
-        .btn-delete {
-            background: linear-gradient(135deg, #f44336, #d32f2f);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 60px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 12px;
-        }
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .tag-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 16px;
-            min-height: 50px;
-        }
-        .tag {
-            background: linear-gradient(135deg, #0066cc, #0052a3);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 13px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+        .btn-delete { background: linear-gradient(135deg, #f44336, #d32f2f); color: white; border: none; padding: 16px 32px; border-radius: 60px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 12px; }
+        .btn-secondary { background: #f0f0f0; color: #333; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-size: 13px; }
+        .tag-input-container { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; border: 1px solid #ddd; border-radius: 16px; min-height: 50px; }
+        .tag { background: linear-gradient(135deg, #0066cc, #0052a3); color: white; padding: 4px 12px; border-radius: 20px; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; }
         .tag-remove { cursor: pointer; opacity: 0.8; }
         .tag-remove:hover { opacity: 1; }
-        .tag-input {
-            border: none;
-            padding: 6px;
-            flex: 1;
-            min-width: 80px;
-        }
+        .tag-input { border: none; padding: 6px; flex: 1; min-width: 80px; }
         .tag-input:focus { outline: none; }
-        
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #1a1a2e;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 30px;
-            animation: fadeOut 2s ease;
-            z-index: 1000;
-        }
-        @keyframes fadeOut {
-            0% { opacity: 0; transform: translateY(20px); }
-            15% { opacity: 1; transform: translateY(0); }
-            85% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(20px); }
-        }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; padding: 12px 20px; border-radius: 30px; animation: fadeOut 2s ease; z-index: 1000; }
+        @keyframes fadeOut { 0% { opacity: 0; transform: translateY(20px); } 15% { opacity: 1; transform: translateY(0); } 85% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(20px); } }
     </style>
 </head>
 <body>
 <div class="container">
     <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Назад к списку товаров</a>
-    
     <div class="form-card">
-        <div class="form-header">
-            <h1 class="form-title" id="formTitle">➕ Добавить товар</h1>
-        </div>
-        
+        <div class="form-header"><h1 class="form-title" id="formTitle">➕ Добавить товар</h1></div>
         <div class="form-body">
             <form id="productForm">
-                <!-- ===== ОСНОВНАЯ ИНФОРМАЦИЯ ===== -->
+                <!-- ОСНОВНАЯ ИНФОРМАЦИЯ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-info-circle"></i><span>Основная информация</span></div>
                     <div class="form-grid">
@@ -273,10 +68,9 @@
                         <div class="form-group"><label><i class="fas fa-layer-group"></i> Категория</label><select id="productCategory"><option value="">Без категории</option></select></div>
                         <div class="form-group"><label><i class="fas fa-palette"></i> Цвет</label><input type="text" id="productColor" placeholder="Белый, Синий..."></div>
                     </div>
-                    <div class="form-group" style="margin-top: 16px;"><label><i class="fas fa-align-left"></i> Описание товара</label><textarea id="productDescription" rows="4" placeholder="Подробное описание товара..."></textarea></div>
+                    <div class="form-group"><label><i class="fas fa-align-left"></i> Описание товара</label><textarea id="productDescription" rows="4" placeholder="Подробное описание товара..."></textarea></div>
                 </div>
-                
-                <!-- ===== ЦЕНЫ ===== -->
+                <!-- ЦЕНЫ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-ruble-sign"></i><span>Цены</span></div>
                     <div class="form-row">
@@ -284,48 +78,39 @@
                         <div class="form-group"><label>Цена со скидкой (₽)</label><input type="number" id="productDiscount" placeholder="2990"></div>
                     </div>
                 </div>
-                
-                <!-- ===== РАЗМЕРЫ ===== -->
+                <!-- РАЗМЕРЫ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-table"></i><span>Размерная таблица</span></div>
                     <div class="sizes-table-container">
-                        <table class="sizes-table" id="sizesTable">
-                            <thead><tr><th>Размер</th><th>Штрих-код</th><th></th></tr></thead>
-                            <tbody id="sizesTableBody"></tbody>
-                        </table>
+                        <table class="sizes-table" id="sizesTable"><thead><tr><th>Размер</th><th>Штрих-код</th><th></th></tr></thead><tbody id="sizesTableBody"></tbody></table>
                     </div>
-                    <button type="button" class="btn-secondary" id="addSizeRowBtn" style="margin-right:8px;"><i class="fas fa-plus"></i> Добавить размер</button>
+                    <button type="button" class="btn-secondary" id="addSizeRowBtn"><i class="fas fa-plus"></i> Добавить размер</button>
                     <button type="button" class="btn-secondary" id="generateBarcodesBtn"><i class="fas fa-qrcode"></i> Сгенерировать штрих-коды</button>
                 </div>
-                
-                <!-- ===== ФОТОГРАФИИ ===== -->
+                <!-- ФОТОГРАФИИ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-images"></i><span>Фотографии</span></div>
-                    <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 12px; margin-bottom: 16px;">
                         <button type="button" class="btn-secondary" id="addPhotoUrlBtn"><i class="fas fa-link"></i> Добавить по URL</button>
                         <button type="button" class="btn-secondary" id="addPhotoFileBtn"><i class="fas fa-upload"></i> Загрузить с компьютера</button>
                         <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
                     </div>
                     <div class="image-gallery" id="imageGallery"></div>
-                    <div style="font-size: 12px; color: #999; margin-top: 8px;">
-                        <i class="fas fa-info-circle"></i> Первое фото будет главным. Нажмите на звездочку, чтобы сделать любое фото главным.
-                    </div>
                 </div>
-                
-                <!-- ===== ХАРАКТЕРИСТИКИ ===== -->
+                <!-- ХАРАКТЕРИСТИКИ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-list-ul"></i><span>Характеристики</span></div>
                     <div class="form-grid">
                         <div class="form-group"><label>Бренд</label><input type="text" id="charBrand"></div>
-                        <div class="form-group"><label>Состав</label><input type="text" id="charMaterial" placeholder="100% хлопок"></div>
-                        <div class="form-group"><label>Плотность</label><input type="text" id="charDensity" placeholder="200 г/м²"></div>
-                        <div class="form-group"><label>Текстура</label><input type="text" id="charTexture" placeholder="Гладкая"></div>
+                        <div class="form-group"><label>Состав</label><input type="text" id="charMaterial"></div>
+                        <div class="form-group"><label>Плотность</label><input type="text" id="charDensity"></div>
+                        <div class="form-group"><label>Текстура</label><input type="text" id="charTexture"></div>
                         <div class="form-group"><label>Пол</label><select id="charGender"><option value="">Не указано</option><option>Мужской</option><option>Женский</option><option>Унисекс</option></select></div>
-                        <div class="form-group"><label>Возраст</label><input type="text" id="charAge" placeholder="Взрослый"></div>
-                        <div class="form-group"><label>Размер на модели</label><input type="text" id="charModelSize" placeholder="S, M, L"></div>
-                        <div class="form-group"><label>Рост модели</label><input type="text" id="charModelHeight" placeholder="170 см"></div>
+                        <div class="form-group"><label>Возраст</label><input type="text" id="charAge"></div>
+                        <div class="form-group"><label>Размер на модели</label><input type="text" id="charModelSize"></div>
+                        <div class="form-group"><label>Рост модели</label><input type="text" id="charModelHeight"></div>
                     </div>
-                    <div class="form-grid" style="margin-top: 16px;">
+                    <div class="form-grid">
                         <div class="form-group"><label>Воротник</label><select id="charCollar"><option value="">Не указано</option><option>Круглый</option><option>V-образный</option><option>Стойка</option><option>Отложной</option></select></div>
                         <div class="form-group"><label>Рукава</label><select id="charSleeves"><option value="">Не указано</option><option>Короткие</option><option>Длинные</option><option>3/4</option><option>Без рукавов</option></select></div>
                         <div class="form-group"><label>Карманы</label><select id="charPockets"><option value="">Не указано</option><option>Нет</option><option>Накладные</option><option>Прорезные</option></select></div>
@@ -333,14 +118,13 @@
                         <div class="form-group"><label>Длина изделия</label><select id="charLength"><option value="">Не указано</option><option>Короткое</option><option>Стандартное</option><option>Удлинённое</option></select></div>
                         <div class="form-group"><label>Силуэт</label><select id="charSilhouette"><option value="">Не указано</option><option>Прямой</option><option>Приталенный</option><option>Оверсайз</option></select></div>
                     </div>
-                    <div class="form-grid" style="margin-top: 16px;">
-                        <div class="form-group"><label>Особенности</label><input type="text" id="charFeatures" placeholder="Дышащий, влагоотводящий"></div>
-                        <div class="form-group"><label>Уход</label><input type="text" id="charCare" placeholder="Машинная стирка 30°"></div>
-                        <div class="form-group"><label>Страна</label><input type="text" id="charCountry" placeholder="Россия"></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Особенности</label><input type="text" id="charFeatures"></div>
+                        <div class="form-group"><label>Уход</label><input type="text" id="charCare"></div>
+                        <div class="form-group"><label>Страна</label><input type="text" id="charCountry"></div>
                     </div>
                 </div>
-                
-                <!-- ===== ГАБАРИТЫ ===== -->
+                <!-- ГАБАРИТЫ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-box"></i><span>Габариты упаковки</span></div>
                     <div class="form-row">
@@ -350,14 +134,12 @@
                         <div class="form-group"><label>Вес (кг)</label><input type="number" id="packWeight" step="0.1"></div>
                     </div>
                 </div>
-                
-                <!-- ===== ЯРЛЫКИ ===== -->
+                <!-- ЯРЛЫКИ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-tags"></i><span>Ярлыки</span></div>
                     <div class="tag-input-container" id="tagsContainer"><input type="text" class="tag-input" id="tagInput" placeholder="Введите ярлык и нажмите Enter"></div>
                 </div>
-                
-                <!-- ===== РЕЙТИНГ ===== -->
+                <!-- РЕЙТИНГ -->
                 <div class="form-section">
                     <div class="section-title"><i class="fas fa-star"></i><span>Рейтинг и отзывы</span></div>
                     <div class="form-row">
@@ -365,7 +147,6 @@
                         <div class="form-group"><label>Количество отзывов</label><input type="number" id="productReviewsCount" min="0" value="0"></div>
                     </div>
                 </div>
-                
                 <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Сохранить товар</button>
                 <button type="button" class="btn-delete" id="deleteBtn" style="display: none;"><i class="fas fa-trash-alt"></i> Удалить товар</button>
             </form>
@@ -379,29 +160,23 @@
     let products = [], categories = [], editingId = null;
     let images = [], tags = [], sizeRows = [];
     
-    // ===== РАЗМЕРЫ =====
     function renderSizesTable() {
         const tbody = document.getElementById('sizesTableBody');
         tbody.innerHTML = sizeRows.map((row, index) => `
-            <tr>
-                <td><input type="text" class="size-input" data-index="${index}" value="${escapeHtml(row.size)}" placeholder="Размер"></td>
-                <td><input type="text" class="barcode-input" data-index="${index}" value="${escapeHtml(row.barcode || '')}" placeholder="Штрих-код"></td>
-                <td><button type="button" class="btn-secondary remove-row" data-index="${index}" style="background:#ffebee; color:#f44336;"><i class="fas fa-trash"></i></button></td>
-            </tr>
+            <tr><td><input type="text" class="size-input" data-index="${index}" value="${escapeHtml(row.size)}" placeholder="Размер"></td>
+            <td><input type="text" class="barcode-input" data-index="${index}" value="${escapeHtml(row.barcode || '')}" placeholder="Штрих-код"></td>
+            <td><button type="button" class="btn-secondary remove-row" data-index="${index}" style="background:#ffebee; color:#f44336;"><i class="fas fa-trash"></i></button></td></tr>
         `).join('');
-        
         document.querySelectorAll('.size-input').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(e.target.dataset.index); sizeRows[idx].size = e.target.value; }));
         document.querySelectorAll('.barcode-input').forEach(inp => inp.addEventListener('change', (e) => { const idx = parseInt(e.target.dataset.index); sizeRows[idx].barcode = e.target.value; }));
         document.querySelectorAll('.remove-row').forEach(btn => btn.addEventListener('click', () => { const idx = parseInt(btn.dataset.index); sizeRows.splice(idx,1); renderSizesTable(); }));
     }
-    
     function generateBarcodes() {
         sizeRows.forEach(row => { if (!row.barcode) row.barcode = '46' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0'); });
         renderSizesTable();
         showToast('Штрих-коды сгенерированы');
     }
     
-    // ===== ФОТОГРАФИИ =====
     function renderGallery() {
         const gallery = document.getElementById('imageGallery');
         gallery.innerHTML = '';
@@ -409,36 +184,19 @@
             const isMain = idx === 0;
             const item = document.createElement('div');
             item.className = `gallery-item ${isMain ? 'main' : ''}`;
-            item.innerHTML = `
-                <img src="${escapeHtml(url)}" alt="Фото ${idx+1}">
-                ${isMain ? '<div class="main-badge"><i class="fas fa-crown"></i> Главное</div>' : ''}
-                <button class="remove-btn" data-index="${idx}">✕</button>
-                ${!isMain ? `<button class="make-main" data-index="${idx}">⭐</button>` : ''}
-            `;
+            item.innerHTML = `<img src="${escapeHtml(url)}" alt="Фото ${idx+1}">${isMain ? '<div class="main-badge"><i class="fas fa-crown"></i> Главное</div>' : ''}<button class="remove-btn" data-index="${idx}">✕</button>${!isMain ? `<button class="make-main" data-index="${idx}">⭐</button>` : ''}`;
             gallery.appendChild(item);
         });
-        
-        document.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); images.splice(idx, 1); renderGallery(); showToast('Фото удалено'); });
-        });
-        document.querySelectorAll('.make-main').forEach(btn => {
-            btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); const [moved] = images.splice(idx, 1); images.unshift(moved); renderGallery(); showToast('Главное фото обновлено'); });
-        });
+        document.querySelectorAll('.remove-btn').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); images.splice(idx, 1); renderGallery(); showToast('Фото удалено'); }));
+        document.querySelectorAll('.make-main').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); const idx = parseInt(btn.dataset.index); const [moved] = images.splice(idx, 1); images.unshift(moved); renderGallery(); showToast('Главное фото обновлено'); }));
     }
-    
-    function addPhotoByUrl() {
-        const url = prompt('Введите URL фотографии:', 'https://');
-        if (url && url.startsWith('http')) { images.push(url); renderGallery(); showToast('Фото добавлено'); }
-        else if (url) alert('Введите корректный URL');
-    }
-    
+    function addPhotoByUrl() { const url = prompt('Введите URL фотографии:'); if (url && url.trim()) { images.push(url.trim()); renderGallery(); showToast('Фото добавлено'); } }
     function handleFileSelect(event) {
         const files = event.target.files;
         if (!files || files.length === 0) return;
-        for (let i = 0; i < Math.min(files.length, 10); i++) {
+        for (let i = 0; i < files.length; i++) {
             const file = files[i];
             if (!file.type.match('image.*')) { showToast(`Файл "${file.name}" не является изображением`); continue; }
-            if (file.size > 5 * 1024 * 1024) { showToast(`Файл "${file.name}" превышает 5MB`); continue; }
             const reader = new FileReader();
             reader.onload = (function(f) { return function(e) { images.push(e.target.result); renderGallery(); showToast(`Фото "${f.name}" добавлено`); }; })(file);
             reader.readAsDataURL(file);
@@ -446,7 +204,6 @@
         document.getElementById('fileInput').value = '';
     }
     
-    // ===== ЯРЛЫКИ =====
     function renderTags() {
         const container = document.getElementById('tagsContainer');
         container.innerHTML = tags.map((tag, idx) => `<span class="tag">${escapeHtml(tag)} <span class="tag-remove" data-index="${idx}" data-type="tag">×</span></span>`).join('');
@@ -456,14 +213,11 @@
         document.querySelectorAll('.tag-remove[data-type="tag"]').forEach(btn => btn.addEventListener('click', () => { tags.splice(parseInt(btn.dataset.index),1); renderTags(); }));
     }
     
-    // ===== ЗАГРУЗКА И СОХРАНЕНИЕ =====
     function loadData() {
         const saved = localStorage.getItem('crm_data');
         if(saved) { try { const data = JSON.parse(saved); products = data.products || []; categories = data.categories || []; } catch(e) {} }
         if(categories.length === 0) categories = [{ id:1, title:'Одежда'},{ id:2, title:'Обувь'},{ id:3, title:'Аксессуары'}];
-        
         document.getElementById('productCategory').innerHTML = '<option value="">Без категории</option>' + categories.map(c => `<option value="${c.id}">${escapeHtml(c.title)}</option>`).join('');
-        
         if(editId) {
             editingId = parseInt(editId);
             const product = products.find(p => p.id === editingId);
@@ -478,9 +232,9 @@
                 document.getElementById('productDiscount').value = product.discount_price || '';
                 document.getElementById('productRating').value = product.rating || '';
                 document.getElementById('productReviewsCount').value = product.reviews_count || 0;
-                images = product.images || [];
-                tags = product.tags || [];
-                sizeRows = (product.sizes_data && product.sizes_data.length) ? product.sizes_data : (product.sizes ? product.sizes.map(s => ({ size: s, barcode: '' })) : []);
+                images = product.images ? [...product.images] : [];
+                tags = product.tags ? [...product.tags] : [];
+                sizeRows = (product.sizes_data && product.sizes_data.length) ? product.sizes_data.map(s => ({ size: s.size, barcode: s.barcode || '' })) : (product.sizes ? product.sizes.map(s => ({ size: s, barcode: '' })) : []);
                 
                 const chars = product.characteristics || {};
                 document.getElementById('charBrand').value = chars.brand || '';
@@ -519,7 +273,7 @@
         else { localStorage.setItem('crm_data', JSON.stringify({ products, categories, leads: [], messages: {}, settings: {} })); }
     }
     
-    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = `✅ ${msg}`; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+    function showToast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
     
     function saveProduct(e) {
         e.preventDefault();
@@ -566,17 +320,15 @@
             }
         };
         
-        if(editingId) { const index = products.findIndex(p => p.id === editingId); if(index !== -1) products[index] = { ...products[index], ...productData }; showToast('Товар обновлён'); }
-        else { const newId = products.length > 0 ? Math.max(...products.map(p=>p.id)) + 1 : 1; products.push({ id: newId, ...productData, created_at: new Date().toISOString() }); showToast('Товар добавлен'); }
+        if(editingId) { const index = products.findIndex(p => p.id === editingId); if(index !== -1) products[index] = { ...products[index], ...productData }; showToast('✅ Товар обновлён'); }
+        else { const newId = products.length > 0 ? Math.max(...products.map(p=>p.id)) + 1 : 1; products.push({ id: newId, ...productData, created_at: new Date().toISOString() }); showToast('✅ Товар добавлен'); }
         saveToCRM();
         setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500);
     }
     
-    function deleteProduct() { if(confirm('Удалить товар?')) { products = products.filter(p => p.id !== editingId); saveToCRM(); showToast('Товар удалён'); setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); } }
-    
+    function deleteProduct() { if(confirm('Удалить товар?')) { products = products.filter(p => p.id !== editingId); saveToCRM(); showToast('✅ Товар удалён'); setTimeout(() => window.location.href = '/murano-apparel/pages/products.html', 500); } }
     function escapeHtml(str) { if(!str) return ''; return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
     
-    // ===== СОБЫТИЯ =====
     document.getElementById('productForm').addEventListener('submit', saveProduct);
     document.getElementById('deleteBtn').addEventListener('click', deleteProduct);
     document.getElementById('addSizeRowBtn').addEventListener('click', () => { sizeRows.push({ size: '', barcode: '' }); renderSizesTable(); });
