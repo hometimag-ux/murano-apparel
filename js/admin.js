@@ -44,7 +44,7 @@
         products: 'Товары',
         orders: 'Заказы',
         delivery: 'Доставка',
-        payment: 'Оплата',          // ДОБАВЛЕНО
+        payment: 'Оплата',
         chat: 'Диалоги',
         'widget-editor': 'Редактор сайта',
         settings: 'Настройки'
@@ -82,7 +82,7 @@
         switch(page) {
             case 'products': iframeSrc = '/murano-apparel/pages/products.html'; break;
             case 'orders': iframeSrc = '/murano-apparel/pages/orders.html'; break;
-            case 'payment': iframeSrc = '/murano-apparel/pages/payment.html'; break;  // ДОБАВЛЕНО
+            case 'payment': iframeSrc = '/murano-apparel/pages/payment.html'; break;
             case 'chat': iframeSrc = '/murano-apparel/pages/chat.html'; break;
             case 'delivery': iframeSrc = '/murano-apparel/pages/delivery.html'; break;
             default: iframeSrc = '';
@@ -111,10 +111,13 @@
     const openPage = getUrlParameter('open');
     
     if (openPage === 'widget-editor') {
+        // Убираем параметр из URL, чтобы при обновлении не перекидывало
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, '', newUrl);
         loadPage('widget-editor', false);
     } else {
         const lastPage = localStorage.getItem('lastPage');
-        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery', 'payment'];  // ДОБАВЛЕНО payment
+        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery', 'payment'];
         
         if (lastPage && validPages.includes(lastPage)) {
             loadPage(lastPage, false);
