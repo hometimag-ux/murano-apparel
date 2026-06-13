@@ -86,6 +86,13 @@
         .city-selector { background: #f8fafc; border-radius: 16px; padding: 16px; margin-top: 16px; }
         .city-selector h4 { font-size: 14px; margin-bottom: 12px; }
         
+        .pickup-preview {
+            background: #e8f5e9;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        
         @media (max-width: 768px) {
             .delivery-grid { grid-template-columns: 1fr; }
             .form-row { grid-template-columns: 1fr; }
@@ -101,14 +108,51 @@
     
     <div class="tabs">
         <button class="tab-btn active" data-tab="methods">🚚 Способы доставки</button>
+        <button class="tab-btn" data-tab="pickup">🏪 Самовывоз</button>
         <button class="tab-btn" data-tab="cdek">📦 СДЭК (Калькулятор)</button>
-        <button class="tab-btn" data-tab="pickup">🏪 Пункты самовывоза</button>
         <button class="tab-btn" data-tab="zones">🗺️ Зоны доставки</button>
     </div>
     
     <!-- Вкладка: Способы доставки -->
     <div class="tab-content active" id="tab-methods">
         <div class="delivery-grid" id="deliveryGrid"></div>
+    </div>
+    
+    <!-- Вкладка: Самовывоз -->
+    <div class="tab-content" id="tab-pickup">
+        <div class="delivery-card">
+            <div class="delivery-card-header">
+                <div class="delivery-icon">🏪</div>
+                <div class="delivery-title">
+                    <h3>Пункт самовывоза</h3>
+                    <p>Настройка адреса и графика работы</p>
+                </div>
+            </div>
+            <div class="delivery-card-body active" style="display: block;">
+                <div class="form-group">
+                    <label>📍 Адрес пункта выдачи</label>
+                    <input type="text" id="pickup_address" placeholder="г. Москва, ул. Тверская, д. 15">
+                    <small style="color:#999;">Этот адрес будет показан клиенту при выборе самовывоза</small>
+                </div>
+                <div class="form-group">
+                    <label>⏰ График работы</label>
+                    <input type="text" id="pickup_hours" placeholder="Пн-Вс: 10:00-20:00">
+                </div>
+                <div class="form-group">
+                    <label>📞 Контактный телефон</label>
+                    <input type="text" id="pickup_phone" placeholder="+7 (999) 123-45-67">
+                </div>
+                <div class="pickup-preview" id="pickupPreview">
+                    <strong>📋 Предпросмотр для клиента:</strong>
+                    <div style="margin-top:8px; font-size:13px;">
+                        🏪 <span id="preview_address">г. Москва, ул. Тверская, д. 15</span><br>
+                        ⏰ <span id="preview_hours">Пн-Вс: 10:00-20:00</span><br>
+                        📞 <span id="preview_phone">+7 (999) 123-45-67</span>
+                    </div>
+                </div>
+                <button class="btn-save" onclick="savePickupSettings()">💾 Сохранить настройки самовывоза</button>
+            </div>
+        </div>
     </div>
     
     <!-- Вкладка: СДЭК -->
@@ -122,6 +166,10 @@
                 </div>
             </div>
             <div class="delivery-card-body active" style="display: block;">
+                <div class="info-note" style="margin-bottom:16px;">
+                    <i class="fas fa-info-circle"></i>
+                    <div>Для работы СДЭК требуется бэкенд-прокси из-за ограничений CORS. Пока используйте самовывоз или курьерскую доставку.</div>
+                </div>
                 <div class="form-group">
                     <label>🔑 Client ID (Идентификатор клиента)</label>
                     <input type="text" id="cdek_client_id" placeholder="например: EMscd6r9JnFiQ3bLoyjJY6eM78JrJceI">
@@ -139,44 +187,14 @@
                 </div>
                 <div class="form-group">
                     <label>🏢 Город отправителя (по умолчанию)</label>
-                    <input type="text" id="cdek_from_city" placeholder="Москва">
+                    <input type="text" id="cdek_from_city" value="Москва">
                 </div>
                 <div class="form-group">
                     <label>📦 Вес по умолчанию (кг)</label>
                     <input type="number" step="0.1" id="cdek_default_weight" value="0.5">
                 </div>
-                <div class="city-selector">
-                    <h4>🏙️ Города для быстрого расчёта</h4>
-                    <div class="form-row" id="cdek_cities_list">
-                        <input type="text" placeholder="Санкт-Петербург" id="city1">
-                        <input type="text" placeholder="Новосибирск" id="city2">
-                        <input type="text" placeholder="Екатеринбург" id="city3">
-                        <input type="text" placeholder="Казань" id="city4">
-                    </div>
-                </div>
                 <button class="btn-save" onclick="saveCdekSettings()">💾 Сохранить настройки</button>
                 <button class="btn-test" onclick="testCdekConnection()">🔌 Проверить соединение</button>
-                <button class="btn-test" onclick="testCdekCalculator()" style="background:#ff9800;">📊 Тест калькулятора</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Вкладка: Пункты самовывоза -->
-    <div class="tab-content" id="tab-pickup">
-        <div class="delivery-card">
-            <div class="delivery-card-header">
-                <div class="delivery-icon">🏪</div>
-                <div class="delivery-title">
-                    <h3>Пункты самовывоза</h3>
-                    <p>Настройка адресов пунктов выдачи</p>
-                </div>
-            </div>
-            <div class="delivery-card-body active" style="display: block;">
-                <div id="pickupPointsList">
-                    <!-- Список пунктов самовывоза -->
-                </div>
-                <button class="btn-save" onclick="addPickupPoint()">➕ Добавить пункт самовывоза</button>
-                <button class="btn-save" onclick="savePickupPoints()">💾 Сохранить все</button>
             </div>
         </div>
     </div>
@@ -188,13 +206,11 @@
                 <div class="delivery-icon">🗺️</div>
                 <div class="delivery-title">
                     <h3>Зоны доставки</h3>
-                    <p>Настройка стоимости доставки по регионам</p>
+                    <p>Настройка стоимости доставки по регионам (для курьерской доставки)</p>
                 </div>
             </div>
             <div class="delivery-card-body active" style="display: block;">
-                <div id="deliveryZonesList">
-                    <!-- Список зон доставки -->
-                </div>
+                <div id="deliveryZonesList"></div>
                 <button class="btn-save" onclick="addDeliveryZone()">➕ Добавить зону доставки</button>
                 <button class="btn-save" onclick="saveDeliveryZones()">💾 Сохранить все</button>
             </div>
@@ -204,25 +220,22 @@
     <div class="info-note">
         <i class="fas fa-info-circle"></i>
         <div>
-            <strong>Как настроить СДЭК</strong><br>
-            1. Зарегистрируйтесь в личном кабинете СДЭК (https://www.cdek.ru/)<br>
-            2. Получите Client ID и Client Secret в разделе "Интеграция" → "API"<br>
-            3. Вставьте ключи в поля выше и выберите режим работы<br>
-            4. Сохраните настройки и проверьте соединение<br>
-            5. Калькулятор автоматически рассчитает стоимость доставки на сайте
+            <strong>Как настроить доставку</strong><br>
+            1. На вкладке "Способы доставки" включите нужные методы и укажите стоимость<br>
+            2. На вкладке "Самовывоз" укажите адрес, график работы и телефон ПВЗ<br>
+            3. На вкладке "Зоны доставки" настройте стоимость для разных регионов<br>
+            4. СДЭК будет доступен после настройки бэкенд-прокси
         </div>
     </div>
 </div>
 
 <script>
     let deliverySettings = {};
-    let pickupPoints = [];
     let deliveryZones = [];
     
     const deliveryMethods = [
-        { id: 'courier', name: 'Курьерская доставка', icon: '🚚', description: 'Доставка курьером по адресу', defaultEnabled: true, system: 'cdek' },
-        { id: 'pickup', name: 'Самовывоз', icon: '🏪', description: 'Забор товара из пункта выдачи', defaultEnabled: true, system: null },
-        { id: 'express', name: 'Экспресс-доставка', icon: '⚡', description: 'Срочная доставка за 1 день', defaultEnabled: false, system: 'cdek' }
+        { id: 'courier', name: 'Курьерская доставка', icon: '🚚', description: 'Доставка курьером по адресу', defaultEnabled: true },
+        { id: 'pickup', name: 'Самовывоз', icon: '🏪', description: 'Забор товара из пункта выдачи', defaultEnabled: true }
     ];
     
     function loadAllSettings() {
@@ -236,11 +249,12 @@
         if (Object.keys(deliverySettings).length === 0) {
             deliverySettings = {
                 methods: {},
-                cdek: { client_id: '', client_secret: '', mode: 'test', from_city: 'Москва', default_weight: 0.5, cities: ['Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'], connected: false },
-                pickup_points: [
-                    { id: 1, city: 'Москва', address: 'ул. Тверская, д. 15', metro: 'Тверская', working_hours: '10:00-20:00' },
-                    { id: 2, city: 'Москва', address: 'ул. Арбат, д. 10', metro: 'Арбатская', working_hours: '10:00-21:00' }
-                ],
+                pickup: {
+                    address: 'г. Москва, ул. Тверская, д. 15',
+                    hours: 'Пн-Вс: 10:00-20:00',
+                    phone: '+7 (999) 123-45-67'
+                },
+                cdek: { client_id: '', client_secret: '', mode: 'test', from_city: 'Москва', default_weight: 0.5, connected: false },
                 delivery_zones: [
                     { id: 1, name: 'Москва и область', price: 350, free_from: 3000 },
                     { id: 2, name: 'Санкт-Петербург', price: 450, free_from: 4000 },
@@ -248,16 +262,15 @@
                 ]
             };
             deliveryMethods.forEach(m => {
-                deliverySettings.methods[m.id] = { enabled: m.defaultEnabled, price: m.id === 'express' ? 990 : 350 };
+                deliverySettings.methods[m.id] = { enabled: m.defaultEnabled, price: 350, free_from: 0 };
             });
         }
         
-        pickupPoints = deliverySettings.pickup_points || [];
         deliveryZones = deliverySettings.delivery_zones || [];
         
         renderDeliveryGrid();
+        loadPickupForm();
         loadCdekForm();
-        renderPickupPoints();
         renderDeliveryZones();
         updateStatusBadges();
     }
@@ -265,7 +278,7 @@
     function renderDeliveryGrid() {
         const container = document.getElementById('deliveryGrid');
         container.innerHTML = deliveryMethods.map(method => {
-            const settings = deliverySettings.methods[method.id] || { enabled: true, price: method.id === 'express' ? 990 : 350 };
+            const settings = deliverySettings.methods[method.id] || { enabled: true, price: 350, free_from: 0 };
             const isEnabled = settings.enabled;
             
             return `
@@ -287,7 +300,6 @@
                             <label>🎁 Бесплатная доставка от (₽)</label>
                             <input type="number" id="free_from_${method.id}" value="${settings.free_from || 0}" placeholder="0 = нет">
                         </div>
-                        ${method.system === 'cdek' ? `<div class="info-note" style="margin-bottom:16px; padding:12px;"><i class="fas fa-info-circle"></i><div>Использует настройки СДЭК для расчёта</div></div>` : ''}
                         <button class="btn-save" onclick="saveMethodSettings('${method.id}')">💾 Сохранить</button>
                     </div>
                 </div>
@@ -311,143 +323,67 @@
     }
     
     function saveSettings() {
-        deliverySettings.pickup_points = pickupPoints;
         deliverySettings.delivery_zones = deliveryZones;
         localStorage.setItem('delivery_settings', JSON.stringify(deliverySettings));
         showToast('✅ Настройки сохранены');
         updateStatusBadges();
     }
     
+    // === Самовывоз ===
+    function loadPickupForm() {
+        const pickup = deliverySettings.pickup || {};
+        document.getElementById('pickup_address').value = pickup.address || 'г. Москва, ул. Тверская, д. 15';
+        document.getElementById('pickup_hours').value = pickup.hours || 'Пн-Вс: 10:00-20:00';
+        document.getElementById('pickup_phone').value = pickup.phone || '+7 (999) 123-45-67';
+        updatePickupPreview();
+    }
+    
+    function updatePickupPreview() {
+        document.getElementById('preview_address').innerText = document.getElementById('pickup_address').value;
+        document.getElementById('preview_hours').innerText = document.getElementById('pickup_hours').value;
+        document.getElementById('preview_phone').innerText = document.getElementById('pickup_phone').value;
+    }
+    
+    function savePickupSettings() {
+        deliverySettings.pickup = {
+            address: document.getElementById('pickup_address').value,
+            hours: document.getElementById('pickup_hours').value,
+            phone: document.getElementById('pickup_phone').value
+        };
+        saveSettings();
+        showToast('✅ Настройки самовывоза сохранены');
+    }
+    
+    // === СДЭК ===
     function loadCdekForm() {
         document.getElementById('cdek_client_id').value = deliverySettings.cdek?.client_id || '';
         document.getElementById('cdek_client_secret').value = deliverySettings.cdek?.client_secret || '';
         document.getElementById('cdek_mode').value = deliverySettings.cdek?.mode || 'test';
         document.getElementById('cdek_from_city').value = deliverySettings.cdek?.from_city || 'Москва';
         document.getElementById('cdek_default_weight').value = deliverySettings.cdek?.default_weight || 0.5;
-        
-        const cities = deliverySettings.cdek?.cities || ['Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
-        for (let i = 0; i < 4; i++) {
-            const input = document.getElementById(`city${i+1}`);
-            if (input) input.value = cities[i] || '';
-        }
     }
     
     function saveCdekSettings() {
-        const cities = [
-            document.getElementById('city1')?.value || '',
-            document.getElementById('city2')?.value || '',
-            document.getElementById('city3')?.value || '',
-            document.getElementById('city4')?.value || ''
-        ].filter(c => c.trim());
-        
         deliverySettings.cdek = {
             client_id: document.getElementById('cdek_client_id').value,
             client_secret: document.getElementById('cdek_client_secret').value,
             mode: document.getElementById('cdek_mode').value,
             from_city: document.getElementById('cdek_from_city').value,
             default_weight: parseFloat(document.getElementById('cdek_default_weight').value) || 0.5,
-            cities: cities,
             connected: deliverySettings.cdek?.connected || false
         };
         saveSettings();
     }
     
     async function testCdekConnection() {
-        const clientId = document.getElementById('cdek_client_id').value;
-        const clientSecret = document.getElementById('cdek_client_secret').value;
-        
-        if (!clientId || !clientSecret) {
-            showToast('❌ Введите Client ID и Client Secret', 'error');
-            return;
-        }
-        
-        showToast('🔌 Проверка соединения с СДЭК...', 'info');
-        
-        // Имитация запроса к API СДЭК
+        showToast('🔌 Проверка соединения с СДЭК...');
+        showToast('⚠️ Для работы СДЭК требуется бэкенд-прокси из-за CORS');
         setTimeout(() => {
-            if (clientId && clientSecret.length > 5) {
-                deliverySettings.cdek.connected = true;
-                saveSettings();
-                showToast('✅ Соединение с СДЭК установлено успешно!', 'success');
-                updateStatusBadges();
-            } else {
-                showToast('❌ Ошибка подключения. Проверьте ключи.', 'error');
-            }
-        }, 1500);
+            showToast('ℹ️ Интеграция СДЭК будет доступна после настройки сервера');
+        }, 2000);
     }
     
-    async function testCdekCalculator() {
-        const fromCity = document.getElementById('cdek_from_city').value;
-        const toCity = document.getElementById('city1')?.value || 'Санкт-Петербург';
-        const weight = parseFloat(document.getElementById('cdek_default_weight').value) || 0.5;
-        
-        showToast(`📊 Расчёт доставки: ${fromCity} → ${toCity}, ${weight} кг`, 'info');
-        
-        // Имитация расчёта
-        setTimeout(() => {
-            const price = Math.floor(Math.random() * 500) + 300;
-            showToast(`📦 Стоимость доставки: ${price} ₽ (примерный расчёт)`, 'success');
-        }, 1000);
-    }
-    
-    function renderPickupPoints() {
-        const container = document.getElementById('pickupPointsList');
-        if (pickupPoints.length === 0) {
-            container.innerHTML = '<div class="info-note" style="margin-bottom:16px;"><i class="fas fa-info-circle"></i><div>Нет добавленных пунктов самовывоза. Нажмите "Добавить"</div></div>';
-            return;
-        }
-        
-        container.innerHTML = pickupPoints.map((point, idx) => `
-            <div class="city-selector" style="margin-bottom:16px;" data-idx="${idx}">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <h4>📍 Пункт выдачи #${idx+1}</h4>
-                    <button class="btn-save" style="width:auto; background:#e74c3c;" onclick="removePickupPoint(${idx})">🗑️ Удалить</button>
-                </div>
-                <div class="form-row">
-                    <input type="text" placeholder="Город" value="${escapeHtml(point.city)}" data-field="city" data-idx="${idx}">
-                    <input type="text" placeholder="Адрес" value="${escapeHtml(point.address)}" data-field="address" data-idx="${idx}">
-                </div>
-                <div class="form-row">
-                    <input type="text" placeholder="Метро/Ориентир" value="${escapeHtml(point.metro || '')}" data-field="metro" data-idx="${idx}">
-                    <input type="text" placeholder="Часы работы" value="${escapeHtml(point.working_hours || '')}" data-field="working_hours" data-idx="${idx}">
-                </div>
-            </div>
-        `).join('');
-        
-        // Навешиваем обработчики
-        document.querySelectorAll('#pickupPointsList input').forEach(input => {
-            input.onchange = () => {
-                const idx = parseInt(input.dataset.idx);
-                const field = input.dataset.field;
-                if (pickupPoints[idx]) {
-                    pickupPoints[idx][field] = input.value;
-                }
-            };
-        });
-    }
-    
-    function addPickupPoint() {
-        pickupPoints.push({
-            id: Date.now(),
-            city: '',
-            address: '',
-            metro: '',
-            working_hours: '10:00-20:00'
-        });
-        renderPickupPoints();
-    }
-    
-    function removePickupPoint(idx) {
-        pickupPoints.splice(idx, 1);
-        renderPickupPoints();
-    }
-    
-    function savePickupPoints() {
-        saveSettings();
-        renderPickupPoints();
-        showToast('✅ Пункты самовывоза сохранены');
-    }
-    
+    // === Зоны доставки ===
     function renderDeliveryZones() {
         const container = document.getElementById('deliveryZonesList');
         if (deliveryZones.length === 0) {
@@ -511,7 +447,7 @@
         const cdekStatus = document.getElementById('cdekStatus');
         if (deliverySettings.cdek?.client_id && deliverySettings.cdek?.client_secret) {
             cdekStatus.className = 'status-badge status-connected';
-            cdekStatus.textContent = '✓ Подключено';
+            cdekStatus.textContent = '✓ Ключи сохранены';
         } else {
             cdekStatus.className = 'status-badge status-error';
             cdekStatus.textContent = '✗ Не настроено';
@@ -550,17 +486,20 @@
         return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
+    // Глобальные функции
     window.toggleMethod = toggleMethod;
     window.saveMethodSettings = saveMethodSettings;
+    window.savePickupSettings = savePickupSettings;
     window.saveCdekSettings = saveCdekSettings;
     window.testCdekConnection = testCdekConnection;
-    window.testCdekCalculator = testCdekCalculator;
-    window.addPickupPoint = addPickupPoint;
-    window.removePickupPoint = removePickupPoint;
-    window.savePickupPoints = savePickupPoints;
     window.addDeliveryZone = addDeliveryZone;
     window.removeDeliveryZone = removeDeliveryZone;
     window.saveDeliveryZones = saveDeliveryZones;
+    
+    // События для предпросмотра
+    document.getElementById('pickup_address')?.addEventListener('input', updatePickupPreview);
+    document.getElementById('pickup_hours')?.addEventListener('input', updatePickupPreview);
+    document.getElementById('pickup_phone')?.addEventListener('input', updatePickupPreview);
     
     loadAllSettings();
 </script>
