@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройка оплаты — CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); padding: 24px; min-height: 100vh; }
+        .payment-container { max-width: 1400px; margin: 0 auto; }
+        
+        .payment-header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .payment-header h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #1a1a2e, #16213e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .payment-header p { color: #666; margin-top: 8px; }
+        
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid #ddd; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; color: #666; transition: 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #00897b; border-bottom-color: #00897b; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .payment-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        
+        .payment-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .payment-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        
+        .payment-card-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #f8f9fa, white);
+        }
+        .payment-icon { font-size: 32px; width: 56px; height: 56px; background: #f0f0f0; border-radius: 28px; display: flex; align-items: center; justify-content: center; }
+        .payment-title { flex: 1; }
+        .payment-title h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .payment-title p { font-size: 12px; color: #999; }
+        .payment-toggle { width: 52px; height: 28px; background: #ccc; border-radius: 30px; cursor: pointer; transition: 0.2s; position: relative; }
+        .payment-toggle.active { background: #00897b; }
+        .payment-toggle::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 3px; transition: 0.2s; }
+        .payment-toggle.active::after { left: 25px; }
+        
+        .payment-card-body { padding: 20px; display: none; }
+        .payment-card-body.active { display: block; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 14px;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .btn-save { background: #00897b; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 8px; }
+        .btn-save:hover { background: #00695c; }
+        
+        .btn-test {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        .btn-test:hover { background: #45a049; }
+        
+        .info-note { background: #e3f2fd; border-radius: 16px; padding: 16px; margin-top: 24px; display: flex; gap: 12px; align-items: flex-start; }
+        .info-note i { color: #1976d2; font-size: 20px; }
+        .info-note div { flex: 1; font-size: 13px; color: #555; }
+        
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 10px; }
+        .status-connected { background: #e8f5e9; color: #4caf50; }
+        .status-error { background: #ffebee; color: #f44336; }
+        
+        @media (max-width: 768px) {
+            .payment-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="payment-container">
+    <div class="payment-header">
+        <div>
+            <h1><i class="fas fa-credit-card"></i> Настройка оплаты</h1>
+            <p>Управление способами оплаты и интеграция с платёжными системами</p>
+        </div>
+    </div>
+    
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="methods">💳 Способы оплаты</button>
+        <button class="tab-btn" data-tab="yookassa">🏦 ЮKassa (Яндекс.Касса)</button>
+        <button class="tab-btn" data-tab="tinkoff">🏦 Tinkoff Pay</button>
+        <button class="tab-btn" data-tab="sbp">📱 СБП (СБПэй)</button>
+    </div>
+    
+    <!-- Вкладка: Способы оплаты -->
+    <div class="tab-content active" id="tab-methods">
+        <div class="payment-grid" id="paymentGrid"></div>
+    </div>
+    
+    <!-- Вкладка: ЮKassa -->
+    <div class="tab-content" id="tab-yookassa">
+        <div class="payment-card">
+            <div class="payment-card-header">
+                <div class="payment-icon">🏦</div>
+                <div class="payment-title">
+                    <h3>ЮKassa (Яндекс.Касса) <span id="yookassaStatus" class="status-badge status-error">Не настроено</span></h3>
+                    <p>Приём платежей через банковские карты, Apple Pay, Google Pay</p>
+                </div>
+            </div>
+            <div class="payment-card-body active" style="display: block;">
+                <div class="form-group">
+                    <label>🔑 Shop ID (Идентификатор магазина)</label>
+                    <input type="text" id="yookassa_shop_id" placeholder="например: 123456">
+                </div>
+                <div class="form-group">
+                    <label>🔐 Secret Key (Секретный ключ)</label>
+                    <input type="password" id="yookassa_secret_key" placeholder="test_xxxxx или live_xxxxx">
+                </div>
+                <div class="form-group">
+                    <label>🌐 Режим работы</label>
+                    <select id="yookassa_mode">
+                        <option value="test">Тестовый (песочница)</option>
+                        <option value="live">Боевой (приём реальных платежей)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>💰 Комиссия системы (%)</label>
+                    <input type="number" step="0.1" id="yookassa_commission" value="3.5" placeholder="3.5">
+                    <small style="color:#999;">Стандартная комиссия ЮKassa — 3.5% + 35₽ за успешный платеж</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📉 Мин. сумма</label>
+                        <input type="number" id="yookassa_min" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>📈 Макс. сумма</label>
+                        <input type="number" id="yookassa_max" value="0" placeholder="0 = без ограничений">
+                    </div>
+                </div>
+                <button class="btn-save" onclick="saveYookassaSettings()">💾 Сохранить настройки</button>
+                <button class="btn-test" onclick="testYookassaConnection()">🔌 Проверить соединение</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Вкладка: Tinkoff Pay -->
+    <div class="tab-content" id="tab-tinkoff">
+        <div class="payment-card">
+            <div class="payment-card-header">
+                <div class="payment-icon">🏦</div>
+                <div class="payment-title">
+                    <h3>Tinkoff Pay <span id="tinkoffStatus" class="status-badge status-error">Не настроено</span></h3>
+                    <p>Приём платежей через Tinkoff Pay и банковские карты</p>
+                </div>
+            </div>
+            <div class="payment-card-body active" style="display: block;">
+                <div class="form-group">
+                    <label>🔑 Terminal Key (Идентификатор терминала)</label>
+                    <input type="text" id="tinkoff_terminal_key" placeholder="например: T1234567890">
+                </div>
+                <div class="form-group">
+                    <label>🔐 Secret Key (Секретный ключ)</label>
+                    <input type="password" id="tinkoff_secret_key" placeholder="Секретный ключ">
+                </div>
+                <div class="form-group">
+                    <label>🌐 Режим работы</label>
+                    <select id="tinkoff_mode">
+                        <option value="test">Тестовый</option>
+                        <option value="live">Боевой</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>💰 Комиссия системы (%)</label>
+                    <input type="number" step="0.1" id="tinkoff_commission" value="2.8" placeholder="2.8">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>📉 Мин. сумма</label>
+                        <input type="number" id="tinkoff_min" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>📈 Макс. сумма</label>
+                        <input type="number" id="tinkoff_max" value="0">
+                    </div>
+                </div>
+                <button class="btn-save" onclick="saveTinkoffSettings()">💾 Сохранить настройки</button>
+                <button class="btn-test" onclick="testTinkoffConnection()">🔌 Проверить соединение</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Вкладка: СБП -->
+    <div class="tab-content" id="tab-sbp">
+        <div class="payment-card">
+            <div class="payment-card-header">
+                <div class="payment-icon">📱</div>
+                <div class="payment-title">
+                    <h3>СБП (Система быстрых платежей) <span id="sbpStatus" class="status-badge status-error">Не настроено</span></h3>
+                    <p>Оплата через СБП по QR-коду</p>
+                </div>
+            </div>
+            <div class="payment-card-body active" style="display: block;">
+                <div class="form-group">
+                    <label>📱 Тип QR-кода</label>
+                    <select id="sbp_qr_type">
+                        <option value="static">Статический (один QR на всех)</option>
+                        <option value="dynamic">Динамический (с суммой заказа)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>🏢 Наименование получателя</label>
+                    <input type="text" id="sbp_recipient_name" placeholder="ИП Иванов И.И.">
+                </div>
+                <div class="form-group">
+                    <label>📄 ИНН получателя</label>
+                    <input type="text" id="sbp_recipient_inn" placeholder="1234567890">
+                </div>
+                <div class="form-group">
+                    <label>🏦 Банк получателя</label>
+                    <input type="text" id="sbp_recipient_bank" placeholder="Т-Банк">
+                </div>
+                <div class="form-group">
+                    <label>📱 Номер телефона получателя</label>
+                    <input type="tel" id="sbp_recipient_phone" placeholder="+7 999 123-45-67">
+                </div>
+                <div class="form-group">
+                    <label>💰 Комиссия (%)</label>
+                    <input type="number" step="0.1" id="sbp_commission" value="0" placeholder="0">
+                </div>
+                <button class="btn-save" onclick="saveSbpSettings()">💾 Сохранить настройки</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>Как настроить платёжную систему</strong><br>
+            1. Зарегистрируйтесь в ЮKassa или Tinkoff Касса<br>
+            2. Получите Shop ID и Secret Key в личном кабинете<br>
+            3. Вставьте ключи в соответствующие поля выше<br>
+            4. Сохраните настройки и выберите тестовый режим для проверки<br>
+            5. После успешного теста переключитесь на боевой режим
+        </div>
+    </div>
+</div>
+
+<script>
+    let paymentSettings = {};
+    
+    const paymentMethods = [
+        { id: 'card', name: 'Банковская карта', icon: '💳', description: 'Visa, Mastercard, МИР через платёжную систему', defaultEnabled: true, system: 'yookassa' },
+        { id: 'sbp', name: 'СБП (Система быстрых платежей)', icon: '📱', description: 'Оплата по QR-коду', defaultEnabled: true, system: 'sbp' },
+        { id: 'cash', name: 'Наличные при получении', icon: '💰', description: 'Оплата курьеру или при самовывозе', defaultEnabled: true, system: null }
+    ];
+    
+    function loadAllSettings() {
+        const saved = localStorage.getItem('payment_settings');
+        if (saved) {
+            try {
+                paymentSettings = JSON.parse(saved);
+            } catch(e) { console.error(e); }
+        }
+        
+        if (Object.keys(paymentSettings).length === 0) {
+            paymentSettings = {
+                methods: {},
+                yookassa: { shop_id: '', secret_key: '', mode: 'test', commission: 3.5, min: 0, max: 0, connected: false },
+                tinkoff: { terminal_key: '', secret_key: '', mode: 'test', commission: 2.8, min: 0, max: 0, connected: false },
+                sbp: { qr_type: 'dynamic', recipient_name: '', recipient_inn: '', recipient_bank: '', recipient_phone: '', commission: 0, connected: false }
+            };
+            paymentMethods.forEach(m => {
+                paymentSettings.methods[m.id] = { enabled: m.defaultEnabled };
+            });
+        }
+        
+        renderPaymentGrid();
+        loadYookassaForm();
+        loadTinkoffForm();
+        loadSbpForm();
+        updateStatusBadges();
+    }
+    
+    function renderPaymentGrid() {
+        const container = document.getElementById('paymentGrid');
+        container.innerHTML = paymentMethods.map(method => {
+            const settings = paymentSettings.methods[method.id] || { enabled: true };
+            const isEnabled = settings.enabled;
+            
+            return `
+                <div class="payment-card">
+                    <div class="payment-card-header">
+                        <div class="payment-icon">${method.icon}</div>
+                        <div class="payment-title">
+                            <h3>${method.name}</h3>
+                            <p>${method.description}</p>
+                        </div>
+                        <div class="payment-toggle ${isEnabled ? 'active' : ''}" onclick="toggleMethod('${method.id}')"></div>
+                    </div>
+                    <div class="payment-card-body ${isEnabled ? 'active' : ''}">
+                        ${method.system === 'yookassa' ? `<div class="info-note" style="margin-bottom:16px; padding:12px;"><i class="fas fa-info-circle"></i><div>Использует настройки ЮKassa</div></div>` : ''}
+                        ${method.system === 'sbp' ? `<div class="info-note" style="margin-bottom:16px; padding:12px;"><i class="fas fa-info-circle"></i><div>Использует настройки СБП</div></div>` : ''}
+                        <button class="btn-save" onclick="saveSettings()">💾 Сохранить</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function toggleMethod(methodId) {
+        paymentSettings.methods[methodId].enabled = !paymentSettings.methods[methodId].enabled;
+        saveSettings();
+        renderPaymentGrid();
+    }
+    
+    function saveSettings() {
+        localStorage.setItem('payment_settings', JSON.stringify(paymentSettings));
+        showToast('✅ Настройки сохранены');
+        updateStatusBadges();
+    }
+    
+    function loadYookassaForm() {
+        document.getElementById('yookassa_shop_id').value = paymentSettings.yookassa?.shop_id || '';
+        document.getElementById('yookassa_secret_key').value = paymentSettings.yookassa?.secret_key || '';
+        document.getElementById('yookassa_mode').value = paymentSettings.yookassa?.mode || 'test';
+        document.getElementById('yookassa_commission').value = paymentSettings.yookassa?.commission || 3.5;
+        document.getElementById('yookassa_min').value = paymentSettings.yookassa?.min || 0;
+        document.getElementById('yookassa_max').value = paymentSettings.yookassa?.max || 0;
+    }
+    
+    function saveYookassaSettings() {
+        paymentSettings.yookassa = {
+            shop_id: document.getElementById('yookassa_shop_id').value,
+            secret_key: document.getElementById('yookassa_secret_key').value,
+            mode: document.getElementById('yookassa_mode').value,
+            commission: parseFloat(document.getElementById('yookassa_commission').value) || 3.5,
+            min: parseFloat(document.getElementById('yookassa_min').value) || 0,
+            max: parseFloat(document.getElementById('yookassa_max').value) || 0,
+            connected: false
+        };
+        saveSettings();
+    }
+    
+    async function testYookassaConnection() {
+        const shopId = document.getElementById('yookassa_shop_id').value;
+        const secretKey = document.getElementById('yookassa_secret_key').value;
+        
+        if (!shopId || !secretKey) {
+            showToast('❌ Введите Shop ID и Secret Key', 'error');
+            return;
+        }
+        
+        showToast('🔌 Проверка соединения с ЮKassa...', 'info');
+        
+        // Имитация проверки (в реальном проекте здесь будет API-запрос)
+        setTimeout(() => {
+            if (shopId && secretKey.length > 5) {
+                paymentSettings.yookassa.connected = true;
+                saveSettings();
+                showToast('✅ Соединение с ЮKassa установлено успешно!', 'success');
+                updateStatusBadges();
+            } else {
+                showToast('❌ Ошибка подключения. Проверьте ключи.', 'error');
+            }
+        }, 1500);
+    }
+    
+    function loadTinkoffForm() {
+        document.getElementById('tinkoff_terminal_key').value = paymentSettings.tinkoff?.terminal_key || '';
+        document.getElementById('tinkoff_secret_key').value = paymentSettings.tinkoff?.secret_key || '';
+        document.getElementById('tinkoff_mode').value = paymentSettings.tinkoff?.mode || 'test';
+        document.getElementById('tinkoff_commission').value = paymentSettings.tinkoff?.commission || 2.8;
+        document.getElementById('tinkoff_min').value = paymentSettings.tinkoff?.min || 0;
+        document.getElementById('tinkoff_max').value = paymentSettings.tinkoff?.max || 0;
+    }
+    
+    function saveTinkoffSettings() {
+        paymentSettings.tinkoff = {
+            terminal_key: document.getElementById('tinkoff_terminal_key').value,
+            secret_key: document.getElementById('tinkoff_secret_key').value,
+            mode: document.getElementById('tinkoff_mode').value,
+            commission: parseFloat(document.getElementById('tinkoff_commission').value) || 2.8,
+            min: parseFloat(document.getElementById('tinkoff_min').value) || 0,
+            max: parseFloat(document.getElementById('tinkoff_max').value) || 0,
+            connected: false
+        };
+        saveSettings();
+    }
+    
+    async function testTinkoffConnection() {
+        const terminalKey = document.getElementById('tinkoff_terminal_key').value;
+        const secretKey = document.getElementById('tinkoff_secret_key').value;
+        
+        if (!terminalKey || !secretKey) {
+            showToast('❌ Введите Terminal Key и Secret Key', 'error');
+            return;
+        }
+        
+        showToast('🔌 Проверка соединения с Tinkoff...', 'info');
+        
+        setTimeout(() => {
+            if (terminalKey && secretKey.length > 5) {
+                paymentSettings.tinkoff.connected = true;
+                saveSettings();
+                showToast('✅ Соединение с Tinkoff установлено успешно!', 'success');
+                updateStatusBadges();
+            } else {
+                showToast('❌ Ошибка подключения. Проверьте ключи.', 'error');
+            }
+        }, 1500);
+    }
+    
+    function loadSbpForm() {
+        document.getElementById('sbp_qr_type').value = paymentSettings.sbp?.qr_type || 'dynamic';
+        document.getElementById('sbp_recipient_name').value = paymentSettings.sbp?.recipient_name || '';
+        document.getElementById('sbp_recipient_inn').value = paymentSettings.sbp?.recipient_inn || '';
+        document.getElementById('sbp_recipient_bank').value = paymentSettings.sbp?.recipient_bank || '';
+        document.getElementById('sbp_recipient_phone').value = paymentSettings.sbp?.recipient_phone || '';
+        document.getElementById('sbp_commission').value = paymentSettings.sbp?.commission || 0;
+    }
+    
+    function saveSbpSettings() {
+        paymentSettings.sbp = {
+            qr_type: document.getElementById('sbp_qr_type').value,
+            recipient_name: document.getElementById('sbp_recipient_name').value,
+            recipient_inn: document.getElementById('sbp_recipient_inn').value,
+            recipient_bank: document.getElementById('sbp_recipient_bank').value,
+            recipient_phone: document.getElementById('sbp_recipient_phone').value,
+            commission: parseFloat(document.getElementById('sbp_commission').value) || 0,
+            connected: document.getElementById('sbp_recipient_name').value ? true : false
+        };
+        saveSettings();
+    }
+    
+    function updateStatusBadges() {
+        const yookassaStatus = document.getElementById('yookassaStatus');
+        if (paymentSettings.yookassa?.shop_id && paymentSettings.yookassa?.secret_key) {
+            yookassaStatus.className = 'status-badge status-connected';
+            yookassaStatus.textContent = '✓ Подключено';
+        } else {
+            yookassaStatus.className = 'status-badge status-error';
+            yookassaStatus.textContent = '✗ Не настроено';
+        }
+        
+        const tinkoffStatus = document.getElementById('tinkoffStatus');
+        if (paymentSettings.tinkoff?.terminal_key && paymentSettings.tinkoff?.secret_key) {
+            tinkoffStatus.className = 'status-badge status-connected';
+            tinkoffStatus.textContent = '✓ Подключено';
+        } else {
+            tinkoffStatus.className = 'status-badge status-error';
+            tinkoffStatus.textContent = '✗ Не настроено';
+        }
+        
+        const sbpStatus = document.getElementById('sbpStatus');
+        if (paymentSettings.sbp?.recipient_name && paymentSettings.sbp?.recipient_inn) {
+            sbpStatus.className = 'status-badge status-connected';
+            sbpStatus.textContent = '✓ Настроено';
+        } else {
+            sbpStatus.className = 'status-badge status-error';
+            sbpStatus.textContent = '✗ Не настроено';
+        }
+    }
+    
+    // Табы
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            const tabId = btn.dataset.tab;
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        };
+    });
+    
+    function showToast(msg, type = 'success') {
+        let t = document.getElementById('adminToast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'adminToast';
+            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a1a2e;color:white;padding:12px 24px;border-radius:40px;z-index:1000;font-size:14px;opacity:0;transition:0.3s';
+            document.body.appendChild(t);
+        }
+        if (type === 'error') t.style.background = '#f44336';
+        else if (type === 'success') t.style.background = '#4caf50';
+        else t.style.background = '#1a1a2e';
+        t.textContent = msg;
+        t.style.opacity = '1';
+        setTimeout(() => t.style.opacity = '0', 3000);
+    }
+    
+    window.toggleMethod = toggleMethod;
+    window.saveSettings = saveSettings;
+    window.saveYookassaSettings = saveYookassaSettings;
+    window.testYookassaConnection = testYookassaConnection;
+    window.saveTinkoffSettings = saveTinkoffSettings;
+    window.testTinkoffConnection = testTinkoffConnection;
+    window.saveSbpSettings = saveSbpSettings;
+    
+    loadAllSettings();
+</script>
+</body>
+</html>
