@@ -1,77 +1,214 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Заказы — Управление</title>
-    <link rel="stylesheet" href="../css/admin.css">
+    <title>Управление заказами — CRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Дополнительные стили для страницы заказов */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            padding: 24px;
+            min-height: 100vh;
+        }
+        
         .orders-container {
-            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
         }
         
         .orders-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             flex-wrap: wrap;
             gap: 16px;
         }
         
         .orders-header h1 {
-            font-size: 1.8rem;
+            font-size: 28px;
             font-weight: 700;
-            color: #1a2c3e;
-            margin: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .orders-header h1 i {
+            background: none;
+            -webkit-text-fill-color: #00897b;
+            margin-right: 12px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 28px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #00897b;
+        }
+        
+        .stat-info h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        
+        .stat-info p {
+            font-size: 13px;
+            color: #999;
         }
         
         .filters-bar {
+            background: white;
+            border-radius: 24px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
             display: flex;
-            gap: 12px;
+            gap: 16px;
             flex-wrap: wrap;
             align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
-        .filters-bar select,
-        .filters-bar input {
-            padding: 10px 16px;
-            border: 1px solid #cbdde9;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            background: white;
+        .search-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .search-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
         }
         
         .search-input {
-            min-width: 250px;
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #00897b;
+            box-shadow: 0 0 0 3px rgba(0,137,123,0.1);
+        }
+        
+        .filter-select {
+            padding: 12px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .date-input {
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 13px;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #00897b, #4db6ac);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,137,123,0.3);
         }
         
         .orders-table-container {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             overflow-x: auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
         
         .orders-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
+            font-size: 14px;
             min-width: 1000px;
         }
         
         .orders-table th {
             text-align: left;
-            padding: 16px 12px;
+            padding: 18px 16px;
             background: #f8f9fa;
             font-weight: 600;
-            color: #1a2c3e;
+            color: #1a1a2e;
             border-bottom: 1px solid #e9ecef;
         }
         
         .orders-table td {
-            padding: 16px 12px;
+            padding: 16px;
             border-bottom: 1px solid #e9ecef;
             vertical-align: middle;
         }
@@ -80,358 +217,289 @@
             background: #f8f9fa;
         }
         
-        .order-status {
-            display: inline-block;
-            padding: 4px 12px;
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
             border-radius: 30px;
-            font-size: 0.7rem;
+            font-size: 12px;
             font-weight: 600;
         }
         
-        .status-new {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-        
-        .status-paid {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .status-shipped {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-        
-        .status-delivered {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .status-cancelled {
-            background: #ffebee;
-            color: #c62828;
-        }
+        .status-new { background: #e3f2fd; color: #1976d2; }
+        .status-paid { background: #e8f5e9; color: #2e7d32; }
+        .status-processing { background: #fff3e0; color: #ef6c00; }
+        .status-shipped { background: #e8eaf6; color: #3f51b5; }
+        .status-delivered { background: #e8f5e9; color: #2e7d32; }
+        .status-cancelled { background: #ffebee; color: #c62828; }
         
         .payment-badge {
             display: inline-block;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.65rem;
+            font-size: 11px;
             font-weight: 600;
         }
         
-        .payment-card {
-            background: #e8eaf6;
-            color: #3949ab;
-        }
+        .payment-card { background: #e8eaf6; color: #3949ab; }
+        .payment-sbp { background: #e0f2f1; color: #00695c; }
+        .payment-cash { background: #f3e5f5; color: #7b1fa2; }
         
-        .payment-sbp {
-            background: #e0f2f1;
-            color: #00695c;
-        }
-        
-        .payment-cash {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-        
-        .order-items-preview {
+        .products-list {
             max-width: 250px;
-            font-size: 0.7rem;
-            color: #64748b;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
-        .order-total {
+        .product-item {
+            font-size: 12px;
+            padding: 3px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        
+        .total-amount {
             font-weight: 700;
             color: #00897b;
         }
         
-        .view-btn {
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
             background: none;
             border: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 34px;
             cursor: pointer;
-            font-size: 1.2rem;
-            padding: 6px 10px;
-            border-radius: 30px;
-            transition: 0.2s;
-            color: #00897b;
+            transition: all 0.2s;
+            color: #666;
         }
         
-        .view-btn:hover {
-            background: #e0f2f1;
-        }
+        .action-btn:hover { background: #f0f0f0; }
+        .action-btn.view:hover { color: #00897b; }
+        .action-btn.edit:hover { color: #ff9800; }
+        .action-btn.delete:hover { color: #f44336; }
         
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #94a3b8;
-        }
-        
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
-        
-        .refresh-btn {
-            background: linear-gradient(135deg, #00897b, #4db6ac);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 137, 123, 0.3);
-        }
-        
-        /* Модальное окно деталей заказа */
-        .order-details-modal {
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
             justify-content: center;
-            z-index: 10000;
+            align-items: center;
+            z-index: 1000;
         }
         
-        .order-details-content {
+        .modal.active { display: flex; }
+        
+        .modal-content {
             background: white;
-            border-radius: 28px;
+            border-radius: 32px;
             width: 90%;
-            max-width: 800px;
+            max-width: 650px;
             max-height: 85vh;
             overflow-y: auto;
             animation: modalSlideIn 0.3s ease;
         }
         
-        .order-details-header {
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e2edf4;
-            position: sticky;
-            top: 0;
-            background: white;
+            background: linear-gradient(135deg, #f8f9fa, white);
+            border-radius: 32px 32px 0 0;
         }
         
-        .order-details-header h3 {
-            margin: 0;
-            font-size: 1.2rem;
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
         }
         
-        .order-details-close {
+        .modal-close {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 28px;
             cursor: pointer;
-            color: #94a3b8;
+            color: #999;
         }
         
-        .order-details-body {
-            padding: 1.5rem;
+        .modal-body {
+            padding: 24px;
         }
         
-        .details-section {
-            margin-bottom: 1.5rem;
-        }
-        
-        .details-section h4 {
-            margin: 0 0 0.8rem 0;
-            font-size: 0.9rem;
-            color: #1a2c3e;
-        }
-        
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: 16px;
-        }
-        
-        .details-item {
+        .order-detail-row {
             display: flex;
-            flex-direction: column;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
         
-        .details-label {
-            font-size: 0.7rem;
-            color: #64748b;
-        }
-        
-        .details-value {
+        .order-detail-label {
+            width: 130px;
             font-weight: 600;
-            font-size: 0.9rem;
-            color: #1a2c3e;
+            color: #666;
         }
         
-        .order-items-table {
+        .order-detail-value {
+            flex: 1;
+            color: #333;
+        }
+        
+        .items-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.8rem;
+            font-size: 13px;
         }
         
-        .order-items-table th,
-        .order-items-table td {
-            padding: 10px 8px;
+        .items-table th, .items-table td {
+            padding: 8px;
             text-align: left;
-            border-bottom: 1px solid #e2edf4;
+            border-bottom: 1px solid #eee;
         }
         
-        .order-items-table th {
+        .items-table th {
             background: #f8fafc;
-            font-weight: 600;
         }
         
         .status-select {
             padding: 6px 12px;
+            border: 1px solid #ddd;
             border-radius: 30px;
-            border: 1px solid #cbdde9;
-            font-size: 0.75rem;
-            cursor: pointer;
+            font-size: 13px;
         }
         
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .empty-state {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a1a2e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1100;
+            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+        
+        @media (max-width: 768px) {
+            body { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .filters-bar { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
-<div class="admin-container">
-    <!-- Боковое меню -->
-    <aside class="admin-sidebar">
-        <div class="admin-logo">🛍️ CRM Shop</div>
-        <nav class="admin-nav">
-            <a href="products.html" class="nav-item">
-                <span class="nav-icon">📦</span>
-                <span>Товары</span>
-            </a>
-            <a href="orders.html" class="nav-item active">
-                <span class="nav-icon">📋</span>
-                <span>Заказы</span>
-            </a>
-            <a href="clients.html" class="nav-item">
-                <span class="nav-icon">👥</span>
-                <span>Клиенты</span>
-            </a>
-            <a href="analytics.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span>Аналитика</span>
-            </a>
-            <a href="settings.html" class="nav-item">
-                <span class="nav-icon">⚙️</span>
-                <span>Настройки</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Основной контент -->
-    <main class="admin-main">
-        <div class="orders-container">
-            <div class="orders-header">
-                <h1>📋 Заказы</h1>
-                <div class="filters-bar">
-                    <input type="text" id="searchOrders" class="search-input" placeholder="🔍 Поиск по заказу, клиенту...">
-                    <select id="statusFilter">
-                        <option value="all">Все статусы</option>
-                        <option value="new">🆕 Новый</option>
-                        <option value="paid">💳 Оплачен</option>
-                        <option value="shipped">🚚 Отправлен</option>
-                        <option value="delivered">✅ Доставлен</option>
-                        <option value="cancelled">❌ Отменён</option>
-                    </select>
-                    <select id="paymentFilter">
-                        <option value="all">Все способы оплаты</option>
-                        <option value="card">💳 Картой</option>
-                        <option value="sbp">📱 СБП</option>
-                        <option value="cash">💰 Наличные</option>
-                    </select>
-                    <button class="refresh-btn" id="refreshOrders">🔄 Обновить</button>
-                </div>
-            </div>
-
-            <div class="orders-table-container">
-                <table class="orders-table" id="ordersTable">
-                    <thead>
-                        <tr>
-                            <th>№ заказа</th>
-                            <th>Дата</th>
-                            <th>Клиент</th>
-                            <th>Товары</th>
-                            <th>Сумма</th>
-                            <th>Оплата</th>
-                            <th>Статус</th>
-                            <th>Действия</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTableBody">
-                        <tr>
-                            <td colspan="8" class="empty-state">
-                                <div class="empty-state-icon">📭</div>
-                                <p>Нет заказов</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+<div class="orders-container">
+    <div class="orders-header">
+        <h1><i class="fas fa-shopping-cart"></i> Управление заказами</h1>
+        <button class="btn-primary" id="refreshBtn"><i class="fas fa-sync-alt"></i> Обновить</button>
+    </div>
+    
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div class="stat-info"><h3 id="totalOrders">0</h3><p>Всего заказов</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-info"><h3 id="newOrders">0</h3><p>Новых</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-info"><h3 id="paidOrders">0</h3><p>Оплачено</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-truck"></i></div><div class="stat-info"><h3 id="shippedOrders">0</h3><p>Отправлено</p></div></div>
+        <div class="stat-card"><div class="stat-icon"><i class="fas fa-ruble-sign"></i></div><div class="stat-info"><h3 id="totalRevenue">0 ₽</h3><p>Выручка</p></div></div>
+    </div>
+    
+    <div class="filters-bar">
+        <div class="search-wrapper">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchOrders" class="search-input" placeholder="Поиск по номеру, клиенту, телефону...">
         </div>
-    </main>
+        <select id="statusFilter" class="filter-select">
+            <option value="all">Все статусы</option>
+            <option value="new">🆕 Новые</option>
+            <option value="paid">💳 Оплаченные</option>
+            <option value="shipped">📦 Отправленные</option>
+            <option value="delivered">✅ Доставленные</option>
+            <option value="cancelled">❌ Отменённые</option>
+        </select>
+        <select id="paymentFilter" class="filter-select">
+            <option value="all">Все способы оплаты</option>
+            <option value="card">💳 Картой</option>
+            <option value="sbp">📱 СБП</option>
+            <option value="cash">💰 Наличные</option>
+        </select>
+        <button id="clearFilters" class="btn-secondary"><i class="fas fa-times"></i> Сбросить</button>
+    </div>
+    
+    <div class="orders-table-container">
+        <table class="orders-table">
+            <thead>
+                <tr><th>№ заказа</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Товары</th><th>Сумма</th><th>Оплата</th><th>Статус</th><th>Действия</th></tr>
+            </thead>
+            <tbody id="ordersTableBody"><tr><td colspan="9" class="empty-state">Загрузка...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="orderModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-receipt"></i> Детали заказа <span id="modalOrderId"></span></h3>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+    </div>
 </div>
 
 <script>
-    // Хранилище заказов
     let orders = [];
     
     // Загрузка заказов из localStorage
     function loadOrders() {
-        console.log('🔄 Загрузка заказов...');
-        
-        // Загружаем заказы из crm_data
+        console.log('🔄 Загрузка заказов из CRM...');
         const saved = localStorage.getItem('crm_data');
+        
         if (saved) {
             try {
                 const data = JSON.parse(saved);
                 orders = data.orders || [];
                 console.log(`✅ Загружено заказов: ${orders.length}`);
             } catch(e) {
-                console.error('Ошибка загрузки заказов', e);
+                console.error('Ошибка загрузки', e);
                 orders = [];
             }
+        } else {
+            console.log('❌ Нет данных в localStorage');
+            orders = [];
         }
         
-        // Также проверяем failedOrders
-        const failed = localStorage.getItem('failedOrders');
-        if (failed) {
-            try {
-                const failedOrders = JSON.parse(failed);
-                if (failedOrders.length > 0) {
-                    console.log(`⚠️ Есть неотправленные заказы: ${failedOrders.length}`);
-                }
-            } catch(e) {}
-        }
-        
+        renderStats();
         renderOrdersTable();
     }
     
@@ -444,228 +512,46 @@
                 data.orders = orders;
                 localStorage.setItem('crm_data', JSON.stringify(data));
             } catch(e) {}
-        } else {
-            localStorage.setItem('crm_data', JSON.stringify({ orders: orders, products: [], categories: [], leads: [], messages: {}, settings: {} }));
-        }
-        console.log('💾 Заказы сохранены');
-    }
-    
-    // Обновление статуса заказа
-    function updateOrderStatus(orderId, newStatus) {
-        const order = orders.find(o => o.order_id === orderId);
-        if (order) {
-            order.status = newStatus;
-            saveOrders();
-            renderOrdersTable();
-            showToast(`Статус заказа №${orderId} изменён на ${getStatusName(newStatus)}`);
         }
     }
     
-    function getStatusName(status) {
-        const names = {
-            'new': '🆕 Новый',
-            'paid': '💳 Оплачен',
-            'shipped': '🚚 Отправлен',
-            'delivered': '✅ Доставлен',
-            'cancelled': '❌ Отменён'
-        };
-        return names[status] || status;
+    // Статистика
+    function renderStats() {
+        const total = orders.length;
+        const newOrders = orders.filter(o => o.status === 'new').length;
+        const paidOrders = orders.filter(o => o.status === 'paid').length;
+        const shippedOrders = orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length;
+        const revenue = orders.filter(o => o.status === 'paid' || o.status === 'shipped' || o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
+        
+        document.getElementById('totalOrders').innerText = total;
+        document.getElementById('newOrders').innerText = newOrders;
+        document.getElementById('paidOrders').innerText = paidOrders;
+        document.getElementById('shippedOrders').innerText = shippedOrders;
+        document.getElementById('totalRevenue').innerText = revenue.toLocaleString() + ' ₽';
     }
     
-    function getPaymentName(payment) {
-        const names = {
-            'card': '💳 Картой',
-            'sbp': '📱 СБП',
-            'cash': '💰 Наличные'
-        };
-        return names[payment] || payment;
+    function getStatusText(status) {
+        const map = { 'new': '🆕 Новый', 'paid': '💳 Оплачен', 'shipped': '📦 Отправлен', 'delivered': '✅ Доставлен', 'cancelled': '❌ Отменён' };
+        return map[status] || status;
     }
     
     function getStatusClass(status) {
-        const classes = {
-            'new': 'status-new',
-            'paid': 'status-paid',
-            'shipped': 'status-shipped',
-            'delivered': 'status-delivered',
-            'cancelled': 'status-cancelled'
-        };
-        return classes[status] || 'status-new';
+        const map = { 'new': 'status-new', 'paid': 'status-paid', 'shipped': 'status-shipped', 'delivered': 'status-delivered', 'cancelled': 'status-cancelled' };
+        return map[status] || 'status-new';
+    }
+    
+    function getPaymentText(payment) {
+        const map = { 'card': '💳 Картой', 'sbp': '📱 СБП', 'cash': '💰 Наличные' };
+        return map[payment] || payment;
     }
     
     function getPaymentClass(payment) {
-        const classes = {
-            'card': 'payment-card',
-            'sbp': 'payment-sbp',
-            'cash': 'payment-cash'
-        };
-        return classes[payment] || 'payment-card';
+        const map = { 'card': 'payment-card', 'sbp': 'payment-sbp', 'cash': 'payment-cash' };
+        return map[payment] || 'payment-card';
     }
     
-    // Открытие деталей заказа
-    function openOrderDetails(orderId) {
-        const order = orders.find(o => o.order_id === orderId);
-        if (!order) return;
-        
-        const modalHtml = `
-            <div class="order-details-modal" id="orderDetailsModal">
-                <div class="order-details-content">
-                    <div class="order-details-header">
-                        <h3>📋 Заказ №${order.order_id}</h3>
-                        <button class="order-details-close" id="closeDetailsModal">&times;</button>
-                    </div>
-                    <div class="order-details-body">
-                        <div class="details-section">
-                            <h4>Информация о заказе</h4>
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <span class="details-label">Дата заказа</span>
-                                    <span class="details-value">${order.date || '—'}</span>
-                                </div>
-                                <div class="details-item">
-                                    <span class="details-label">Статус</span>
-                                    <div class="details-value">
-                                        <select class="status-select" id="orderStatusSelect">
-                                            <option value="new" ${order.status === 'new' ? 'selected' : ''}>🆕 Новый</option>
-                                            <option value="paid" ${order.status === 'paid' ? 'selected' : ''}>💳 Оплачен</option>
-                                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>🚚 Отправлен</option>
-                                            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>✅ Доставлен</option>
-                                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ Отменён</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="details-item">
-                                    <span class="details-label">Способ оплаты</span>
-                                    <span class="details-value">${getPaymentName(order.payment)}</span>
-                                </div>
-                                <div class="details-item">
-                                    <span class="details-label">Сумма заказа</span>
-                                    <span class="details-value order-total">${order.total.toLocaleString()} ₽</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="details-section">
-                            <h4>Клиент</h4>
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <span class="details-label">Имя</span>
-                                    <span class="details-value">${escapeHtml(order.customer?.name || '—')}</span>
-                                </div>
-                                <div class="details-item">
-                                    <span class="details-label">Телефон</span>
-                                    <span class="details-value">${escapeHtml(order.customer?.phone || '—')}</span>
-                                </div>
-                                <div class="details-item">
-                                    <span class="details-label">Email</span>
-                                    <span class="details-value">${escapeHtml(order.customer?.email || '—')}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        ${order.delivery ? `
-                        <div class="details-section">
-                            <h4>Доставка</h4>
-                            <div class="details-grid">
-                                <div class="details-item">
-                                    <span class="details-label">Способ доставки</span>
-                                    <span class="details-value">${order.delivery.method === 'courier' ? '🚚 Курьер' : order.delivery.method === 'pickup' ? '📦 Самовывоз' : order.delivery.method}</span>
-                                </div>
-                                <div class="details-item">
-                                    <span class="details-label">Стоимость доставки</span>
-                                    <span class="details-value">${order.delivery.price === 0 ? 'Бесплатно' : order.delivery.price.toLocaleString() + ' ₽'}</span>
-                                </div>
-                                ${order.address ? `
-                                <div class="details-item">
-                                    <span class="details-label">Адрес</span>
-                                    <span class="details-value">${escapeHtml(order.address)}</span>
-                                </div>
-                                ` : ''}
-                            </div>
-                        </div>
-                        ` : ''}
-                        
-                        <div class="details-section">
-                            <h4>Товары в заказе</h4>
-                            <table class="order-items-table">
-                                <thead>
-                                    <tr>
-                                        <th>Товар</th>
-                                        <th>Размер</th>
-                                        <th>Цвет</th>
-                                        <th>Артикул</th>
-                                        <th>Кол-во</th>
-                                        <th>Цена</th>
-                                        <th>Сумма</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${order.items.map(item => `
-                                        <tr>
-                                            <td>${escapeHtml(item.title)}</td>
-                                            <td>${escapeHtml(item.size || '—')}</td>
-                                            <td>${escapeHtml(item.color || '—')}</td>
-                                            <td>${escapeHtml(item.article || '—')}</td>
-                                            <td>${item.quantity}</td>
-                                            <td>${item.price.toLocaleString()} ₽</td>
-                                            <td>${(item.price * item.quantity).toLocaleString()} ₽</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        ${order.comment ? `
-                        <div class="details-section">
-                            <h4>Комментарий</h4>
-                            <div style="background:#f8fafc; padding:12px; border-radius:16px;">
-                                ${escapeHtml(order.comment)}
-                            </div>
-                        </div>
-                        ` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const oldModal = document.getElementById('orderDetailsModal');
-        if (oldModal) oldModal.remove();
-        
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-        document.body.style.overflow = 'hidden';
-        
-        const closeBtn = document.getElementById('closeDetailsModal');
-        const modal = document.getElementById('orderDetailsModal');
-        const statusSelect = document.getElementById('orderStatusSelect');
-        
-        if (closeBtn) {
-            closeBtn.onclick = () => {
-                modal.remove();
-                document.body.style.overflow = '';
-            };
-        }
-        
-        if (modal) {
-            modal.onclick = (e) => {
-                if (e.target === modal) {
-                    modal.remove();
-                    document.body.style.overflow = '';
-                }
-            };
-        }
-        
-        if (statusSelect) {
-            statusSelect.onchange = () => {
-                updateOrderStatus(order.order_id, statusSelect.value);
-                modal.remove();
-                document.body.style.overflow = '';
-                openOrderDetails(order.order_id);
-            };
-        }
-    }
-    
-    // Рендер таблицы заказов
+    // Рендер таблицы
     function renderOrdersTable() {
-        const tbody = document.getElementById('ordersTableBody');
         const searchTerm = document.getElementById('searchOrders')?.value.toLowerCase() || '';
         const statusFilter = document.getElementById('statusFilter')?.value || 'all';
         const paymentFilter = document.getElementById('paymentFilter')?.value || 'all';
@@ -674,99 +560,127 @@
         
         if (searchTerm) {
             filtered = filtered.filter(o => 
-                o.order_id.toLowerCase().includes(searchTerm) ||
-                (o.customer?.name && o.customer.name.toLowerCase().includes(searchTerm)) ||
-                (o.customer?.phone && o.customer.phone.includes(searchTerm))
+                o.order_id?.toLowerCase().includes(searchTerm) ||
+                o.customer?.name?.toLowerCase().includes(searchTerm) ||
+                o.customer?.phone?.includes(searchTerm)
             );
         }
-        
         if (statusFilter !== 'all') {
             filtered = filtered.filter(o => o.status === statusFilter);
         }
-        
         if (paymentFilter !== 'all') {
             filtered = filtered.filter(o => o.payment === paymentFilter);
         }
         
-        // Сортировка по дате (новые сверху)
         filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
         
+        const tbody = document.getElementById('ordersTableBody');
+        
         if (filtered.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <p>Нет заказов</p>
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">📭 Нет заказов</td></tr>';
             return;
         }
         
         tbody.innerHTML = filtered.map(order => {
-            const itemsPreview = order.items.slice(0, 2).map(i => i.title).join(', ');
-            const moreItems = order.items.length > 2 ? ` +${order.items.length - 2}` : '';
+            const itemsPreview = (order.items || []).slice(0, 2).map(i => i.title).join(', ');
+            const moreItems = (order.items?.length || 0) > 2 ? ` +${order.items.length - 2}` : '';
             
             return `
                 <tr>
-                    <td><strong>${order.order_id}</strong></td>
+                    <td><strong>${order.order_id || '—'}</strong></td>
                     <td>${order.date || '—'}</td>
-                    <td>
-                        <div><strong>${escapeHtml(order.customer?.name || '—')}</strong></div>
-                        <div style="font-size:0.7rem; color:#666;">${escapeHtml(order.customer?.phone || '—')}</div>
-                    </td>
-                    <td>
-                        <div class="order-items-preview" title="${escapeHtml(order.items.map(i => i.title).join(', '))}">
-                            ${escapeHtml(itemsPreview)}${moreItems}
-                        </div>
-                    </td>
-                    <td class="order-total">${order.total.toLocaleString()} ₽</td>
-                    <td><span class="payment-badge ${getPaymentClass(order.payment)}">${getPaymentName(order.payment)}</span></td>
-                    <td><span class="order-status ${getStatusClass(order.status)}">${getStatusName(order.status)}</span></td>
-                    <td>
-                        <button class="view-btn" onclick="openOrderDetails('${order.order_id}')" title="Просмотр">👁️</button>
-                    </td>
+                    <td>${escapeHtml(order.customer?.name || '—')}</td>
+                    <td>${escapeHtml(order.customer?.phone || '—')}</td>
+                    <td><div class="products-list" title="${escapeHtml((order.items || []).map(i => i.title).join(', '))}">${escapeHtml(itemsPreview)}${moreItems}</div></td>
+                    <td class="total-amount">${(order.total || 0).toLocaleString()} ₽</td>
+                    <td><span class="payment-badge ${getPaymentClass(order.payment)}">${getPaymentText(order.payment)}</span></td>
+                    <td><span class="status-badge ${getStatusClass(order.status)}">${getStatusText(order.status)}</span></td>
+                    <td><div class="action-buttons"><button class="action-btn view" onclick="viewOrder('${order.order_id}')" title="Просмотр"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="editOrderStatus('${order.order_id}')" title="Изменить статус"><i class="fas fa-edit"></i></button></div></td>
                 </tr>
             `;
         }).join('');
     }
     
+    function viewOrder(orderId) {
+        const order = orders.find(o => o.order_id === orderId);
+        if (!order) return;
+        
+        const modal = document.getElementById('orderModal');
+        document.getElementById('modalOrderId').innerHTML = `#${order.order_id}`;
+        
+        const itemsHtml = (order.items || []).map(item => `
+            <tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.size || '—')}</td><td>${escapeHtml(item.color || '—')}</td><td>${item.quantity}</td><td>${item.price.toLocaleString()} ₽</td><td>${(item.price * item.quantity).toLocaleString()} ₽</td></tr>
+        `).join('');
+        
+        document.getElementById('modalBody').innerHTML = `
+            <div class="order-detail-row"><div class="order-detail-label">📅 Дата:</div><div class="order-detail-value">${order.date || '—'}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">👤 Клиент:</div><div class="order-detail-value">${escapeHtml(order.customer?.name || '—')}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">📞 Телефон:</div><div class="order-detail-value">${escapeHtml(order.customer?.phone || '—')}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">✉️ Email:</div><div class="order-detail-value">${escapeHtml(order.customer?.email || '—')}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">🚚 Доставка:</div><div class="order-detail-value">${order.delivery?.method === 'courier' ? 'Курьерская' : order.delivery?.method === 'pickup' ? 'Самовывоз' : order.delivery?.method} ${order.delivery?.price ? '(' + order.delivery.price.toLocaleString() + ' ₽)' : ''}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">📍 Адрес:</div><div class="order-detail-value">${escapeHtml(order.address || '—')}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">💳 Оплата:</div><div class="order-detail-value">${getPaymentText(order.payment)}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">📦 Товары:</div><div class="order-detail-value"><table class="items-table"><thead><tr><th>Название</th><th>Размер</th><th>Цвет</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead><tbody>${itemsHtml}</tbody></table></div></div>
+            <div class="order-detail-row"><div class="order-detail-label">💬 Комментарий:</div><div class="order-detail-value">${escapeHtml(order.comment || '—')}</div></div>
+            <div class="order-detail-row"><div class="order-detail-label">💰 Итого:</div><div class="order-detail-value"><strong style="color:#00897b; font-size:18px;">${(order.total || 0).toLocaleString()} ₽</strong></div></div>
+            <div class="order-detail-row"><div class="order-detail-label">📊 Статус:</div><div class="order-detail-value"><select id="statusSelect" class="status-select"><option value="new" ${order.status === 'new' ? 'selected' : ''}>🆕 Новый</option><option value="paid" ${order.status === 'paid' ? 'selected' : ''}>💳 Оплачен</option><option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option><option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>✅ Доставлен</option><option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ Отменён</option></select></div></div>
+        `;
+        
+        modal.classList.add('active');
+        
+        const statusSelect = document.getElementById('statusSelect');
+        if (statusSelect) {
+            statusSelect.onchange = () => {
+                order.status = statusSelect.value;
+                saveOrders();
+                renderStats();
+                renderOrdersTable();
+                showToast(`Статус заказа ${order.order_id} изменён`);
+                viewOrder(order.order_id);
+            };
+        }
+    }
+    
+    function editOrderStatus(orderId) {
+        viewOrder(orderId);
+    }
+    
+    function closeModal() {
+        document.getElementById('orderModal').classList.remove('active');
+    }
+    
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    
     function escapeHtml(str) {
         if (!str) return '';
-        return String(str).replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    function showToast(msg) {
-        let t = document.getElementById('adminToast');
-        if (!t) {
-            t = document.createElement('div');
-            t.id = 'adminToast';
-            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a2c3e;color:white;padding:12px 24px;border-radius:40px;z-index:100000;font-size:14px;opacity:0;transition:0.3s';
-            document.body.appendChild(t);
-        }
-        t.textContent = msg;
-        t.style.opacity = '1';
-        setTimeout(() => t.style.opacity = '0', 3000);
-    }
-    
-    // Инициализация
-    document.addEventListener('DOMContentLoaded', function() {
-        loadOrders();
-        
-        document.getElementById('searchOrders').addEventListener('input', () => renderOrdersTable());
-        document.getElementById('statusFilter').addEventListener('change', () => renderOrdersTable());
-        document.getElementById('paymentFilter').addEventListener('change', () => renderOrdersTable());
-        document.getElementById('refreshOrders').addEventListener('click', () => loadOrders());
+    // События
+    document.getElementById('searchOrders').addEventListener('input', () => renderOrdersTable());
+    document.getElementById('statusFilter').addEventListener('change', () => renderOrdersTable());
+    document.getElementById('paymentFilter').addEventListener('change', () => renderOrdersTable());
+    document.getElementById('clearFilters').addEventListener('click', () => {
+        document.getElementById('searchOrders').value = '';
+        document.getElementById('statusFilter').value = 'all';
+        document.getElementById('paymentFilter').value = 'all';
+        renderOrdersTable();
     });
+    document.getElementById('refreshBtn').addEventListener('click', () => loadOrders());
     
-    // Делаем функции глобальными
-    window.openOrderDetails = openOrderDetails;
-    window.updateOrderStatus = updateOrderStatus;
+    // Загрузка
+    loadOrders();
+    
+    // Закрытие модалки по ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
 </script>
 </body>
 </html>
