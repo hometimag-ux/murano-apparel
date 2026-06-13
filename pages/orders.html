@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,416 +7,126 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); padding: 24px; min-height: 100vh; }
+        .orders-container { max-width: 1600px; margin: 0 auto; }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            padding: 24px;
-            min-height: 100vh;
-        }
+        .orders-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+        .orders-header h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #1a1a2e, #16213e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .orders-container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .stat-card { background: white; border-radius: 28px; padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: all 0.3s; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+        .stat-icon { width: 56px; height: 56px; background: linear-gradient(135deg, #e3f2fd, #bbdef5); border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #00897b; }
+        .stat-info h3 { font-size: 28px; font-weight: 700; color: #1a1a2e; }
+        .stat-info p { font-size: 13px; color: #999; }
         
-        .orders-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
+        .filters-bar { background: white; border-radius: 24px; padding: 16px 24px; margin-bottom: 24px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .search-wrapper { flex: 1; position: relative; min-width: 200px; }
+        .search-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #999; }
+        .search-input { width: 100%; padding: 12px 16px 12px 40px; border: 1px solid #e0e0e0; border-radius: 40px; font-size: 14px; }
+        .search-input:focus { outline: none; border-color: #00897b; box-shadow: 0 0 0 3px rgba(0,137,123,0.1); }
+        .filter-select { padding: 12px 20px; border: 1px solid #e0e0e0; border-radius: 40px; background: white; font-size: 14px; cursor: pointer; }
+        .btn-primary { background: linear-gradient(135deg, #00897b, #4db6ac); color: white; border: none; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,137,123,0.3); }
+        .btn-secondary { background: #f0f0f0; border: none; padding: 12px 24px; border-radius: 40px; font-size: 14px; font-weight: 500; cursor: pointer; }
         
-        .orders-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .orders-table-container { background: white; border-radius: 24px; overflow-x: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .orders-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 1000px; }
+        .orders-table th { text-align: left; padding: 18px 16px; background: #f8f9fa; font-weight: 600; color: #1a1a2e; border-bottom: 1px solid #e9ecef; }
+        .orders-table td { padding: 16px; border-bottom: 1px solid #e9ecef; vertical-align: middle; }
+        .orders-table tr:hover { background: #f8f9fa; cursor: pointer; }
         
-        .orders-header h1 i {
-            background: none;
-            -webkit-text-fill-color: #00897b;
-            margin-right: 12px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 32px;
-        }
-        
-        .stat-card {
-            background: white;
-            border-radius: 28px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            transition: all 0.3s;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-        }
-        
-        .stat-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
-            border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: #00897b;
-        }
-        
-        .stat-info h3 {
-            font-size: 28px;
-            font-weight: 700;
-            color: #1a1a2e;
-        }
-        
-        .stat-info p {
-            font-size: 13px;
-            color: #999;
-        }
-        
-        .filters-bar {
-            background: white;
-            border-radius: 24px;
-            padding: 16px 24px;
-            margin-bottom: 24px;
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        
-        .search-wrapper {
-            flex: 1;
-            position: relative;
-            min-width: 200px;
-        }
-        
-        .search-wrapper i {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-        
-        .search-input {
-            width: 100%;
-            padding: 12px 16px 12px 40px;
-            border: 1px solid #e0e0e0;
-            border-radius: 40px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s;
-        }
-        
-        .search-input:focus {
-            outline: none;
-            border-color: #00897b;
-            box-shadow: 0 0 0 3px rgba(0,137,123,0.1);
-        }
-        
-        .filter-select {
-            padding: 12px 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 40px;
-            background: white;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        
-        .date-input {
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 40px;
-            font-size: 13px;
-        }
-        
-        .btn-secondary {
-            background: #f0f0f0;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-secondary:hover {
-            background: #e0e0e0;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #00897b, #4db6ac);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,137,123,0.3);
-        }
-        
-        .orders-table-container {
-            background: white;
-            border-radius: 24px;
-            overflow-x: auto;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-        
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-            min-width: 1000px;
-        }
-        
-        .orders-table th {
-            text-align: left;
-            padding: 18px 16px;
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #1a1a2e;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .orders-table td {
-            padding: 16px;
-            border-bottom: 1px solid #e9ecef;
-            vertical-align: middle;
-        }
-        
-        .orders-table tr:hover {
-            background: #f8f9fa;
-        }
-        
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 30px; font-size: 12px; font-weight: 600; }
         .status-new { background: #e3f2fd; color: #1976d2; }
         .status-paid { background: #e8f5e9; color: #2e7d32; }
-        .status-processing { background: #fff3e0; color: #ef6c00; }
-        .status-shipped { background: #e8eaf6; color: #3f51b5; }
+        .status-shipped { background: #fff3e0; color: #ef6c00; }
         .status-delivered { background: #e8f5e9; color: #2e7d32; }
         .status-cancelled { background: #ffebee; color: #c62828; }
         
-        .payment-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        
+        .payment-badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
         .payment-card { background: #e8eaf6; color: #3949ab; }
         .payment-sbp { background: #e0f2f1; color: #00695c; }
         .payment-cash { background: #f3e5f5; color: #7b1fa2; }
         
-        .products-list {
-            max-width: 250px;
-        }
+        .total-amount { font-weight: 700; color: #00897b; }
         
-        .product-item {
-            font-size: 12px;
-            padding: 3px 0;
-            border-bottom: 1px dashed #eee;
+        /* Модальное окно деталей заказа */
+        .order-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
         }
+        .order-modal-overlay.active { opacity: 1; visibility: visible; }
         
-        .product-item:last-child {
-            border-bottom: none;
+        .order-modal {
+            background: white; border-radius: 28px; width: 90%; max-width: 900px;
+            max-height: 85vh; overflow-y: auto; transform: scale(0.95);
+            transition: transform 0.3s ease;
         }
+        .order-modal-overlay.active .order-modal { transform: scale(1); }
         
-        .total-amount {
-            font-weight: 700;
-            color: #00897b;
+        .order-modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1.2rem 1.5rem; border-bottom: 1px solid #e2edf4;
+            position: sticky; top: 0; background: white; z-index: 10;
         }
+        .order-modal-header h3 { font-size: 1.2rem; font-weight: 700; margin: 0; }
+        .order-modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8; }
         
-        .action-buttons {
-            display: flex;
-            gap: 8px;
+        .order-modal-body { padding: 1.5rem; }
+        
+        /* 4 секции */
+        .order-sections { display: flex; flex-direction: column; gap: 24px; }
+        .order-section {
+            background: #f8fafc; border-radius: 20px; overflow: hidden;
+            border: 1px solid #e2edf4;
         }
-        
-        .action-btn {
-            background: none;
-            border: none;
-            width: 34px;
-            height: 34px;
-            border-radius: 34px;
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 1.2rem; background: white; border-bottom: 1px solid #e2edf4;
             cursor: pointer;
-            transition: all 0.2s;
-            color: #666;
         }
+        .section-header h4 { margin: 0; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .section-header i { color: #00897b; }
+        .section-edit-btn { background: none; border: none; cursor: pointer; color: #94a3b8; font-size: 0.9rem; }
+        .section-edit-btn:hover { color: #00897b; }
         
-        .action-btn:hover { background: #f0f0f0; }
-        .action-btn.view:hover { color: #00897b; }
-        .action-btn.edit:hover { color: #ff9800; }
-        .action-btn.delete:hover { color: #f44336; }
+        .section-content { padding: 1.2rem; display: block; }
+        .section-content.editing { background: #fff8e1; }
         
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(4px);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+        .info-row { display: flex; padding: 8px 0; border-bottom: 1px solid #e2edf4; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { width: 130px; font-weight: 600; color: #1a2c3e; }
+        .info-value { flex: 1; color: #64748b; }
+        
+        .edit-form { display: flex; flex-direction: column; gap: 12px; }
+        .edit-form input, .edit-form select, .edit-form textarea {
+            padding: 10px 12px; border: 1px solid #cbdde9; border-radius: 12px;
+            font-size: 14px; width: 100%;
         }
+        .edit-form-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .edit-save { background: #00897b; color: white; border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
+        .edit-cancel { background: #e2edf4; border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
         
-        .modal.active { display: flex; }
+        .items-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .items-table th, .items-table td { padding: 8px; text-align: left; border-bottom: 1px solid #e2edf4; }
+        .items-table th { background: #f8fafc; font-weight: 600; }
         
-        .modal-content {
-            background: white;
-            border-radius: 32px;
-            width: 90%;
-            max-width: 650px;
-            max-height: 85vh;
-            overflow-y: auto;
-            animation: modalSlideIn 0.3s ease;
-        }
+        .order-actions { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2edf4; }
+        .delete-order { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; }
+        .delete-order:hover { background: #c0392b; }
         
-        @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .modal-header {
-            padding: 24px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #f8f9fa, white);
-            border-radius: 32px 32px 0 0;
-        }
-        
-        .modal-header h3 {
-            font-size: 20px;
-            font-weight: 600;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-        }
-        
-        .modal-body {
-            padding: 24px;
-        }
-        
-        .order-detail-row {
-            display: flex;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .order-detail-label {
-            width: 130px;
-            font-weight: 600;
-            color: #666;
-        }
-        
-        .order-detail-value {
-            flex: 1;
-            color: #333;
-        }
-        
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        
-        .items-table th, .items-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .items-table th {
-            background: #f8fafc;
-        }
-        
-        .status-select {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            border-radius: 30px;
-            font-size: 13px;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: #999;
-        }
-        
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            background: #1a1a2e;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 14px;
-            z-index: 1100;
-            animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
-        }
+        .empty-state { text-align: center; padding: 60px; color: #999; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #1a1a2e; color: white; padding: 12px 24px; border-radius: 40px; z-index: 1100; animation: fadeInOut 3s ease forwards; }
+        @keyframes fadeInOut { 0% { opacity: 0; transform: translateX(100%); } 15% { opacity: 1; transform: translateX(0); } 85% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(100%); } }
         
         @media (max-width: 768px) {
-            body { padding: 16px; }
             .stats-grid { grid-template-columns: repeat(2, 1fr); }
             .filters-bar { flex-direction: column; align-items: stretch; }
+            .info-label { width: 100px; }
         }
     </style>
 </head>
@@ -424,86 +134,54 @@
 <div class="orders-container">
     <div class="orders-header">
         <h1><i class="fas fa-shopping-cart"></i> Управление заказами</h1>
-        <button class="btn-primary" id="refreshBtn"><i class="fas fa-sync-alt"></i> Обновить</button>
+        <button class="btn-primary" id="refreshOrders"><i class="fas fa-sync-alt"></i> Обновить</button>
     </div>
     
-    <div class="stats-grid" id="statsGrid">
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div class="stat-info"><h3 id="totalOrders">0</h3><p>Всего заказов</p></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-info"><h3 id="newOrders">0</h3><p>Новых</p></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-info"><h3 id="paidOrders">0</h3><p>Оплачено</p></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-truck"></i></div><div class="stat-info"><h3 id="shippedOrders">0</h3><p>Отправлено</p></div></div>
-        <div class="stat-card"><div class="stat-icon"><i class="fas fa-ruble-sign"></i></div><div class="stat-info"><h3 id="totalRevenue">0 ₽</h3><p>Выручка</p></div></div>
-    </div>
+    <div class="stats-grid" id="statsGrid"></div>
     
     <div class="filters-bar">
-        <div class="search-wrapper">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchOrders" class="search-input" placeholder="Поиск по номеру, клиенту, телефону...">
-        </div>
-        <select id="statusFilter" class="filter-select">
-            <option value="all">Все статусы</option>
-            <option value="new">🆕 Новые</option>
-            <option value="paid">💳 Оплаченные</option>
-            <option value="shipped">📦 Отправленные</option>
-            <option value="delivered">✅ Доставленные</option>
-            <option value="cancelled">❌ Отменённые</option>
-        </select>
-        <select id="paymentFilter" class="filter-select">
-            <option value="all">Все способы оплаты</option>
-            <option value="card">💳 Картой</option>
-            <option value="sbp">📱 СБП</option>
-            <option value="cash">💰 Наличные</option>
-        </select>
+        <div class="search-wrapper"><i class="fas fa-search"></i><input type="text" id="searchOrders" class="search-input" placeholder="Поиск по номеру, клиенту, телефону..."></div>
+        <select id="statusFilter" class="filter-select"><option value="all">Все статусы</option><option value="new">🆕 Новые</option><option value="paid">💳 Оплаченные</option><option value="shipped">📦 Отправленные</option><option value="delivered">✅ Доставленные</option><option value="cancelled">❌ Отменённые</option></select>
+        <select id="paymentFilter" class="filter-select"><option value="all">Все способы оплаты</option><option value="card">💳 Картой</option><option value="sbp">📱 СБП</option><option value="cash">💰 Наличные</option></select>
         <button id="clearFilters" class="btn-secondary"><i class="fas fa-times"></i> Сбросить</button>
     </div>
     
     <div class="orders-table-container">
         <table class="orders-table">
-            <thead>
-                <tr><th>№ заказа</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Товары</th><th>Сумма</th><th>Оплата</th><th>Статус</th><th>Действия</th></tr>
-            </thead>
-            <tbody id="ordersTableBody"><tr><td colspan="9" class="empty-state">Загрузка...</td></tr></tbody>
+            <thead><tr><th>№ заказа</th><th>Дата</th><th>Клиент</th><th>Телефон</th><th>Сумма</th><th>Оплата</th><th>Статус</th></tr></thead>
+            <tbody id="ordersTableBody"><tr><td colspan="7" class="empty-state">Загрузка...</td></tr></tbody>
         </table>
     </div>
 </div>
 
-<div id="orderModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
+<!-- Модальное окно деталей заказа -->
+<div id="orderModal" class="order-modal-overlay">
+    <div class="order-modal">
+        <div class="order-modal-header">
             <h3><i class="fas fa-receipt"></i> Детали заказа <span id="modalOrderId"></span></h3>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <button class="order-modal-close" id="closeOrderModal">&times;</button>
         </div>
-        <div class="modal-body" id="modalBody"></div>
+        <div class="order-modal-body" id="modalBody"></div>
     </div>
 </div>
 
 <script>
     let orders = [];
+    let currentOrder = null;
+    let editingSection = null;
     
-    // Загрузка заказов из localStorage
     function loadOrders() {
-        console.log('🔄 Загрузка заказов из CRM...');
         const saved = localStorage.getItem('crm_data');
-        
         if (saved) {
             try {
                 const data = JSON.parse(saved);
                 orders = data.orders || [];
-                console.log(`✅ Загружено заказов: ${orders.length}`);
-            } catch(e) {
-                console.error('Ошибка загрузки', e);
-                orders = [];
-            }
-        } else {
-            console.log('❌ Нет данных в localStorage');
-            orders = [];
+            } catch(e) { console.error(e); }
         }
-        
         renderStats();
         renderOrdersTable();
     }
     
-    // Сохранение заказов
     function saveOrders() {
         const saved = localStorage.getItem('crm_data');
         if (saved) {
@@ -515,19 +193,47 @@
         }
     }
     
-    // Статистика
     function renderStats() {
         const total = orders.length;
         const newOrders = orders.filter(o => o.status === 'new').length;
         const paidOrders = orders.filter(o => o.status === 'paid').length;
-        const shippedOrders = orders.filter(o => o.status === 'shipped' || o.status === 'delivered').length;
-        const revenue = orders.filter(o => o.status === 'paid' || o.status === 'shipped' || o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
+        const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
+        const revenue = orders.filter(o => o.status === 'paid' || o.status === 'delivered').reduce((s, o) => s + (o.total || 0), 0);
         
-        document.getElementById('totalOrders').innerText = total;
-        document.getElementById('newOrders').innerText = newOrders;
-        document.getElementById('paidOrders').innerText = paidOrders;
-        document.getElementById('shippedOrders').innerText = shippedOrders;
-        document.getElementById('totalRevenue').innerText = revenue.toLocaleString() + ' ₽';
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div class="stat-info"><h3>${total}</h3><p>Всего заказов</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-info"><h3>${newOrders}</h3><p>Новых</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-info"><h3>${paidOrders}</h3><p>Оплачено</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-truck"></i></div><div class="stat-info"><h3>${deliveredOrders}</h3><p>Доставлено</p></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-ruble-sign"></i></div><div class="stat-info"><h3>${revenue.toLocaleString()} ₽</h3><p>Выручка</p></div></div>
+        `;
+    }
+    
+    function renderOrdersTable() {
+        const searchTerm = document.getElementById('searchOrders')?.value.toLowerCase() || '';
+        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
+        const paymentFilter = document.getElementById('paymentFilter')?.value || 'all';
+        
+        let filtered = [...orders];
+        if (searchTerm) filtered = filtered.filter(o => o.order_id?.toLowerCase().includes(searchTerm) || o.customer?.name?.toLowerCase().includes(searchTerm) || o.customer?.phone?.includes(searchTerm));
+        if (statusFilter !== 'all') filtered = filtered.filter(o => o.status === statusFilter);
+        if (paymentFilter !== 'all') filtered = filtered.filter(o => o.payment === paymentFilter);
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        const tbody = document.getElementById('ordersTableBody');
+        if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" class="empty-state">📭 Нет заказов</td></tr>'; return; }
+        
+        tbody.innerHTML = filtered.map(order => `
+            <tr onclick="openOrderModal('${order.order_id}')">
+                <td><strong>${order.order_id}</strong></td>
+                <td>${order.date || '—'}</td>
+                <td>${escapeHtml(order.customer?.name || '—')}</td>
+                <td>${escapeHtml(order.customer?.phone || '—')}</td>
+                <td class="total-amount">${(order.total || 0).toLocaleString()} ₽</td>
+                <td><span class="payment-badge payment-${order.payment || 'card'}">${getPaymentText(order.payment)}</span></td>
+                <td><span class="status-badge status-${order.status || 'new'}">${getStatusText(order.status)}</span></td>
+            </tr>
+        `).join('');
     }
     
     function getStatusText(status) {
@@ -535,124 +241,226 @@
         return map[status] || status;
     }
     
-    function getStatusClass(status) {
-        const map = { 'new': 'status-new', 'paid': 'status-paid', 'shipped': 'status-shipped', 'delivered': 'status-delivered', 'cancelled': 'status-cancelled' };
-        return map[status] || 'status-new';
-    }
-    
     function getPaymentText(payment) {
         const map = { 'card': '💳 Картой', 'sbp': '📱 СБП', 'cash': '💰 Наличные' };
         return map[payment] || payment;
     }
     
-    function getPaymentClass(payment) {
-        const map = { 'card': 'payment-card', 'sbp': 'payment-sbp', 'cash': 'payment-cash' };
-        return map[payment] || 'payment-card';
+    function openOrderModal(orderId) {
+        currentOrder = orders.find(o => o.order_id === orderId);
+        if (!currentOrder) return;
+        
+        document.getElementById('modalOrderId').innerText = `#${currentOrder.order_id}`;
+        renderOrderDetails();
+        document.getElementById('orderModal').classList.add('active');
+        editingSection = null;
     }
     
-    // Рендер таблицы
-    function renderOrdersTable() {
-        const searchTerm = document.getElementById('searchOrders')?.value.toLowerCase() || '';
-        const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-        const paymentFilter = document.getElementById('paymentFilter')?.value || 'all';
+    function renderOrderDetails() {
+        const container = document.getElementById('modalBody');
+        if (!currentOrder) return;
         
-        let filtered = [...orders];
-        
-        if (searchTerm) {
-            filtered = filtered.filter(o => 
-                o.order_id?.toLowerCase().includes(searchTerm) ||
-                o.customer?.name?.toLowerCase().includes(searchTerm) ||
-                o.customer?.phone?.includes(searchTerm)
-            );
-        }
-        if (statusFilter !== 'all') {
-            filtered = filtered.filter(o => o.status === statusFilter);
-        }
-        if (paymentFilter !== 'all') {
-            filtered = filtered.filter(o => o.payment === paymentFilter);
-        }
-        
-        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        const tbody = document.getElementById('ordersTableBody');
-        
-        if (filtered.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="empty-state">📭 Нет заказов</td></tr>';
+        container.innerHTML = `
+            <div class="order-sections">
+                <!-- Секция 1: Данные клиента -->
+                <div class="order-section" id="section-customer">
+                    <div class="section-header" onclick="toggleSectionEdit('customer')">
+                        <h4><i class="fas fa-user"></i> Данные клиента</h4>
+                        <button class="section-edit-btn" id="edit-customer"><i class="fas fa-pen"></i> Редактировать</button>
+                    </div>
+                    <div class="section-content" id="content-customer">
+                        <div class="info-row"><div class="info-label">Имя:</div><div class="info-value">${escapeHtml(currentOrder.customer?.name || '—')}</div></div>
+                        <div class="info-row"><div class="info-label">Телефон:</div><div class="info-value">${escapeHtml(currentOrder.customer?.phone || '—')}</div></div>
+                        <div class="info-row"><div class="info-label">Email:</div><div class="info-value">${escapeHtml(currentOrder.customer?.email || '—')}</div></div>
+                    </div>
+                </div>
+                
+                <!-- Секция 2: Адрес доставки -->
+                <div class="order-section" id="section-address">
+                    <div class="section-header" onclick="toggleSectionEdit('address')">
+                        <h4><i class="fas fa-location-dot"></i> Адрес доставки</h4>
+                        <button class="section-edit-btn" id="edit-address"><i class="fas fa-pen"></i> Редактировать</button>
+                    </div>
+                    <div class="section-content" id="content-address">
+                        <div class="info-row"><div class="info-label">Способ доставки:</div><div class="info-value">${currentOrder.delivery?.method === 'courier' ? '🚚 Курьером' : currentOrder.delivery?.method === 'pickup' ? '🏪 Самовывоз' : currentOrder.delivery?.method || '—'}</div></div>
+                        <div class="info-row"><div class="info-label">Адрес:</div><div class="info-value">${escapeHtml(currentOrder.address || '—')}</div></div>
+                        <div class="info-row"><div class="info-label">Стоимость доставки:</div><div class="info-value">${(currentOrder.delivery?.price || 0).toLocaleString()} ₽</div></div>
+                    </div>
+                </div>
+                
+                <!-- Секция 3: Статус доставки -->
+                <div class="order-section" id="section-status">
+                    <div class="section-header" onclick="toggleSectionEdit('status')">
+                        <h4><i class="fas fa-truck"></i> Статус доставки</h4>
+                        <button class="section-edit-btn" id="edit-status"><i class="fas fa-pen"></i> Редактировать</button>
+                    </div>
+                    <div class="section-content" id="content-status">
+                        <div class="info-row"><div class="info-label">Текущий статус:</div><div class="info-value"><span class="status-badge status-${currentOrder.status || 'new'}">${getStatusText(currentOrder.status)}</span></div></div>
+                        <div class="info-row"><div class="info-label">Трек-номер:</div><div class="info-value">${escapeHtml(currentOrder.tracking_number || '—')}</div></div>
+                        <div class="info-row"><div class="info-label">Дата доставки:</div><div class="info-value">${currentOrder.delivery_date || '—'}</div></div>
+                    </div>
+                </div>
+                
+                <!-- Секция 4: Оплата -->
+                <div class="order-section" id="section-payment">
+                    <div class="section-header" onclick="toggleSectionEdit('payment')">
+                        <h4><i class="fas fa-credit-card"></i> Оплата</h4>
+                        <button class="section-edit-btn" id="edit-payment"><i class="fas fa-pen"></i> Редактировать</button>
+                    </div>
+                    <div class="section-content" id="content-payment">
+                        <div class="info-row"><div class="info-label">Способ оплаты:</div><div class="info-value">${getPaymentText(currentOrder.payment)}</div></div>
+                        <div class="info-row"><div class="info-label">Статус оплаты:</div><div class="info-value">${currentOrder.payment_status === 'paid' ? '✅ Оплачен' : '⏳ Ожидает оплаты'}</div></div>
+                        <div class="info-row"><div class="info-label">Сумма:</div><div class="info-value"><strong style="color:#00897b;">${(currentOrder.total || 0).toLocaleString()} ₽</strong></div></div>
+                    </div>
+                </div>
+                
+                <!-- Товары в заказе -->
+                <div class="order-section">
+                    <div class="section-header"><h4><i class="fas fa-box"></i> Товары в заказе</h4></div>
+                    <div class="section-content">
+                        <table class="items-table">
+                            <thead><tr><th>Название</th><th>Размер</th><th>Цвет</th><th>Артикул</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead>
+                            <tbody>${(currentOrder.items || []).map(item => `
+                                <tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.size || '—')}</td><td>${escapeHtml(item.color || '—')}</td><td>${escapeHtml(item.article || '—')}</td><td>${item.quantity}</td><td>${item.price.toLocaleString()} ₽</td><td>${(item.price * item.quantity).toLocaleString()} ₽</td></tr>
+                            `).join('')}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="order-actions">
+                <button class="delete-order" onclick="deleteCurrentOrder()"><i class="fas fa-trash-alt"></i> Удалить заказ</button>
+            </div>
+        `;
+    }
+    
+    function toggleSectionEdit(section) {
+        if (editingSection === section) {
+            cancelEdit(section);
             return;
         }
+        if (editingSection) cancelEdit(editingSection);
+        editingSection = section;
+        startEdit(section);
+    }
+    
+    function startEdit(section) {
+        const contentDiv = document.getElementById(`content-${section}`);
+        const currentData = currentOrder;
         
-        tbody.innerHTML = filtered.map(order => {
-            const itemsPreview = (order.items || []).slice(0, 2).map(i => i.title).join(', ');
-            const moreItems = (order.items?.length || 0) > 2 ? ` +${order.items.length - 2}` : '';
-            
-            return `
-                <tr>
-                    <td><strong>${order.order_id || '—'}</strong></td>
-                    <td>${order.date || '—'}</td>
-                    <td>${escapeHtml(order.customer?.name || '—')}</td>
-                    <td>${escapeHtml(order.customer?.phone || '—')}</td>
-                    <td><div class="products-list" title="${escapeHtml((order.items || []).map(i => i.title).join(', '))}">${escapeHtml(itemsPreview)}${moreItems}</div></td>
-                    <td class="total-amount">${(order.total || 0).toLocaleString()} ₽</td>
-                    <td><span class="payment-badge ${getPaymentClass(order.payment)}">${getPaymentText(order.payment)}</span></td>
-                    <td><span class="status-badge ${getStatusClass(order.status)}">${getStatusText(order.status)}</span></td>
-                    <td><div class="action-buttons"><button class="action-btn view" onclick="viewOrder('${order.order_id}')" title="Просмотр"><i class="fas fa-eye"></i></button><button class="action-btn edit" onclick="editOrderStatus('${order.order_id}')" title="Изменить статус"><i class="fas fa-edit"></i></button></div></td>
-                </tr>
+        if (section === 'customer') {
+            contentDiv.innerHTML = `
+                <div class="edit-form">
+                    <input type="text" id="edit_name" value="${escapeHtml(currentData.customer?.name || '')}" placeholder="Имя">
+                    <input type="tel" id="edit_phone" value="${escapeHtml(currentData.customer?.phone || '')}" placeholder="Телефон">
+                    <input type="email" id="edit_email" value="${escapeHtml(currentData.customer?.email || '')}" placeholder="Email">
+                    <div class="edit-form-actions"><button class="edit-save" onclick="saveEdit('customer')">💾 Сохранить</button><button class="edit-cancel" onclick="cancelEdit('customer')">Отмена</button></div>
+                </div>
             `;
-        }).join('');
-    }
-    
-    function viewOrder(orderId) {
-        const order = orders.find(o => o.order_id === orderId);
-        if (!order) return;
-        
-        const modal = document.getElementById('orderModal');
-        document.getElementById('modalOrderId').innerHTML = `#${order.order_id}`;
-        
-        const itemsHtml = (order.items || []).map(item => `
-            <tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.size || '—')}</td><td>${escapeHtml(item.color || '—')}</td><td>${item.quantity}</td><td>${item.price.toLocaleString()} ₽</td><td>${(item.price * item.quantity).toLocaleString()} ₽</td></tr>
-        `).join('');
-        
-        document.getElementById('modalBody').innerHTML = `
-            <div class="order-detail-row"><div class="order-detail-label">📅 Дата:</div><div class="order-detail-value">${order.date || '—'}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">👤 Клиент:</div><div class="order-detail-value">${escapeHtml(order.customer?.name || '—')}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">📞 Телефон:</div><div class="order-detail-value">${escapeHtml(order.customer?.phone || '—')}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">✉️ Email:</div><div class="order-detail-value">${escapeHtml(order.customer?.email || '—')}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">🚚 Доставка:</div><div class="order-detail-value">${order.delivery?.method === 'courier' ? 'Курьерская' : order.delivery?.method === 'pickup' ? 'Самовывоз' : order.delivery?.method} ${order.delivery?.price ? '(' + order.delivery.price.toLocaleString() + ' ₽)' : ''}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">📍 Адрес:</div><div class="order-detail-value">${escapeHtml(order.address || '—')}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">💳 Оплата:</div><div class="order-detail-value">${getPaymentText(order.payment)}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">📦 Товары:</div><div class="order-detail-value"><table class="items-table"><thead><tr><th>Название</th><th>Размер</th><th>Цвет</th><th>Кол-во</th><th>Цена</th><th>Сумма</th></tr></thead><tbody>${itemsHtml}</tbody></table></div></div>
-            <div class="order-detail-row"><div class="order-detail-label">💬 Комментарий:</div><div class="order-detail-value">${escapeHtml(order.comment || '—')}</div></div>
-            <div class="order-detail-row"><div class="order-detail-label">💰 Итого:</div><div class="order-detail-value"><strong style="color:#00897b; font-size:18px;">${(order.total || 0).toLocaleString()} ₽</strong></div></div>
-            <div class="order-detail-row"><div class="order-detail-label">📊 Статус:</div><div class="order-detail-value"><select id="statusSelect" class="status-select"><option value="new" ${order.status === 'new' ? 'selected' : ''}>🆕 Новый</option><option value="paid" ${order.status === 'paid' ? 'selected' : ''}>💳 Оплачен</option><option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option><option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>✅ Доставлен</option><option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>❌ Отменён</option></select></div></div>
-        `;
-        
-        modal.classList.add('active');
-        
-        const statusSelect = document.getElementById('statusSelect');
-        if (statusSelect) {
-            statusSelect.onchange = () => {
-                order.status = statusSelect.value;
-                saveOrders();
-                renderStats();
-                renderOrdersTable();
-                showToast(`Статус заказа ${order.order_id} изменён`);
-                viewOrder(order.order_id);
-            };
+        } else if (section === 'address') {
+            contentDiv.innerHTML = `
+                <div class="edit-form">
+                    <select id="edit_delivery_method">
+                        <option value="courier" ${currentData.delivery?.method === 'courier' ? 'selected' : ''}>🚚 Курьером</option>
+                        <option value="pickup" ${currentData.delivery?.method === 'pickup' ? 'selected' : ''}>🏪 Самовывоз</option>
+                    </select>
+                    <input type="text" id="edit_address" value="${escapeHtml(currentData.address || '')}" placeholder="Адрес доставки">
+                    <input type="number" id="edit_delivery_price" value="${currentData.delivery?.price || 0}" placeholder="Стоимость доставки">
+                    <div class="edit-form-actions"><button class="edit-save" onclick="saveEdit('address')">💾 Сохранить</button><button class="edit-cancel" onclick="cancelEdit('address')">Отмена</button></div>
+                </div>
+            `;
+        } else if (section === 'status') {
+            contentDiv.innerHTML = `
+                <div class="edit-form">
+                    <select id="edit_status">
+                        <option value="new" ${currentData.status === 'new' ? 'selected' : ''}>🆕 Новый</option>
+                        <option value="paid" ${currentData.status === 'paid' ? 'selected' : ''}>💳 Оплачен</option>
+                        <option value="shipped" ${currentData.status === 'shipped' ? 'selected' : ''}>📦 Отправлен</option>
+                        <option value="delivered" ${currentData.status === 'delivered' ? 'selected' : ''}>✅ Доставлен</option>
+                        <option value="cancelled" ${currentData.status === 'cancelled' ? 'selected' : ''}>❌ Отменён</option>
+                    </select>
+                    <input type="text" id="edit_tracking" value="${escapeHtml(currentData.tracking_number || '')}" placeholder="Трек-номер">
+                    <input type="date" id="edit_delivery_date" value="${currentData.delivery_date || ''}" placeholder="Дата доставки">
+                    <div class="edit-form-actions"><button class="edit-save" onclick="saveEdit('status')">💾 Сохранить</button><button class="edit-cancel" onclick="cancelEdit('status')">Отмена</button></div>
+                </div>
+            `;
+        } else if (section === 'payment') {
+            contentDiv.innerHTML = `
+                <div class="edit-form">
+                    <select id="edit_payment">
+                        <option value="card" ${currentData.payment === 'card' ? 'selected' : ''}>💳 Картой</option>
+                        <option value="sbp" ${currentData.payment === 'sbp' ? 'selected' : ''}>📱 СБП</option>
+                        <option value="cash" ${currentData.payment === 'cash' ? 'selected' : ''}>💰 Наличные</option>
+                    </select>
+                    <select id="edit_payment_status">
+                        <option value="pending" ${currentData.payment_status === 'pending' ? 'selected' : ''}>⏳ Ожидает оплаты</option>
+                        <option value="paid" ${currentData.payment_status === 'paid' ? 'selected' : ''}>✅ Оплачен</option>
+                    </select>
+                    <div class="edit-form-actions"><button class="edit-save" onclick="saveEdit('payment')">💾 Сохранить</button><button class="edit-cancel" onclick="cancelEdit('payment')">Отмена</button></div>
+                </div>
+            `;
         }
+        contentDiv.classList.add('editing');
     }
     
-    function editOrderStatus(orderId) {
-        viewOrder(orderId);
+    function saveEdit(section) {
+        if (section === 'customer') {
+            currentOrder.customer = {
+                name: document.getElementById('edit_name')?.value || '',
+                phone: document.getElementById('edit_phone')?.value || '',
+                email: document.getElementById('edit_email')?.value || ''
+            };
+        } else if (section === 'address') {
+            currentOrder.delivery = {
+                method: document.getElementById('edit_delivery_method')?.value || 'courier',
+                price: parseFloat(document.getElementById('edit_delivery_price')?.value) || 0
+            };
+            currentOrder.address = document.getElementById('edit_address')?.value || '';
+        } else if (section === 'status') {
+            currentOrder.status = document.getElementById('edit_status')?.value || 'new';
+            currentOrder.tracking_number = document.getElementById('edit_tracking')?.value || '';
+            currentOrder.delivery_date = document.getElementById('edit_delivery_date')?.value || '';
+        } else if (section === 'payment') {
+            currentOrder.payment = document.getElementById('edit_payment')?.value || 'card';
+            currentOrder.payment_status = document.getElementById('edit_payment_status')?.value || 'pending';
+        }
+        
+        // Обновляем заказ в массиве
+        const index = orders.findIndex(o => o.order_id === currentOrder.order_id);
+        if (index !== -1) orders[index] = currentOrder;
+        saveOrders();
+        
+        editingSection = null;
+        renderOrderDetails();
+        renderStats();
+        renderOrdersTable();
+        showToast('✅ Данные обновлены');
+    }
+    
+    function cancelEdit(section) {
+        editingSection = null;
+        renderOrderDetails();
+    }
+    
+    function deleteCurrentOrder() {
+        if (confirm(`Удалить заказ ${currentOrder.order_id}? Это действие нельзя отменить.`)) {
+            orders = orders.filter(o => o.order_id !== currentOrder.order_id);
+            saveOrders();
+            document.getElementById('orderModal').classList.remove('active');
+            renderStats();
+            renderOrdersTable();
+            showToast('🗑️ Заказ удалён');
+        }
     }
     
     function closeModal() {
         document.getElementById('orderModal').classList.remove('active');
+        editingSection = null;
     }
     
-    function showToast(message) {
+    function showToast(msg) {
         const toast = document.createElement('div');
         toast.className = 'toast';
-        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${msg}`;
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
@@ -663,24 +471,20 @@
     }
     
     // События
-    document.getElementById('searchOrders').addEventListener('input', () => renderOrdersTable());
-    document.getElementById('statusFilter').addEventListener('change', () => renderOrdersTable());
-    document.getElementById('paymentFilter').addEventListener('change', () => renderOrdersTable());
-    document.getElementById('clearFilters').addEventListener('click', () => {
+    document.getElementById('searchOrders')?.addEventListener('input', () => renderOrdersTable());
+    document.getElementById('statusFilter')?.addEventListener('change', () => renderOrdersTable());
+    document.getElementById('paymentFilter')?.addEventListener('change', () => renderOrdersTable());
+    document.getElementById('clearFilters')?.addEventListener('click', () => {
         document.getElementById('searchOrders').value = '';
         document.getElementById('statusFilter').value = 'all';
         document.getElementById('paymentFilter').value = 'all';
         renderOrdersTable();
     });
-    document.getElementById('refreshBtn').addEventListener('click', () => loadOrders());
+    document.getElementById('refreshOrders')?.addEventListener('click', () => loadOrders());
+    document.getElementById('closeOrderModal')?.addEventListener('click', closeModal);
+    document.getElementById('orderModal')?.addEventListener('click', (e) => { if (e.target === document.getElementById('orderModal')) closeModal(); });
     
-    // Загрузка
     loadOrders();
-    
-    // Закрытие модалки по ESC
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeModal();
-    });
 </script>
 </body>
 </html>
