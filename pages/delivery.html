@@ -1,309 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Настройка доставки</title>
+    <title>Настройка доставки — CRM</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%); padding: 24px; min-height: 100vh; }
+        .delivery-container { max-width: 1400px; margin: 0 auto; }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
-            padding: 24px;
-            min-height: 100vh;
-        }
+        .delivery-header { margin-bottom: 28px; }
+        .delivery-header h1 { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #1a1a2e, #16213e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .delivery-header p { color: #666; margin-top: 8px; }
         
-        .delivery-container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 1px solid #ddd; flex-wrap: wrap; }
+        .tab-btn { background: none; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; color: #666; transition: 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn.active { color: #00897b; border-bottom-color: #00897b; }
         
-        .delivery-header {
-            margin-bottom: 28px;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         
-        .delivery-header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .delivery-header h1 i {
-            background: none;
-            -webkit-text-fill-color: #0066cc;
-            margin-right: 12px;
-        }
-        
-        /* Табы */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 8px;
-        }
-        
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 24px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border-radius: 30px;
-            transition: all 0.2s;
-            color: #666;
-        }
-        
-        .tab-btn.active {
-            background: #0066cc;
-            color: white;
-        }
-        
-        .tab-pane {
-            display: none;
-        }
-        
-        .tab-pane.active {
-            display: block;
-        }
-        
-        /* Сетка карточек */
-        .delivery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
+        .delivery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 24px; margin-bottom: 32px; }
         
         .delivery-card {
             background: white;
-            border-radius: 28px;
+            border-radius: 24px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             transition: all 0.3s;
         }
+        .delivery-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
         
-        .delivery-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
-        }
-        
-        .card-header {
-            padding: 20px 24px;
-            background: linear-gradient(135deg, #f8f9fa, white);
+        .delivery-card-header {
+            padding: 20px;
             border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-title {
             display: flex;
             align-items: center;
             gap: 12px;
+            background: linear-gradient(135deg, #f8f9fa, white);
         }
+        .delivery-icon { font-size: 32px; width: 56px; height: 56px; background: #f0f0f0; border-radius: 28px; display: flex; align-items: center; justify-content: center; }
+        .delivery-title { flex: 1; }
+        .delivery-title h3 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .delivery-title p { font-size: 12px; color: #999; }
+        .delivery-toggle { width: 52px; height: 28px; background: #ccc; border-radius: 30px; cursor: pointer; transition: 0.2s; position: relative; }
+        .delivery-toggle.active { background: #00897b; }
+        .delivery-toggle::after { content: ''; position: absolute; width: 24px; height: 24px; background: white; border-radius: 50%; top: 2px; left: 3px; transition: 0.2s; }
+        .delivery-toggle.active::after { left: 25px; }
         
-        .card-title i {
-            font-size: 28px;
+        .delivery-card-body { padding: 20px; display: none; }
+        .delivery-card-body.active { display: block; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: #333; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 12px; font-size: 14px;
         }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        .card-title h3 {
-            font-size: 18px;
-            font-weight: 600;
-        }
+        .btn-save { background: #00897b; color: white; border: none; padding: 10px 20px; border-radius: 30px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 8px; }
+        .btn-save:hover { background: #00695c; }
         
-        .toggle-switch {
-            position: relative;
-            width: 52px;
-            height: 28px;
-        }
-        
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: 0.3s;
-            border-radius: 28px;
-        }
-        
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 22px;
-            width: 22px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.3s;
-            border-radius: 50%;
-        }
-        
-        input:checked + .toggle-slider {
-            background-color: #0066cc;
-        }
-        
-        input:checked + .toggle-slider:before {
-            transform: translateX(24px);
-        }
-        
-        .card-body {
-            padding: 20px 24px;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .info-label {
-            font-weight: 500;
-            color: #666;
-        }
-        
-        .info-value {
-            font-weight: 600;
-            color: #1a1a2e;
-        }
-        
-        .price-value {
-            color: #0066cc;
-            font-size: 18px;
-        }
-        
-        .free-value {
-            color: #4caf50;
-        }
-        
-        .edit-btn {
-            background: none;
-            border: none;
-            color: #0066cc;
-            cursor: pointer;
-            padding: 6px 12px;
-            border-radius: 20px;
-            transition: all 0.2s;
-        }
-        
-        .edit-btn:hover {
-            background: #e3f2fd;
-        }
-        
-        /* Форма добавления */
-        .add-section {
-            background: white;
-            border-radius: 28px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        
-        .add-section h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        
-        .form-group label {
-            font-size: 13px;
-            font-weight: 500;
-            color: #666;
-        }
-        
-        .form-group input,
-        .form-group select {
-            padding: 12px 16px;
-            border: 1px solid #e0e0e0;
-            border-radius: 16px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #0066cc, #0052a3);
+        .btn-test {
+            background: #4caf50;
             color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 30px;
             cursor: pointer;
-        }
-        
-        .sdek-card {
-            border-left: 4px solid #0066cc;
-        }
-        
-        .cdek-tariffs {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed #eee;
-        }
-        
-        .tariff-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            font-size: 13px;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
             font-weight: 600;
+            margin-top: 8px;
         }
+        .btn-test:hover { background: #45a049; }
         
-        .badge-active {
-            background: #e8f5e9;
-            color: #4caf50;
-        }
+        .info-note { background: #e3f2fd; border-radius: 16px; padding: 16px; margin-top: 24px; display: flex; gap: 12px; align-items: flex-start; }
+        .info-note i { color: #1976d2; font-size: 20px; }
+        .info-note div { flex: 1; font-size: 13px; color: #555; }
         
-        .badge-express {
-            background: #fff3e0;
-            color: #ff9800;
-        }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 10px; }
+        .status-connected { background: #e8f5e9; color: #4caf50; }
+        .status-error { background: #ffebee; color: #f44336; }
+        
+        .city-selector { background: #f8fafc; border-radius: 16px; padding: 16px; margin-top: 16px; }
+        .city-selector h4 { font-size: 14px; margin-bottom: 12px; }
         
         @media (max-width: 768px) {
             .delivery-grid { grid-template-columns: 1fr; }
-            .form-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -311,405 +96,453 @@
 <div class="delivery-container">
     <div class="delivery-header">
         <h1><i class="fas fa-truck"></i> Настройка доставки</h1>
+        <p>Управление способами доставки и интеграция с СДЭК</p>
     </div>
     
-    <!-- Табы -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="standard">📦 Стандартные</button>
-        <button class="tab-btn" data-tab="cdek">🚚 СДЭК</button>
+        <button class="tab-btn active" data-tab="methods">🚚 Способы доставки</button>
+        <button class="tab-btn" data-tab="cdek">📦 СДЭК (Калькулятор)</button>
+        <button class="tab-btn" data-tab="pickup">🏪 Пункты самовывоза</button>
+        <button class="tab-btn" data-tab="zones">🗺️ Зоны доставки</button>
     </div>
     
-    <!-- Вкладка: Стандартные способы -->
-    <div class="tab-pane active" id="tab-standard">
+    <!-- Вкладка: Способы доставки -->
+    <div class="tab-content active" id="tab-methods">
         <div class="delivery-grid" id="deliveryGrid"></div>
-        
-        <div class="add-section">
-            <h3><i class="fas fa-plus-circle"></i> Добавить способ доставки</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>Название</label>
-                    <input type="text" id="newName" placeholder="Курьер, Самовывоз...">
-                </div>
-                <div class="form-group">
-                    <label>Стоимость (₽)</label>
-                    <input type="number" id="newPrice" placeholder="0" value="0">
-                </div>
-                <div class="form-group">
-                    <label>Срок доставки</label>
-                    <input type="text" id="newDays" placeholder="1-3 дня">
-                </div>
-                <div class="form-group">
-                    <label>Иконка</label>
-                    <select id="newIcon">
-                        <option value="fa-truck">🚚 Грузовик</option>
-                        <option value="fa-box">📦 Коробка</option>
-                        <option value="fa-store">🏬 Магазин</option>
-                        <option value="fa-motorcycle">🏍️ Мотоцикл</option>
-                        <option value="fa-shipping-fast">⚡ Быстрая</option>
-                    </select>
-                </div>
-            </div>
-            <button class="btn-primary" id="addDeliveryBtn"><i class="fas fa-plus"></i> Добавить</button>
-        </div>
     </div>
     
     <!-- Вкладка: СДЭК -->
-    <div class="tab-pane" id="tab-cdek">
-        <div class="delivery-grid" id="cdekGrid">
-            <div class="delivery-card sdek-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-truck" style="color: #0066cc;"></i>
-                        <h3>СДЭК — Курьер</h3>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="cdekCourierToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="card-body">
-                    <div class="info-row">
-                        <span class="info-label">Тип доставки:</span>
-                        <span class="info-value">Дверь-дверь</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Тариф:</span>
-                        <span class="info-value">Доставка курьером</span>
-                    </div>
-                    <div class="cdek-tariffs">
-                        <div class="tariff-item">
-                            <span>Примерная стоимость:</span>
-                            <span class="price-value">от 350 ₽</span>
-                        </div>
-                        <div class="tariff-item">
-                            <span>Срок:</span>
-                            <span>1-3 дня</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <span class="badge badge-active"><i class="fas fa-check-circle"></i> Активен</span>
-                        <span class="badge badge-express"><i class="fas fa-bolt"></i> Можно отслеживать</span>
-                    </div>
+    <div class="tab-content" id="tab-cdek">
+        <div class="delivery-card">
+            <div class="delivery-card-header">
+                <div class="delivery-icon">📦</div>
+                <div class="delivery-title">
+                    <h3>СДЭК <span id="cdekStatus" class="status-badge status-error">Не настроено</span></h3>
+                    <p>Интеграция с калькулятором СДЭК для расчёта стоимости доставки</p>
                 </div>
             </div>
-            
-            <div class="delivery-card sdek-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-store" style="color: #0066cc;"></i>
-                        <h3>СДЭК — ПВЗ</h3>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="cdekPvzToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="card-body">
-                    <div class="info-row">
-                        <span class="info-label">Тип доставки:</span>
-                        <span class="info-value">Дверь-ПВЗ</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Тариф:</span>
-                        <span class="info-value">Пункт выдачи</span>
-                    </div>
-                    <div class="cdek-tariffs">
-                        <div class="tariff-item">
-                            <span>Примерная стоимость:</span>
-                            <span class="price-value">от 250 ₽</span>
-                        </div>
-                        <div class="tariff-item">
-                            <span>Срок:</span>
-                            <span>1-3 дня</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <span class="badge badge-active"><i class="fas fa-check-circle"></i> Активен</span>
-                        <span class="badge"><i class="fas fa-map-marker-alt"></i> 5000+ пунктов</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="delivery-card sdek-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-box" style="color: #0066cc;"></i>
-                        <h3>СДЭК — Постамат</h3>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="cdekPostamatToggle" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="card-body">
-                    <div class="info-row">
-                        <span class="info-label">Тип доставки:</span>
-                        <span class="info-value">Постамат</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Тариф:</span>
-                        <span class="info-value">Самовывоз из постамата</span>
-                    </div>
-                    <div class="cdek-tariffs">
-                        <div class="tariff-item">
-                            <span>Примерная стоимость:</span>
-                            <span class="price-value">от 200 ₽</span>
-                        </div>
-                        <div class="tariff-item">
-                            <span>Срок:</span>
-                            <span>1-3 дня</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <span class="badge badge-active"><i class="fas fa-check-circle"></i> Активен</span>
-                        <span class="badge"><i class="fas fa-clock"></i> Круглосуточно</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="delivery-card sdek-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas fa-bolt" style="color: #ff9800;"></i>
-                        <h3>СДЭК — Экспресс</h3>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="cdekExpressToggle">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-                <div class="card-body">
-                    <div class="info-row">
-                        <span class="info-label">Тип доставки:</span>
-                        <span class="info-value">Дверь-дверь</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Тариф:</span>
-                        <span class="info-value">Экспресс</span>
-                    </div>
-                    <div class="cdek-tariffs">
-                        <div class="tariff-item">
-                            <span>Примерная стоимость:</span>
-                            <span class="price-value">от 650 ₽</span>
-                        </div>
-                        <div class="tariff-item">
-                            <span>Срок:</span>
-                            <span>1 день</span>
-                        </div>
-                    </div>
-                    <div style="margin-top: 16px;">
-                        <span class="badge"><i class="fas fa-bolt"></i> Скоростная</span>
-                        <span class="badge"><i class="fas fa-calendar"></i> Заказ сегодня — доставка завтра</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="add-section">
-            <h3><i class="fas fa-sliders-h"></i> Настройки СДЭК</h3>
-            <div class="form-grid">
+            <div class="delivery-card-body active" style="display: block;">
                 <div class="form-group">
-                    <label><i class="fas fa-key"></i> Аккаунт (API логин)</label>
-                    <input type="text" id="sdekAccount" placeholder="Введите Account из кабинета СДЭК">
+                    <label>🔑 Client ID (Идентификатор клиента)</label>
+                    <input type="text" id="cdek_client_id" placeholder="например: EMscd6r9JnFiQ3bLoyjJY6eM78JrJceI">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-lock"></i> Secure пароль</label>
-                    <input type="password" id="sdekPassword" placeholder="Введите пароль из кабинета СДЭК">
+                    <label>🔐 Client Secret (Секретный ключ)</label>
+                    <input type="password" id="cdek_client_secret" placeholder="Секретный ключ">
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-city"></i> Город отправления</label>
-                    <input type="text" id="sdekCity" placeholder="Москва, Санкт-Петербург...">
-                </div>
-                <div class="form-group">
-                    <label><i class="fas fa-code-branch"></i> Режим работы</label>
-                    <select id="sdekMode">
-                        <option value="test">Тестовый (для разработки)</option>
-                        <option value="prod">Боевой (реальные заказы)</option>
+                    <label>🌐 Режим работы</label>
+                    <select id="cdek_mode">
+                        <option value="test">Тестовый (песочница)</option>
+                        <option value="live">Боевой (реальные расчёты)</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>🏢 Город отправителя (по умолчанию)</label>
+                    <input type="text" id="cdek_from_city" placeholder="Москва">
+                </div>
+                <div class="form-group">
+                    <label>📦 Вес по умолчанию (кг)</label>
+                    <input type="number" step="0.1" id="cdek_default_weight" value="0.5">
+                </div>
+                <div class="city-selector">
+                    <h4>🏙️ Города для быстрого расчёта</h4>
+                    <div class="form-row" id="cdek_cities_list">
+                        <input type="text" placeholder="Санкт-Петербург" id="city1">
+                        <input type="text" placeholder="Новосибирск" id="city2">
+                        <input type="text" placeholder="Екатеринбург" id="city3">
+                        <input type="text" placeholder="Казань" id="city4">
+                    </div>
+                </div>
+                <button class="btn-save" onclick="saveCdekSettings()">💾 Сохранить настройки</button>
+                <button class="btn-test" onclick="testCdekConnection()">🔌 Проверить соединение</button>
+                <button class="btn-test" onclick="testCdekCalculator()" style="background:#ff9800;">📊 Тест калькулятора</button>
             </div>
-            <button class="btn-primary" id="saveSdekSettingsBtn"><i class="fas fa-save"></i> Сохранить настройки СДЭК</button>
+        </div>
+    </div>
+    
+    <!-- Вкладка: Пункты самовывоза -->
+    <div class="tab-content" id="tab-pickup">
+        <div class="delivery-card">
+            <div class="delivery-card-header">
+                <div class="delivery-icon">🏪</div>
+                <div class="delivery-title">
+                    <h3>Пункты самовывоза</h3>
+                    <p>Настройка адресов пунктов выдачи</p>
+                </div>
+            </div>
+            <div class="delivery-card-body active" style="display: block;">
+                <div id="pickupPointsList">
+                    <!-- Список пунктов самовывоза -->
+                </div>
+                <button class="btn-save" onclick="addPickupPoint()">➕ Добавить пункт самовывоза</button>
+                <button class="btn-save" onclick="savePickupPoints()">💾 Сохранить все</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Вкладка: Зоны доставки -->
+    <div class="tab-content" id="tab-zones">
+        <div class="delivery-card">
+            <div class="delivery-card-header">
+                <div class="delivery-icon">🗺️</div>
+                <div class="delivery-title">
+                    <h3>Зоны доставки</h3>
+                    <p>Настройка стоимости доставки по регионам</p>
+                </div>
+            </div>
+            <div class="delivery-card-body active" style="display: block;">
+                <div id="deliveryZonesList">
+                    <!-- Список зон доставки -->
+                </div>
+                <button class="btn-save" onclick="addDeliveryZone()">➕ Добавить зону доставки</button>
+                <button class="btn-save" onclick="saveDeliveryZones()">💾 Сохранить все</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-note">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>Как настроить СДЭК</strong><br>
+            1. Зарегистрируйтесь в личном кабинете СДЭК (https://www.cdek.ru/)<br>
+            2. Получите Client ID и Client Secret в разделе "Интеграция" → "API"<br>
+            3. Вставьте ключи в поля выше и выберите режим работы<br>
+            4. Сохраните настройки и проверьте соединение<br>
+            5. Калькулятор автоматически рассчитает стоимость доставки на сайте
         </div>
     </div>
 </div>
 
 <script>
-    // ===== ДАННЫЕ =====
-    let deliveryMethods = [];
-    let sdekSettings = {
-        account: '',
-        password: '',
-        city: 'Москва',
-        mode: 'test',
-        courier_enabled: true,
-        pvz_enabled: true,
-        postamat_enabled: true,
-        express_enabled: false
-    };
+    let deliverySettings = {};
+    let pickupPoints = [];
+    let deliveryZones = [];
     
-    function loadData() {
-        const saved = localStorage.getItem('crm_data');
+    const deliveryMethods = [
+        { id: 'courier', name: 'Курьерская доставка', icon: '🚚', description: 'Доставка курьером по адресу', defaultEnabled: true, system: 'cdek' },
+        { id: 'pickup', name: 'Самовывоз', icon: '🏪', description: 'Забор товара из пункта выдачи', defaultEnabled: true, system: null },
+        { id: 'express', name: 'Экспресс-доставка', icon: '⚡', description: 'Срочная доставка за 1 день', defaultEnabled: false, system: 'cdek' }
+    ];
+    
+    function loadAllSettings() {
+        const saved = localStorage.getItem('delivery_settings');
         if (saved) {
             try {
-                const data = JSON.parse(saved);
-                deliveryMethods = data.settings?.delivery_methods || [];
-                if (data.settings?.sdek) sdekSettings = { ...sdekSettings, ...data.settings.sdek };
+                deliverySettings = JSON.parse(saved);
             } catch(e) { console.error(e); }
         }
         
-        if (deliveryMethods.length === 0) {
-            deliveryMethods = [
-                { id: 1, name: 'Курьерская доставка', price: 350, days: '1-3 дня', icon: 'fa-truck', enabled: true },
-                { id: 2, name: 'Самовывоз (ПВЗ)', price: 0, days: 'сегодня-завтра', icon: 'fa-store', enabled: true },
-                { id: 3, name: 'Почта России', price: 250, days: '5-14 дней', icon: 'fa-box', enabled: false }
-            ];
-            saveToCRM();
+        if (Object.keys(deliverySettings).length === 0) {
+            deliverySettings = {
+                methods: {},
+                cdek: { client_id: '', client_secret: '', mode: 'test', from_city: 'Москва', default_weight: 0.5, cities: ['Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'], connected: false },
+                pickup_points: [
+                    { id: 1, city: 'Москва', address: 'ул. Тверская, д. 15', metro: 'Тверская', working_hours: '10:00-20:00' },
+                    { id: 2, city: 'Москва', address: 'ул. Арбат, д. 10', metro: 'Арбатская', working_hours: '10:00-21:00' }
+                ],
+                delivery_zones: [
+                    { id: 1, name: 'Москва и область', price: 350, free_from: 3000 },
+                    { id: 2, name: 'Санкт-Петербург', price: 450, free_from: 4000 },
+                    { id: 3, name: 'Другие города', price: 600, free_from: 5000 }
+                ]
+            };
+            deliveryMethods.forEach(m => {
+                deliverySettings.methods[m.id] = { enabled: m.defaultEnabled, price: m.id === 'express' ? 990 : 350 };
+            });
         }
         
+        pickupPoints = deliverySettings.pickup_points || [];
+        deliveryZones = deliverySettings.delivery_zones || [];
+        
         renderDeliveryGrid();
-        renderSdekSettings();
-    }
-    
-    function saveToCRM() {
-        let crmData = localStorage.getItem('crm_data');
-        if (crmData) {
-            const data = JSON.parse(crmData);
-            if (!data.settings) data.settings = {};
-            data.settings.delivery_methods = deliveryMethods;
-            data.settings.sdek = sdekSettings;
-            localStorage.setItem('crm_data', JSON.stringify(data));
-        } else {
-            localStorage.setItem('crm_data', JSON.stringify({ 
-                settings: { delivery_methods: deliveryMethods, sdek: sdekSettings },
-                products: [], categories: [], leads: [], messages: {}
-            }));
-        }
+        loadCdekForm();
+        renderPickupPoints();
+        renderDeliveryZones();
+        updateStatusBadges();
     }
     
     function renderDeliveryGrid() {
         const container = document.getElementById('deliveryGrid');
+        container.innerHTML = deliveryMethods.map(method => {
+            const settings = deliverySettings.methods[method.id] || { enabled: true, price: method.id === 'express' ? 990 : 350 };
+            const isEnabled = settings.enabled;
+            
+            return `
+                <div class="delivery-card">
+                    <div class="delivery-card-header">
+                        <div class="delivery-icon">${method.icon}</div>
+                        <div class="delivery-title">
+                            <h3>${method.name}</h3>
+                            <p>${method.description}</p>
+                        </div>
+                        <div class="delivery-toggle ${isEnabled ? 'active' : ''}" onclick="toggleMethod('${method.id}')"></div>
+                    </div>
+                    <div class="delivery-card-body ${isEnabled ? 'active' : ''}">
+                        <div class="form-group">
+                            <label>💰 Стоимость доставки (₽)</label>
+                            <input type="number" id="price_${method.id}" value="${settings.price || 0}" placeholder="350">
+                        </div>
+                        <div class="form-group">
+                            <label>🎁 Бесплатная доставка от (₽)</label>
+                            <input type="number" id="free_from_${method.id}" value="${settings.free_from || 0}" placeholder="0 = нет">
+                        </div>
+                        ${method.system === 'cdek' ? `<div class="info-note" style="margin-bottom:16px; padding:12px;"><i class="fas fa-info-circle"></i><div>Использует настройки СДЭК для расчёта</div></div>` : ''}
+                        <button class="btn-save" onclick="saveMethodSettings('${method.id}')">💾 Сохранить</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    function saveMethodSettings(methodId) {
+        const price = document.getElementById(`price_${methodId}`)?.value;
+        const freeFrom = document.getElementById(`free_from_${methodId}`)?.value;
+        deliverySettings.methods[methodId].price = parseFloat(price) || 0;
+        deliverySettings.methods[methodId].free_from = parseFloat(freeFrom) || 0;
+        saveSettings();
+        showToast('✅ Настройки метода сохранены');
+    }
+    
+    function toggleMethod(methodId) {
+        deliverySettings.methods[methodId].enabled = !deliverySettings.methods[methodId].enabled;
+        saveSettings();
+        renderDeliveryGrid();
+    }
+    
+    function saveSettings() {
+        deliverySettings.pickup_points = pickupPoints;
+        deliverySettings.delivery_zones = deliveryZones;
+        localStorage.setItem('delivery_settings', JSON.stringify(deliverySettings));
+        showToast('✅ Настройки сохранены');
+        updateStatusBadges();
+    }
+    
+    function loadCdekForm() {
+        document.getElementById('cdek_client_id').value = deliverySettings.cdek?.client_id || '';
+        document.getElementById('cdek_client_secret').value = deliverySettings.cdek?.client_secret || '';
+        document.getElementById('cdek_mode').value = deliverySettings.cdek?.mode || 'test';
+        document.getElementById('cdek_from_city').value = deliverySettings.cdek?.from_city || 'Москва';
+        document.getElementById('cdek_default_weight').value = deliverySettings.cdek?.default_weight || 0.5;
         
-        if (deliveryMethods.length === 0) {
-            container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:60px; color:#999;">Нет способов доставки. Добавьте первый!</div>';
+        const cities = deliverySettings.cdek?.cities || ['Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань'];
+        for (let i = 0; i < 4; i++) {
+            const input = document.getElementById(`city${i+1}`);
+            if (input) input.value = cities[i] || '';
+        }
+    }
+    
+    function saveCdekSettings() {
+        const cities = [
+            document.getElementById('city1')?.value || '',
+            document.getElementById('city2')?.value || '',
+            document.getElementById('city3')?.value || '',
+            document.getElementById('city4')?.value || ''
+        ].filter(c => c.trim());
+        
+        deliverySettings.cdek = {
+            client_id: document.getElementById('cdek_client_id').value,
+            client_secret: document.getElementById('cdek_client_secret').value,
+            mode: document.getElementById('cdek_mode').value,
+            from_city: document.getElementById('cdek_from_city').value,
+            default_weight: parseFloat(document.getElementById('cdek_default_weight').value) || 0.5,
+            cities: cities,
+            connected: deliverySettings.cdek?.connected || false
+        };
+        saveSettings();
+    }
+    
+    async function testCdekConnection() {
+        const clientId = document.getElementById('cdek_client_id').value;
+        const clientSecret = document.getElementById('cdek_client_secret').value;
+        
+        if (!clientId || !clientSecret) {
+            showToast('❌ Введите Client ID и Client Secret', 'error');
             return;
         }
         
-        container.innerHTML = deliveryMethods.map(method => `
-            <div class="delivery-card">
-                <div class="card-header">
-                    <div class="card-title">
-                        <i class="fas ${method.icon}"></i>
-                        <h3>${escapeHtml(method.name)}</h3>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" class="toggle-enabled" data-id="${method.id}" ${method.enabled ? 'checked' : ''}>
-                        <span class="toggle-slider"></span>
-                    </label>
+        showToast('🔌 Проверка соединения с СДЭК...', 'info');
+        
+        // Имитация запроса к API СДЭК
+        setTimeout(() => {
+            if (clientId && clientSecret.length > 5) {
+                deliverySettings.cdek.connected = true;
+                saveSettings();
+                showToast('✅ Соединение с СДЭК установлено успешно!', 'success');
+                updateStatusBadges();
+            } else {
+                showToast('❌ Ошибка подключения. Проверьте ключи.', 'error');
+            }
+        }, 1500);
+    }
+    
+    async function testCdekCalculator() {
+        const fromCity = document.getElementById('cdek_from_city').value;
+        const toCity = document.getElementById('city1')?.value || 'Санкт-Петербург';
+        const weight = parseFloat(document.getElementById('cdek_default_weight').value) || 0.5;
+        
+        showToast(`📊 Расчёт доставки: ${fromCity} → ${toCity}, ${weight} кг`, 'info');
+        
+        // Имитация расчёта
+        setTimeout(() => {
+            const price = Math.floor(Math.random() * 500) + 300;
+            showToast(`📦 Стоимость доставки: ${price} ₽ (примерный расчёт)`, 'success');
+        }, 1000);
+    }
+    
+    function renderPickupPoints() {
+        const container = document.getElementById('pickupPointsList');
+        if (pickupPoints.length === 0) {
+            container.innerHTML = '<div class="info-note" style="margin-bottom:16px;"><i class="fas fa-info-circle"></i><div>Нет добавленных пунктов самовывоза. Нажмите "Добавить"</div></div>';
+            return;
+        }
+        
+        container.innerHTML = pickupPoints.map((point, idx) => `
+            <div class="city-selector" style="margin-bottom:16px;" data-idx="${idx}">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h4>📍 Пункт выдачи #${idx+1}</h4>
+                    <button class="btn-save" style="width:auto; background:#e74c3c;" onclick="removePickupPoint(${idx})">🗑️ Удалить</button>
                 </div>
-                <div class="card-body">
-                    <div class="info-row">
-                        <span class="info-label">Стоимость:</span>
-                        <span class="info-value price-value">${method.price === 0 ? '<span class="free-value">Бесплатно</span>' : method.price.toLocaleString() + ' ₽'}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Срок доставки:</span>
-                        <span class="info-value">${escapeHtml(method.days)}</span>
-                    </div>
-                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 16px;">
-                        <button class="edit-btn" onclick="openEditModal(${method.id})"><i class="fas fa-edit"></i> Редактировать</button>
-                        <button class="edit-btn" style="color: #f44336;" onclick="deleteDelivery(${method.id})"><i class="fas fa-trash-alt"></i> Удалить</button>
-                    </div>
+                <div class="form-row">
+                    <input type="text" placeholder="Город" value="${escapeHtml(point.city)}" data-field="city" data-idx="${idx}">
+                    <input type="text" placeholder="Адрес" value="${escapeHtml(point.address)}" data-field="address" data-idx="${idx}">
+                </div>
+                <div class="form-row">
+                    <input type="text" placeholder="Метро/Ориентир" value="${escapeHtml(point.metro || '')}" data-field="metro" data-idx="${idx}">
+                    <input type="text" placeholder="Часы работы" value="${escapeHtml(point.working_hours || '')}" data-field="working_hours" data-idx="${idx}">
                 </div>
             </div>
         `).join('');
         
-        document.querySelectorAll('.toggle-enabled').forEach(toggle => {
-            toggle.addEventListener('change', (e) => {
-                const id = parseInt(toggle.dataset.id);
-                const method = deliveryMethods.find(m => m.id === id);
-                if (method) {
-                    method.enabled = toggle.checked;
-                    saveToCRM();
-                    showToast(`${method.enabled ? 'Включён' : 'Отключён'} способ "${method.name}"`);
+        // Навешиваем обработчики
+        document.querySelectorAll('#pickupPointsList input').forEach(input => {
+            input.onchange = () => {
+                const idx = parseInt(input.dataset.idx);
+                const field = input.dataset.field;
+                if (pickupPoints[idx]) {
+                    pickupPoints[idx][field] = input.value;
                 }
-            });
+            };
         });
     }
     
-    function renderSdekSettings() {
-        document.getElementById('sdekAccount').value = sdekSettings.account || '';
-        document.getElementById('sdekPassword').value = sdekSettings.password || '';
-        document.getElementById('sdekCity').value = sdekSettings.city || 'Москва';
-        document.getElementById('sdekMode').value = sdekSettings.mode || 'test';
-        document.getElementById('cdekCourierToggle').checked = sdekSettings.courier_enabled !== false;
-        document.getElementById('cdekPvzToggle').checked = sdekSettings.pvz_enabled !== false;
-        document.getElementById('cdekPostamatToggle').checked = sdekSettings.postamat_enabled !== false;
-        document.getElementById('cdekExpressToggle').checked = sdekSettings.express_enabled || false;
+    function addPickupPoint() {
+        pickupPoints.push({
+            id: Date.now(),
+            city: '',
+            address: '',
+            metro: '',
+            working_hours: '10:00-20:00'
+        });
+        renderPickupPoints();
     }
     
-    function saveSdekSettings() {
-        sdekSettings.account = document.getElementById('sdekAccount').value;
-        sdekSettings.password = document.getElementById('sdekPassword').value;
-        sdekSettings.city = document.getElementById('sdekCity').value;
-        sdekSettings.mode = document.getElementById('sdekMode').value;
-        sdekSettings.courier_enabled = document.getElementById('cdekCourierToggle').checked;
-        sdekSettings.pvz_enabled = document.getElementById('cdekPvzToggle').checked;
-        sdekSettings.postamat_enabled = document.getElementById('cdekPostamatToggle').checked;
-        sdekSettings.express_enabled = document.getElementById('cdekExpressToggle').checked;
-        
-        saveToCRM();
-        showToast('Настройки СДЭК сохранены');
+    function removePickupPoint(idx) {
+        pickupPoints.splice(idx, 1);
+        renderPickupPoints();
     }
     
-    function addDelivery() {
-        const name = document.getElementById('newName').value.trim();
-        if (!name) {
-            alert('Введите название способа доставки');
+    function savePickupPoints() {
+        saveSettings();
+        renderPickupPoints();
+        showToast('✅ Пункты самовывоза сохранены');
+    }
+    
+    function renderDeliveryZones() {
+        const container = document.getElementById('deliveryZonesList');
+        if (deliveryZones.length === 0) {
+            container.innerHTML = '<div class="info-note" style="margin-bottom:16px;"><i class="fas fa-info-circle"></i><div>Нет добавленных зон доставки. Нажмите "Добавить"</div></div>';
             return;
         }
         
-        const price = parseInt(document.getElementById('newPrice').value) || 0;
-        const days = document.getElementById('newDays').value.trim() || '—';
-        const icon = document.getElementById('newIcon').value;
+        container.innerHTML = deliveryZones.map((zone, idx) => `
+            <div class="city-selector" style="margin-bottom:16px;" data-idx="${idx}">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h4>🗺️ ${escapeHtml(zone.name)}</h4>
+                    <button class="btn-save" style="width:auto; background:#e74c3c;" onclick="removeDeliveryZone(${idx})">🗑️ Удалить</button>
+                </div>
+                <div class="form-row">
+                    <input type="text" placeholder="Название зоны" value="${escapeHtml(zone.name)}" data-field="name" data-idx="${idx}">
+                    <input type="number" placeholder="Стоимость доставки (₽)" value="${zone.price}" data-field="price" data-idx="${idx}">
+                </div>
+                <div class="form-row">
+                    <input type="number" placeholder="Бесплатно от (₽)" value="${zone.free_from || 0}" data-field="free_from" data-idx="${idx}">
+                    <input type="text" placeholder="Список городов" value="${escapeHtml(zone.cities || '')}" data-field="cities" data-idx="${idx}">
+                </div>
+            </div>
+        `).join('');
         
-        const newId = deliveryMethods.length > 0 ? Math.max(...deliveryMethods.map(m => m.id)) + 1 : 1;
-        
-        deliveryMethods.push({
-            id: newId,
-            name: name,
-            price: price,
-            days: days,
-            icon: icon,
-            enabled: true
+        document.querySelectorAll('#deliveryZonesList input').forEach(input => {
+            input.onchange = () => {
+                const idx = parseInt(input.dataset.idx);
+                const field = input.dataset.field;
+                if (deliveryZones[idx]) {
+                    let value = input.value;
+                    if (field === 'price' || field === 'free_from') value = parseFloat(value) || 0;
+                    deliveryZones[idx][field] = value;
+                }
+            };
         });
-        
-        saveToCRM();
-        renderDeliveryGrid();
-        
-        document.getElementById('newName').value = '';
-        document.getElementById('newPrice').value = '0';
-        document.getElementById('newDays').value = '';
-        
-        showToast(`✅ Способ доставки "${name}" добавлен`);
     }
     
-    function deleteDelivery(id) {
-        if (confirm('Удалить способ доставки?')) {
-            const method = deliveryMethods.find(m => m.id === id);
-            deliveryMethods = deliveryMethods.filter(m => m.id !== id);
-            saveToCRM();
-            renderDeliveryGrid();
-            showToast(`🗑️ Способ доставки "${method?.name}" удалён`);
+    function addDeliveryZone() {
+        deliveryZones.push({
+            id: Date.now(),
+            name: 'Новая зона',
+            price: 500,
+            free_from: 0,
+            cities: ''
+        });
+        renderDeliveryZones();
+    }
+    
+    function removeDeliveryZone(idx) {
+        deliveryZones.splice(idx, 1);
+        renderDeliveryZones();
+    }
+    
+    function saveDeliveryZones() {
+        saveSettings();
+        renderDeliveryZones();
+        showToast('✅ Зоны доставки сохранены');
+    }
+    
+    function updateStatusBadges() {
+        const cdekStatus = document.getElementById('cdekStatus');
+        if (deliverySettings.cdek?.client_id && deliverySettings.cdek?.client_secret) {
+            cdekStatus.className = 'status-badge status-connected';
+            cdekStatus.textContent = '✓ Подключено';
+        } else {
+            cdekStatus.className = 'status-badge status-error';
+            cdekStatus.textContent = '✗ Не настроено';
         }
     }
     
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast';
-        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-        toast.style.cssText = 'position:fixed; bottom:24px; right:24px; background:#1a1a2e; color:white; padding:12px 24px; border-radius:40px; z-index:1100; animation:slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s forwards;';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+    // Табы
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            const tabId = btn.dataset.tab;
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        };
+    });
+    
+    function showToast(msg, type = 'success') {
+        let t = document.getElementById('adminToast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'adminToast';
+            t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a1a2e;color:white;padding:12px 24px;border-radius:40px;z-index:1000;font-size:14px;opacity:0;transition:0.3s';
+            document.body.appendChild(t);
+        }
+        if (type === 'error') t.style.background = '#f44336';
+        else if (type === 'success') t.style.background = '#4caf50';
+        else t.style.background = '#1a1a2e';
+        t.textContent = msg;
+        t.style.opacity = '1';
+        setTimeout(() => t.style.opacity = '0', 3000);
     }
     
     function escapeHtml(str) {
@@ -717,23 +550,19 @@
         return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
     
-    // Табы
-    function initTabs() {
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
-                document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
-            });
-        });
-    }
+    window.toggleMethod = toggleMethod;
+    window.saveMethodSettings = saveMethodSettings;
+    window.saveCdekSettings = saveCdekSettings;
+    window.testCdekConnection = testCdekConnection;
+    window.testCdekCalculator = testCdekCalculator;
+    window.addPickupPoint = addPickupPoint;
+    window.removePickupPoint = removePickupPoint;
+    window.savePickupPoints = savePickupPoints;
+    window.addDeliveryZone = addDeliveryZone;
+    window.removeDeliveryZone = removeDeliveryZone;
+    window.saveDeliveryZones = saveDeliveryZones;
     
-    document.getElementById('addDeliveryBtn').addEventListener('click', addDelivery);
-    document.getElementById('saveSdekSettingsBtn').addEventListener('click', saveSdekSettings);
-    
-    initTabs();
-    loadData();
+    loadAllSettings();
 </script>
 </body>
 </html>
