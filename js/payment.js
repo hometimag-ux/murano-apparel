@@ -1,8 +1,5 @@
 // ===== js/payment.js - ОПЛАТА =====
 
-// URL для отправки в CRM (замените на ваш реальный endpoint)
-const CRM_API_URL = 'https://your-crm.com/api/orders';
-
 function openPayment(orderData) {
     const method = orderData.payment;
     if (method === 'card') showCard(orderData);
@@ -38,7 +35,7 @@ function showCard(orderData) {
     document.getElementById('payCancelBtn').onclick = function() { 
         modal.remove(); 
         document.body.style.overflow = ''; 
-        showToast('❌ Оплата отменена', 'error'); 
+        showToast('❌ Оплата отменена'); 
     };
     modal.onclick = function(e) { if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; } };
 }
@@ -75,7 +72,7 @@ function showSbp(orderData) {
     document.getElementById('payCancelBtn').onclick = function() { 
         modal.remove(); 
         document.body.style.overflow = ''; 
-        showToast('❌ Оплата отменена', 'error'); 
+        showToast('❌ Оплата отменена'); 
     };
     modal.onclick = function(e) { if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; } };
 }
@@ -108,7 +105,7 @@ function showCash(orderData) {
     document.getElementById('payCancelBtn').onclick = function() { 
         modal.remove(); 
         document.body.style.overflow = ''; 
-        showToast('❌ Заказ отменён', 'error'); 
+        showToast('❌ Заказ отменён'); 
     };
     modal.onclick = function(e) { if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; } };
 }
@@ -117,8 +114,8 @@ function showCash(orderData) {
 function finalizeOrder(orderData) {
     console.log('🏁 ФИНАЛИЗАЦИЯ ЗАКАЗА:', orderData);
     
-    // 1. Отправляем заказ в CRM
-    sendOrderToCRM(orderData);
+    // 1. Сохраняем заказ в CRM (localStorage)
+    saveOrderToCRM(orderData);
     
     // 2. Очищаем корзину
     clearCart();
@@ -129,7 +126,7 @@ function finalizeOrder(orderData) {
     // 4. Показываем сообщение об успехе
     showSuccessMessage(orderData);
     
-    // 5. Закрываем все модальные окна
+    // 5. Закрываем модальные окна
     const paymentModal = document.getElementById('paymentModal');
     if (paymentModal) paymentModal.remove();
     document.body.style.overflow = '';
@@ -139,9 +136,9 @@ function finalizeOrder(orderData) {
     if (typeof updateCartDisplay === 'function') updateCartDisplay();
 }
 
-// Отправка заказа в CRM (сохранение в localStorage)
-function sendOrderToCRM(orderData) {
-    console.log('📤 Отправка заказа в CRM...');
+// СОХРАНЕНИЕ ЗАКАЗА В CRM (pages/orders.html)
+function saveOrderToCRM(orderData) {
+    console.log('📤 Сохранение заказа в CRM...');
     
     const orderForCRM = {
         order_id: orderData.orderId,
@@ -168,10 +165,10 @@ function sendOrderToCRM(orderData) {
         total: orderData.total,
         payment: orderData.payment,
         comment: orderData.comment || '',
-        status: 'new'
+        status: 'new'  // Статус по умолчанию
     };
     
-    // Сохраняем в localStorage
+    // Загружаем существующие данные CRM
     let crmData = localStorage.getItem('crm_data');
     let allOrders = [];
     let allProducts = [];
@@ -191,6 +188,7 @@ function sendOrderToCRM(orderData) {
     // Добавляем заказ в начало списка
     allOrders.unshift(orderForCRM);
     
+    // Сохраняем обновлённые данные
     const newCrmData = { 
         orders: allOrders, 
         products: allProducts,
@@ -203,13 +201,12 @@ function sendOrderToCRM(orderData) {
     localStorage.setItem('crm_data', JSON.stringify(newCrmData));
     console.log('✅ Заказ сохранён в CRM, всего заказов:', allOrders.length);
     
-    // Также сохраняем отдельно для быстрого доступа
+    // Дополнительно сохраняем в отдельный список заказов
     const allOrdersList = JSON.parse(localStorage.getItem('all_orders') || '[]');
     allOrdersList.unshift(orderForCRM);
     localStorage.setItem('all_orders', JSON.stringify(allOrdersList));
 }
 
-// Показать сообщение об успешном заказе
 function showSuccessMessage(orderData) {
     const modal = document.createElement('div');
     modal.id = 'successModal';
@@ -247,7 +244,6 @@ function showSuccessMessage(orderData) {
     };
 }
 
-// Очистка корзины
 function clearCart() {
     localStorage.setItem('cart', '[]');
     if (typeof updateCartCount === 'function') updateCartCount();
@@ -255,7 +251,6 @@ function clearCart() {
     console.log('🗑️ Корзина очищена');
 }
 
-// Вспомогательные функции
 function escapeHtml(str) {
     if (!str) return '';
     return String(str).replace(/[&<>]/g, function(m) {
@@ -266,7 +261,7 @@ function escapeHtml(str) {
     });
 }
 
-function showToast(msg, type = 'info') {
+function showToast(msg) {
     let t = document.getElementById('cartToast');
     if (!t) {
         t = document.createElement('div');
@@ -274,8 +269,6 @@ function showToast(msg, type = 'info') {
         t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1a2c3e;color:white;padding:12px 24px;border-radius:40px;z-index:100000;font-size:14px;opacity:0;transition:0.3s';
         document.body.appendChild(t);
     }
-    if (type === 'error') t.style.background = '#e74c3c';
-    else t.style.background = '#00897b';
     t.textContent = msg;
     t.style.opacity = '1';
     setTimeout(function() { t.style.opacity = '0'; }, 3000);
