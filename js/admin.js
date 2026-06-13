@@ -1,4 +1,4 @@
-// ========== УПРОЩЁННЫЙ, НО РАБОЧИЙ ADMIN.JS ==========
+// ==========  ADMIN.JS ==========
 (function() {
     const sidebar = document.getElementById('sidebarMenu');
     const collapseBtn = document.getElementById('collapseBtn');
@@ -44,7 +44,7 @@
         products: 'Товары',
         orders: 'Заказы',
         delivery: 'Доставка',
-        payment: 'Оплата',
+        payment: 'Оплата',          // ДОБАВЛЕНО
         chat: 'Диалоги',
         'widget-editor': 'Редактор сайта',
         settings: 'Настройки'
@@ -82,6 +82,7 @@
         switch(page) {
             case 'products': iframeSrc = '/murano-apparel/pages/products.html'; break;
             case 'orders': iframeSrc = '/murano-apparel/pages/orders.html'; break;
+            case 'payment': iframeSrc = '/murano-apparel/pages/payment.html'; break;  // ДОБАВЛЕНО
             case 'chat': iframeSrc = '/murano-apparel/pages/chat.html'; break;
             case 'delivery': iframeSrc = '/murano-apparel/pages/delivery.html'; break;
             default: iframeSrc = '';
@@ -107,16 +108,13 @@
     });
     
     // ===== ОПРЕДЕЛЕНИЕ СТАРТОВОЙ СТРАНИЦЫ =====
-    // Проверяем параметр open в URL (например, ?open=widget-editor)
     const openPage = getUrlParameter('open');
     
     if (openPage === 'widget-editor') {
-        // Если пришли из редактора — сразу показываем менеджер сайтов
         loadPage('widget-editor', false);
     } else {
-        // Иначе загружаем последнюю открытую страницу или товары по умолчанию
         const lastPage = localStorage.getItem('lastPage');
-        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery'];
+        const validPages = ['products', 'chat', 'widget-editor', 'orders', 'delivery', 'payment'];  // ДОБАВЛЕНО payment
         
         if (lastPage && validPages.includes(lastPage)) {
             loadPage(lastPage, false);
